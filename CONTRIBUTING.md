@@ -2,8 +2,6 @@
 
 融职境按 `Proposal → Issue → 分支 → PR → Review → 合并` 推进：所有改动从 Issue 出发，代码经 PR 合入 main。第一次参与按本文顺序读下来即可跑通全流程。
 
-本文的工程纪律来自 XEngineer 营的四份规范（软件工程、产品设计、架构设计、GitHub 过程管理）。与营方项目的一处差异写在下面「为什么不用 Fork」。
-
 ## 一、动手之前：阶段纪律
 
 **总架构定稿前不进入功能开发。** 架构未定就开写，架构会在编码过程中被动成型，撑不住后期迭代。当前阶段（MS1）只做设计类工作：调研、Proposal、风险分析、备选方案。
@@ -14,7 +12,7 @@
 
 ## 二、上手
 
-不需要 fork，直接 clone 主仓库：
+clone 主仓库：
 
 ```bash
 git clone git@github.com:job-lens/job-lens.git
@@ -28,12 +26,6 @@ git checkout main
 git pull --rebase
 git checkout -b <分支名>
 ```
-
-### 为什么不用 Fork
-
-营方规范要求 Fork + PR，那是因为营的 org 下挂着十几个组的项目，学员对主仓库是外部贡献者，不可能拿到写权限——Fork 在那里是权限模型。本仓库的开发者都是团队成员，防止直接改 main 这件事由分支保护规则完成（见下），Fork 加不了任何保护，反而挡住不写代码的队友、并让 CI 拿不到仓库 secret。
-
-外部贡献者不受此影响：没有写权限的人给本仓库提 PR，GitHub 本来就会要求先 Fork。
 
 ## 三、提 Issue
 
