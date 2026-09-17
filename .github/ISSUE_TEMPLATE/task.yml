@@ -1,0 +1,26 @@
+name: Task
+description: 一件边界清楚的具体工作
+title: "[Task] "
+body:
+  - type: input
+    id: proposal
+    attributes:
+      label: 来源 Proposal
+      description: 从某个提案拆出的填 Issue 号；独立小改动留空。
+      placeholder: "#"
+  - type: textarea
+    id: scope
+    attributes:
+      label: 做什么
+      description: 改动范围。边界不清的任务不要开，先拆。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 怎样算做完。逐条可勾选、可验证。
+      value: |
+        - [ ] 
+    validations:
+      required: true

@@ -1,0 +1,52 @@
+name: Proposal
+description: 产品或架构提案——定一件事怎么做
+title: "[Proposal] "
+labels: ["proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: 产品设计是决策，不是功能清单。下面每一栏都要能被反驳。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 问题
+      description: 当前状况是什么，谁受影响，不解决会怎样。
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: 这件事定下来之后，什么变成可能。一到三句。
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: 备选方案
+      description: 至少两种做法，各自的代价写清楚。只写得出一种，说明还没想。
+    validations:
+      required: true
+  - type: textarea
+    id: choice
+    attributes:
+      label: 选哪个，为什么
+      description: 明确选定一个并给出理由。理由要能被反驳，不能只是「更好」。
+    validations:
+      required: true
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: 不做什么
+      description: 明确排除的范围。没有边界的提案会在实现阶段膨胀。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 怎样算做完。逐条可勾选、可验证。
+      value: |
+        - [ ] 
+    validations:
+      required: true
