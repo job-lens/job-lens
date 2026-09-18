@@ -1,0 +1,28 @@
+name: Foundation toolchain snapshot
+on:
+  push:
+    branches: [feat/architecture-foundation]
+    paths: [.github/workflows/toolchain-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: astral-sh/setup-uv@v6
+        with: {version: '0.8.15', python-version: '3.13'}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: {node-version-file: .node-version}
+      - run: |
+          mkdir -p wheelhouse
+          uv export --locked --no-emit-project --format requirements-txt --output-file wheelhouse/requirements.txt
+          uv run --with pip python -m pip download --only-binary=:all: -r wheelhouse/requirements.txt --dest wheelhouse
+          pnpm install --frozen-lockfile
+          cp "$(command -v node)" node-toolchain
+          tar -czf foundation-toolchain.tar.gz wheelhouse node_modules apps/web/node_modules node-toolchain
+      - uses: actions/upload-artifact@v4
+        with: {name: foundation-toolchain, path: foundation-toolchain.tar.gz, retention-days: 1}
