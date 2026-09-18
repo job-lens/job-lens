@@ -1,0 +1,23 @@
+{
+  "auth": {
+    "depends_on": []
+  },
+  "profile": {
+    "depends_on": []
+  },
+  "learner": {
+    "depends_on": []
+  },
+  "counselor": {
+    "depends_on": []
+  },
+  "sop": {
+    "depends_on": []
+  },
+  "training": {
+    "depends_on": []
+  },
+  "support": {
+    "depends_on": []
+  }
+}

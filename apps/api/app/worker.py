@@ -10,7 +10,14 @@ from app.infrastructure.jobs import claim, finish, renew
 
 logger = logging.getLogger("job_lens.worker")
 type Handler = Callable[[JsonObject], None]
-HANDLERS: dict[str, Handler] = {}
+
+
+def system_ping(payload: JsonObject) -> None:
+    if payload:
+        raise ValueError("system.ping takes an empty payload")
+
+
+HANDLERS: dict[str, Handler] = {"system.ping": system_ping}
 
 
 class Worker:
@@ -57,6 +64,7 @@ class Worker:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
     config = Settings()
     database = Database.from_settings(config)
     # Handlers are added here with the corresponding feature, never from a payload import path.
@@ -66,7 +74,12 @@ def main() -> None:
     signal.signal(signal.SIGINT, lambda *_: stop.set())
     try:
         while not stop.is_set():
-            if not worker.run_once():
+            try:
+                worked = worker.run_once()
+            except Exception as exc:
+                logger.error("worker_iteration_failed type=%s", type(exc).__name__)
+                worked = False
+            if not worked:
                 stop.wait(config.job_poll_seconds)
     finally:
         database.close()

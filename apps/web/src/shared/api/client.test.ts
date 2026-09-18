@@ -13,7 +13,7 @@ describe('contract transport', () => {
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, {status:204}));
     const { client, setCsrfToken } = createApiClient(fetcher);
     setCsrfToken('csrf-token-for-current-session');
-    await client.POST('/auth/logout', { baseUrl:'https://job-lens.invalid/api/v1', params:{ headers:{'X-CSRF-Token':'csrf-token-for-current-session'} } });
+    await client.POST('/auth/logout', { baseUrl:'https://job-lens.invalid/api/v1', params:{ header:{'X-CSRF-Token':'csrf-token-for-current-session'} } });
     const request = fetcher.mock.calls[0][0] as Request;
     expect(request.headers.get('X-CSRF-Token')).toBe('csrf-token-for-current-session');
     expect(request.credentials).toBe('same-origin');

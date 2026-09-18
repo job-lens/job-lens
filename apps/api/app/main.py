@@ -118,7 +118,11 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
         return problem_response(request, exc.status_code, f"HTTP_{exc.status_code}", "请求无法处理")
 
-    errors: dict[int | str, dict[str, Any]] = {"default": {"model": Problem}}
+    error_response: dict[str, Any] = {
+        "description": "Structured failure",
+        "content": {"application/problem+json": {"schema": Problem.model_json_schema()}},
+    }
+    errors: dict[int | str, dict[str, Any]] = {"default": error_response}
 
     @api.get(
         "/api/v1/health/live", operation_id="health_live", response_model=Health, responses=errors
@@ -130,7 +134,7 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
         "/api/v1/health/ready",
         operation_id="health_ready",
         response_model=Health,
-        responses={**errors, 503: {"model": Problem}},
+        responses={**errors, 503: error_response},
     )
     def ready(request: Request) -> Health:
         try:

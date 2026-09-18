@@ -1,6 +1,11 @@
 {
-  "name": "job-lens", "version": "0.1.0", "private": true,
-  "packageManager": "pnpm@10.11.0", "engines": {"node": ">=24 <25"},
+  "name": "job-lens",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "pnpm --filter @job-lens/web dev",
     "build": "pnpm --filter @job-lens/web build",
@@ -8,7 +13,11 @@
     "typecheck": "pnpm --filter @job-lens/web typecheck",
     "test": "pnpm --filter @job-lens/web test",
     "test:e2e": "playwright test",
-    "generate:api": "openapi-typescript contracts/openapi.yaml -o apps/web/src/shared/api/schema.d.ts"
+    "generate:api": "openapi-typescript contracts/openapi.yaml -o apps/web/src/shared/api/schema.d.ts",
+    "check:boundaries": "pnpm --filter @job-lens/web exec node tools/check-boundaries.mjs"
   },
-  "devDependencies": {"@playwright/test": "^1.54.0", "openapi-typescript": "^7.8.0"}
+  "devDependencies": {
+    "@playwright/test": "^1.54.0",
+    "openapi-typescript": "^7.8.0"
+  }
 }

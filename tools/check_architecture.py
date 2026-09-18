@@ -21,8 +21,15 @@ def imports(source: str, module: str) -> set[str]:
                 base = importlib.util.resolve_name(
                     "." * node.level + base, module.rpartition(".")[0]
                 )
-            found.add(base)
-            found.update(f"{base}.{alias.name}" for alias in node.names)
+            # `from app.modules.cases import public` imports a module, not package internals.
+            if (
+                base == "app"
+                or base == "app.modules"
+                or (base.startswith("app.modules.") and len(base.split(".")) == 3)
+            ):
+                found.update(f"{base}.{alias.name}" for alias in node.names)
+            else:
+                found.add(base)
         elif isinstance(node, ast.Call):
             name = ast.unparse(node.func)
             if name in {"__import__", "importlib.import_module", "import_module"}:
@@ -37,6 +44,14 @@ def violations(module: str, source: str, rules: dict) -> list[str]:
     dependencies = imports(source, module)
     own = module.split(".")[2] if module.startswith("app.modules.") else None
     for target in sorted(dependencies):
+        if (own or module.startswith(("app.core.", "app.infrastructure."))) and target.split(".")[
+            :2
+        ] in [
+            ["app", "main"],
+            ["app", "bootstrap"],
+            ["app", "worker"],
+        ]:
+            errors.append(f"{module}: cannot import composition root {target}")
         if module.startswith("app.core.") and target.startswith(
             ("app.modules", "app.infrastructure")
         ):

@@ -3,8 +3,9 @@ x-api: &api
   build:
     context: .
     dockerfile: infra/api.Dockerfile
-  environment: &environment
-    JOB_LENS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-job_lens}:${POSTGRES_PASSWORD:?Copy .env.example to .env}@db:5432/${POSTGRES_DB:-job_lens}
+  env_file: .env
+  environment:
+    JOB_LENS_DATABASE_URL: ${JOB_LENS_DATABASE_URL:?Set JOB_LENS_DATABASE_URL in .env}
     JOB_LENS_ENVIRONMENT: ${JOB_LENS_ENVIRONMENT:-development}
     JOB_LENS_PUBLIC_ORIGIN: ${JOB_LENS_PUBLIC_ORIGIN:-http://localhost:8080}
     JOB_LENS_TRUSTED_HOSTS: ${JOB_LENS_TRUSTED_HOSTS:-["localhost","127.0.0.1","api"]}
@@ -55,10 +56,17 @@ services:
     build:
       context: .
       dockerfile: infra/web.Dockerfile
-    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - '${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-8080}:80'
+      - '${HTTPS_BIND:-127.0.0.1}:${HTTPS_PORT:-8443}:443'
+    volumes: [caddy-data:/data, caddy-config:/config]
     depends_on:
       api: {condition: service_healthy}
     restart: unless-stopped
 volumes:
   database:
   private-files:
+  caddy-data:
+  caddy-config:
