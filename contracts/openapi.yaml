@@ -1,9 +1,8 @@
-# JL-SAD-001 / Proposed; no deployed service is asserted.
 openapi: 3.1.1
 info:
-  title: Job Lens / 融职境 API Proposal
-  version: 0.1.0-proposed
-  description: Read api-contract.md for resource authorization, state transitions, idempotency and cross-field invariants. M1/M2/M3 denote proposed work packages. All non-success responses use Problem Details.
+  title: Job Lens / 融职境 API
+  version: 0.1.0
+  description: Resource authorization, state transitions and HTTP conventions are defined in docs/development.md. Implementation coverage is tracked separately from this contract.
 servers: [{url: /api/v1}]
 security: [{WebSession: []}]
 x-scalars:
@@ -75,6 +74,7 @@ components:
         communication_preference: {type: string, maxLength: 200}
         work_notes: {type: string, maxLength: 1000}
     Profile: {<<: *profile, required: [display_name, sensory_preferences, communication_preference, work_notes, user_id, version], properties: {<<: *profile_props, user_id: *uuid, version: *version}}
+    CaseProfile: {<<: *profile, required: [display_name, sensory_preferences, communication_preference, work_notes, user_id, version, preferences], properties: {<<: *profile_props, user_id: *uuid, version: *version, preferences: {$ref: '#/components/schemas/Preferences'}}}
     Capabilities: {type: object, additionalProperties: false, required: [screenshot_annotation, realtime_calls, sop_conversion, realtime_ar, precise_location], properties: {screenshot_annotation: *bool, realtime_calls: *bool, sop_conversion: *bool, realtime_ar: *bool, precise_location: *bool}}
     Dashboard: {type: object, additionalProperties: false, required: [view, pending_tasks, pending_feedback, pending_assistance, as_of], properties: {view: {type: string, enum: [learner, counselor]}, pending_tasks: *count, pending_feedback: *count, pending_assistance: *count, as_of: *time}}
     Case: {type: object, additionalProperties: false, required: [id, learner_id, counselor_id, lifecycle, display_status, current_task_id, version], properties: {id: *uuid, learner_id: *uuid, counselor_id: *nullable_uuid, lifecycle: {type: string, enum: [pending_match, active, closed]}, display_status: {type: string, enum: [pending_match, sop_pending, training, awaiting_feedback, feedback_available, stage_complete, closed]}, current_task_id: *nullable_uuid, version: *version}}
@@ -278,7 +278,7 @@ paths:
     get: {operationId: cases_get, summary: 读取授权个案, x-phase: M2, responses: {<<: *errors, '200': {description: Case, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Case'}}}}}}
   /cases/{case_id}/profile:
     parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
-    get: {operationId: cases_profile, summary: 读取授权个案档案, x-phase: M2, responses: {<<: *errors, '200': {description: Learner or assigned counselor only, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}}}
+    get: {operationId: cases_profile, summary: 读取授权个案档案, x-phase: M2, responses: {<<: *errors, '200': {description: Learner or assigned counselor only, content: {application/json: {schema: {$ref: '#/components/schemas/CaseProfile'}}}}}}
   /cases/{case_id}/materials:
     parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
     get: {operationId: cases_materials, summary: 读取授权资料文件, x-phase: M2, parameters: *list_params, responses: {<<: *errors, '200': {description: Counselors can only read ready materials, content: {application/json: {schema: {$ref: '#/components/schemas/FilePage'}}}}}}
