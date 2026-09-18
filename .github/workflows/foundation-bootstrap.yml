@@ -1,0 +1,32 @@
+name: Foundation dependency bootstrap
+on:
+  push:
+    branches: [feat/architecture-foundation]
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.15"
+          python-version: "3.13"
+      - run: uv lock
+      - run: pnpm install --lockfile-only
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm generate:api
+      - uses: actions/upload-artifact@v4
+        with:
+          name: foundation-locks
+          path: |
+            uv.lock
+            pnpm-lock.yaml
+            apps/web/src/shared/api/schema.d.ts
+          retention-days: 1

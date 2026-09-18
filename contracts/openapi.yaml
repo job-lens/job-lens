@@ -1,0 +1,378 @@
+# JL-SAD-001 / Proposed; no deployed service is asserted.
+openapi: 3.1.1
+info:
+  title: Job Lens / 融职境 API Proposal
+  version: 0.1.0-proposed
+  description: Read api-contract.md for resource authorization, state transitions, idempotency and cross-field invariants. M1/M2/M3 denote proposed work packages. All non-success responses use Problem Details.
+servers: [{url: /api/v1}]
+security: [{WebSession: []}]
+x-scalars:
+  uuid: &uuid {type: string, format: uuid}
+  nullable_uuid: &nullable_uuid {type: [string, 'null'], format: uuid}
+  time: &time {type: string, format: date-time}
+  nullable_time: &nullable_time {type: [string, 'null'], format: date-time}
+  date: &date {type: [string, 'null'], format: date}
+  version: &version {type: integer, minimum: 1, maximum: 2147483647}
+  count: &count {type: integer, minimum: 0, maximum: 2147483647}
+  bool: &bool {type: boolean}
+  attachments: &attachments {type: array, items: *uuid, maxItems: 5}
+  task_status: &task_status {type: string, enum: [not_started, in_progress, paused, submitted, changes_requested, completed, cancelled]}
+  seq: &seq {type: string, pattern: '^(0|[1-9][0-9]*)$', maxLength: 20}
+components:
+  securitySchemes:
+    WebSession: {type: apiKey, in: cookie, name: __Host-jl_session, description: Opaque server-side session; Secure/HttpOnly/SameSite=Lax. All writes also validate CSRF and Origin.}
+  parameters:
+    CSRF: &csrf {name: X-CSRF-Token, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 256}}
+    Idempotency: &idem {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 128, pattern: '^[!-~]+$'}}
+    IfMatch: &match {name: If-Match, in: header, required: true, schema: {type: string, pattern: '^"[1-9][0-9]*"$'}}
+    Limit: &limit {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+    Cursor: &cursor {name: cursor, in: query, schema: {type: string, maxLength: 512}}
+    AfterSeq: &after {name: after_seq, in: query, schema: {<<: *seq, default: '0'}}
+    LastEventId: &last {name: Last-Event-ID, in: header, schema: *seq}
+  headers:
+    ETag: &etag {description: Quoted resource version. Task child commands use the current task version, including the Submission task_version projection., schema: {type: string, pattern: '^"[1-9][0-9]*"$'}}
+  responses:
+    Problem: &problem
+      description: See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes.
+      content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
+  schemas:
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, trace_id]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string, minLength: 1, maxLength: 100}
+        status: {type: integer, minimum: 400, maximum: 599}
+        code: {type: string, minLength: 1, maxLength: 80}
+        detail: {type: string, maxLength: 2000}
+        trace_id: {type: string, minLength: 1, maxLength: 128}
+        errors: {type: array, maxItems: 100, items: {type: object, additionalProperties: false, required: [field, reason], properties: {field: {type: string, maxLength: 200}, reason: {type: string, maxLength: 200}}}}
+        resource_id: *uuid
+    Health: {type: object, additionalProperties: false, required: [status], properties: {status: {type: string, enum: [ok]}}}
+    CsrfToken: {type: object, additionalProperties: false, required: [csrf_token], properties: {csrf_token: {type: string, minLength: 16, maxLength: 256}}}
+    LoginRequest: {type: object, additionalProperties: false, required: [login_name, password], properties: {login_name: {type: string, minLength: 1, maxLength: 80}, password: {type: string, minLength: 1, maxLength: 256}}}
+    User: {type: object, additionalProperties: false, required: [id, display_name, roles], properties: {id: *uuid, display_name: {type: string, minLength: 1, maxLength: 80}, roles: {type: array, minItems: 1, maxItems: 2, uniqueItems: true, items: {type: string, enum: [learner, counselor]}}}}
+    LoginResult: {type: object, additionalProperties: false, required: [user, csrf_token], properties: {user: {$ref: '#/components/schemas/User'}, csrf_token: {type: string, minLength: 16, maxLength: 256}}}
+    PreferencesWrite: &prefs
+      type: object
+      additionalProperties: false
+      required: [font_scale, volume, quiet_mode, speech_enabled, vibration_enabled]
+      properties: &pref_props
+        font_scale: {type: number, enum: [1, 1.25, 1.5]}
+        volume: {type: number, minimum: 0, maximum: 1}
+        quiet_mode: *bool
+        speech_enabled: *bool
+        vibration_enabled: *bool
+    Preferences: {<<: *prefs, required: [font_scale, volume, quiet_mode, speech_enabled, vibration_enabled, version], properties: {<<: *pref_props, version: *version}}
+    ProfileWrite: &profile
+      type: object
+      additionalProperties: false
+      required: [display_name, sensory_preferences, communication_preference, work_notes]
+      properties: &profile_props
+        display_name: {type: string, minLength: 1, maxLength: 80}
+        sensory_preferences: {type: array, maxItems: 10, items: {type: string, minLength: 1, maxLength: 40}}
+        communication_preference: {type: string, maxLength: 200}
+        work_notes: {type: string, maxLength: 1000}
+    Profile: {<<: *profile, required: [display_name, sensory_preferences, communication_preference, work_notes, user_id, version], properties: {<<: *profile_props, user_id: *uuid, version: *version}}
+    Capabilities: {type: object, additionalProperties: false, required: [screenshot_annotation, realtime_calls, sop_conversion, realtime_ar, precise_location], properties: {screenshot_annotation: *bool, realtime_calls: *bool, sop_conversion: *bool, realtime_ar: *bool, precise_location: *bool}}
+    Dashboard: {type: object, additionalProperties: false, required: [view, pending_tasks, pending_feedback, pending_assistance, as_of], properties: {view: {type: string, enum: [learner, counselor]}, pending_tasks: *count, pending_feedback: *count, pending_assistance: *count, as_of: *time}}
+    Case: {type: object, additionalProperties: false, required: [id, learner_id, counselor_id, lifecycle, display_status, current_task_id, version], properties: {id: *uuid, learner_id: *uuid, counselor_id: *nullable_uuid, lifecycle: {type: string, enum: [pending_match, active, closed]}, display_status: {type: string, enum: [pending_match, sop_pending, training, awaiting_feedback, feedback_available, stage_complete, closed]}, current_task_id: *nullable_uuid, version: *version}}
+    MatchWrite: &match_model
+      type: object
+      additionalProperties: false
+      required: [direction, focus, cycle_weeks, basis]
+      description: Draft strings may be empty; confirmation requires non-whitespace direction, focus and basis.
+      properties: &match_props
+        direction: {type: string, maxLength: 80}
+        focus: {type: string, maxLength: 500}
+        cycle_weeks: {type: integer, minimum: 1, maximum: 52}
+        basis: {type: string, maxLength: 1000}
+    SupportMatch: {<<: *match_model, required: [direction, focus, cycle_weeks, basis, id, case_id, state, version], properties: {<<: *match_props, id: *uuid, case_id: *uuid, state: {type: string, enum: [draft, confirmed]}, version: *version}}
+    FileUpload: {type: object, additionalProperties: false, required: [case_id, purpose, file], properties: {case_id: *uuid, task_id: *uuid, purpose: {type: string, enum: [profile_material, task_evidence, sop_media, support_message]}, file: {type: string, format: binary}}}
+    FileAsset:
+      type: object
+      additionalProperties: false
+      required: [id, case_id, task_id, purpose, filename, mime_type, size_bytes, state, reason, width, height, version, created_at]
+      properties:
+        id: *uuid
+        case_id: *uuid
+        task_id: *nullable_uuid
+        purpose: {type: string, enum: [profile_material, task_evidence, sop_media, support_message]}
+        filename: {type: string, minLength: 1, maxLength: 255}
+        mime_type: {type: string, minLength: 1, maxLength: 128}
+        size_bytes: {type: integer, minimum: 1, maximum: 20971520}
+        state: {type: string, enum: [quarantined, scanning, ready, rejected, deleted]}
+        reason: {type: [string, 'null'], maxLength: 200}
+        width: {type: [integer, 'null'], minimum: 1, maximum: 20000}
+        height: {type: [integer, 'null'], minimum: 1, maximum: 20000}
+        version: *version
+        created_at: *time
+    PlanCreate: {type: object, additionalProperties: false, required: [title], properties: {title: {type: string, minLength: 1, maxLength: 120}}}
+    SopPlan: {type: object, additionalProperties: false, required: [id, case_id, title, published_revision_id, draft_revision_id, version], description: Learner projection always returns draft_revision_id=null., properties: {id: *uuid, case_id: *uuid, title: {type: string, minLength: 1, maxLength: 120}, published_revision_id: *nullable_uuid, draft_revision_id: *nullable_uuid, version: *version}}
+    RevisionCreate: {type: object, additionalProperties: false, properties: {base_revision_id: *nullable_uuid}}
+    Reminder: {type: object, additionalProperties: false, required: [speech_enabled, vibration_enabled, prompt_level], properties: {speech_enabled: *bool, vibration_enabled: *bool, prompt_level: {type: integer, minimum: 1, maximum: 3}}}
+    SopStep: {type: object, additionalProperties: false, required: [id, position, instruction, media_ids, estimated_seconds, evidence_required], properties: {id: *uuid, position: {type: integer, minimum: 1, maximum: 100}, instruction: {type: string, maxLength: 2000}, media_ids: *attachments, estimated_seconds: {type: integer, minimum: 0, maximum: 86400}, evidence_required: *bool}}
+    RevisionWrite: &revision
+      type: object
+      additionalProperties: false
+      required: [goal, steps, reminder]
+      description: Draft may be incomplete. Publish requires 1-100 complete steps, unique IDs/positions, non-empty goal and ready media.
+      properties: &revision_props
+        goal: {type: string, maxLength: 1000}
+        steps: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/SopStep'}}
+        reminder: {$ref: '#/components/schemas/Reminder'}
+    SopRevision: {<<: *revision, required: [goal, steps, reminder, id, plan_id, revision_no, state, version, published_at], properties: {<<: *revision_props, id: *uuid, plan_id: *uuid, revision_no: *version, state: {type: string, enum: [draft, published, archived]}, version: *version, published_at: *nullable_time}}
+    PublishRequest: {type: object, additionalProperties: false, required: [due_on], properties: {due_on: *date}}
+    Publication: {type: object, additionalProperties: false, required: [revision_id, task_id, published_at], properties: {revision_id: *uuid, task_id: *uuid, published_at: *time}}
+    StepProgress: {type: object, additionalProperties: false, required: [step_id, status, attachment_ids], properties: {step_id: *uuid, status: {type: string, enum: [pending, in_progress, completed]}, attachment_ids: *attachments}}
+    PromptOverrideWrite: {type: object, additionalProperties: false, required: [prompt_level, reason], properties: {prompt_level: {type: integer, minimum: 1, maximum: 3}, reason: {type: string, minLength: 1, maxLength: 500}}, description: Task-level text hints only; cannot override quiet mode or immutable SOP content.}
+    Task:
+      type: object
+      additionalProperties: false
+      required: [id, case_id, learner_id, title, revision, status, due_on, current_step_id, progress, prompt_override, version]
+      properties:
+        id: *uuid
+        case_id: *uuid
+        learner_id: *uuid
+        title: {type: string, minLength: 1, maxLength: 120}
+        revision: {$ref: '#/components/schemas/SopRevision'}
+        status: *task_status
+        due_on: *date
+        current_step_id: *nullable_uuid
+        progress: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/StepProgress'}}
+        prompt_override: {anyOf: [{$ref: '#/components/schemas/PromptOverrideWrite'}, {type: 'null'}]}
+        version: *version
+    TaskAction:
+      type: object
+      additionalProperties: false
+      required: [action]
+      properties: {action: {type: string, enum: [start, pause, resume, cancel]}, reason: {type: string, maxLength: 500}}
+      allOf: [{if: {properties: {action: {const: cancel}}}, then: {required: [reason], properties: {reason: {minLength: 1, pattern: '\S'}}}}]
+    ProgressWrite: {type: object, additionalProperties: false, required: [status, attachment_ids], properties: {status: {type: string, enum: [in_progress, completed]}, attachment_ids: *attachments}}
+    TaskEvent: {type: object, additionalProperties: false, required: [event_id, session_id, sequence, step_id, kind, value, observed_at], properties: {event_id: *uuid, session_id: *uuid, sequence: *version, step_id: *uuid, kind: {type: string, enum: [hint_requested, self_reported_error, time_sample]}, value: {type: integer, minimum: 0, maximum: 86400000}, observed_at: *time}, description: Observation only. Time samples are cumulative per session/step, not additive. IDs deduplicate.}
+    EventBatch: {type: object, additionalProperties: false, required: [events], properties: {events: {type: array, minItems: 1, maxItems: 100, items: {$ref: '#/components/schemas/TaskEvent'}}}}
+    EventReceipt: {type: object, additionalProperties: false, required: [accepted, duplicates], properties: {accepted: {type: integer, minimum: 0, maximum: 100}, duplicates: {type: integer, minimum: 0, maximum: 100}}}
+    SubmissionCreate: {type: object, additionalProperties: false, required: [note], properties: {note: {type: string, maxLength: 500}}}
+    SubmissionSnapshot: {type: object, additionalProperties: false, required: [schema_version, revision_id, progress], properties: {schema_version: {type: integer, const: 1}, revision_id: *uuid, progress: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/StepProgress'}}}}
+    FeedbackCreate: &feedback
+      type: object
+      additionalProperties: false
+      required: [outcome, message, tags, redo_step_ids, annotation_ids]
+      properties: &feedback_props
+        outcome: {type: string, enum: [passed, changes_requested]}
+        message: {type: string, minLength: 1, maxLength: 500}
+        tags: {type: array, maxItems: 5, items: {type: string, enum: [title_correct, naming_adjustment, retake_required, other]}}
+        redo_step_ids: {type: array, maxItems: 100, items: *uuid}
+        annotation_ids: {type: array, maxItems: 20, items: *uuid}
+      allOf: [{if: {properties: {outcome: {const: changes_requested}}}, then: {properties: {redo_step_ids: {minItems: 1}}}, else: {properties: {redo_step_ids: {maxItems: 0}}}}]
+    Feedback: {<<: *feedback, required: [outcome, message, tags, redo_step_ids, annotation_ids, id, submission_id, author_id, created_at], properties: {<<: *feedback_props, id: *uuid, submission_id: *uuid, author_id: *uuid, created_at: *time}}
+    Submission:
+      type: object
+      additionalProperties: false
+      required: [id, task_id, attempt_no, revision_id, note, snapshot, submitted_at, task_version, task_status, feedback]
+      description: Snapshot immutable; current parent task_version and task_status determine the ETag used for feedback.
+      properties:
+        id: *uuid
+        task_id: *uuid
+        attempt_no: *version
+        revision_id: *uuid
+        note: {type: string, maxLength: 500}
+        snapshot: {$ref: '#/components/schemas/SubmissionSnapshot'}
+        submitted_at: *time
+        task_version: *version
+        task_status: *task_status
+        feedback: {anyOf: [{$ref: '#/components/schemas/Feedback'}, {type: 'null'}]}
+    FeedbackResult: {type: object, additionalProperties: false, required: [feedback, task], properties: {feedback: {$ref: '#/components/schemas/Feedback'}, task: {$ref: '#/components/schemas/Task'}}}
+    PointMarker:
+      type: object
+      additionalProperties: false
+      required: [id, x, y, text, shape]
+      properties: &point_props
+        id: *uuid
+        x: {type: number, minimum: 0, maximum: 1}
+        y: {type: number, minimum: 0, maximum: 1}
+        text: {type: string, minLength: 1, maxLength: 200}
+        shape: {type: string, const: point}
+    RectMarker: {type: object, additionalProperties: false, required: [id, x, y, text, shape, width, height], properties: {<<: *point_props, shape: {type: string, const: rect}, width: {type: number, exclusiveMinimum: 0, maximum: 1}, height: {type: number, exclusiveMinimum: 0, maximum: 1}}, description: Server additionally enforces x+width<=1 and y+height<=1 against normalized image dimensions.}
+    Marker: {oneOf: [{$ref: '#/components/schemas/PointMarker'}, {$ref: '#/components/schemas/RectMarker'}], discriminator: {propertyName: shape, mapping: {point: '#/components/schemas/PointMarker', rect: '#/components/schemas/RectMarker'}}}
+    AnnotationCreate: {type: object, additionalProperties: false, required: [asset_id, submission_id, kind, markers], properties: {asset_id: *uuid, submission_id: *nullable_uuid, kind: {type: string, enum: [question, guidance]}, markers: &markers {type: array, minItems: 1, maxItems: 100, items: {$ref: '#/components/schemas/Marker'}}}}
+    AnnotationWrite: {type: object, additionalProperties: false, required: [markers], properties: {markers: *markers}}
+    Annotation: {type: object, additionalProperties: false, required: [id, task_id, submission_id, asset_id, author_id, kind, markers, state, version], properties: {id: *uuid, task_id: *uuid, submission_id: *nullable_uuid, asset_id: *uuid, author_id: *uuid, kind: {type: string, enum: [question, guidance]}, markers: *markers, state: {type: string, enum: [draft, published]}, version: *version}}
+    AssistanceCreate: &assistance
+      type: object
+      additionalProperties: false
+      required: [case_id, task_id, step_id, message, attachment_ids, preferred_mode]
+      properties: &assistance_props
+        case_id: *uuid
+        task_id: *nullable_uuid
+        step_id: *nullable_uuid
+        message: {type: string, minLength: 1, maxLength: 500}
+        attachment_ids: *attachments
+        preferred_mode: {type: string, enum: [text, annotation]}
+    Assistance: {<<: *assistance, required: [case_id, task_id, step_id, message, attachment_ids, preferred_mode, id, counselor_id, state, version, created_at], properties: {<<: *assistance_props, id: *uuid, counselor_id: *uuid, state: {type: string, enum: [queued, accepted, resolved, cancelled]}, version: *version, created_at: *time}}
+    AssistanceAction: {type: object, additionalProperties: false, required: [action], properties: {action: {type: string, enum: [accept, resolve, cancel]}, note: {type: string, maxLength: 500}}}
+    MessageCreate: &message
+      type: object
+      additionalProperties: false
+      required: [body, attachment_ids]
+      properties: &message_props {body: {type: string, maxLength: 2000}, attachment_ids: *attachments}
+      anyOf: [{properties: {body: {minLength: 1, pattern: '\S'}}}, {properties: {attachment_ids: {minItems: 1}}}]
+    SupportMessage: {<<: *message, required: [body, attachment_ids, id, request_id, author_id, created_at], properties: {<<: *message_props, id: *uuid, request_id: *uuid, author_id: *uuid, created_at: *time}}
+    Notification: {type: object, additionalProperties: false, required: [id, seq, type, resource_type, resource_id, created_at, read_at], properties: {id: *uuid, seq: *seq, type: {type: string, minLength: 1, maxLength: 80}, resource_type: {type: string, enum: [task, submission, assistance, annotation, file, case]}, resource_id: *uuid, created_at: *time, read_at: *nullable_time}}
+    NotificationPage: {type: object, additionalProperties: false, required: [items, next_seq, has_more], properties: {items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Notification'}}, next_seq: *seq, has_more: *bool}}
+    TrainingRecord: {type: object, additionalProperties: false, required: [task_id, title, status, attempts, hint_requests, assistance_requests, observed_elapsed_ms, measurement_note], properties: {task_id: *uuid, title: {type: string, minLength: 1, maxLength: 120}, status: *task_status, attempts: *count, hint_requests: *count, assistance_requests: *count, observed_elapsed_ms: {type: [integer, 'null'], minimum: 0, maximum: 2147483647}, measurement_note: {type: string, maxLength: 500}}}
+    CasePage: &page
+      type: object
+      additionalProperties: false
+      required: [items, next_cursor, has_more]
+      properties: &page_props
+        items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Case'}}
+        next_cursor: {type: [string, 'null'], maxLength: 512}
+        has_more: *bool
+    FilePage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/FileAsset'}}}}
+    PlanPage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/SopPlan'}}}}
+    TaskPage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Task'}}}}
+    SubmissionPage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Submission'}}}}
+    AnnotationPage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Annotation'}}}}
+    AssistancePage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/Assistance'}}}}
+    MessagePage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/SupportMessage'}}}}
+    RecordPage: {<<: *page, properties: {<<: *page_props, items: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/TrainingRecord'}}}}
+x-header-sets:
+  write: &write_headers [*csrf, *idem]
+  command: &command_headers [*csrf, *idem, *match]
+  put: &put_headers [*csrf, *match]
+  list: &list_params [*limit, *cursor]
+x-common-errors: &errors
+  '401': {$ref: '#/components/responses/Problem'}
+  '403': {$ref: '#/components/responses/Problem'}
+  '404': {$ref: '#/components/responses/Problem'}
+  default: {$ref: '#/components/responses/Problem'}
+paths:
+  /health/live:
+    get: {operationId: health_live, summary: 存活检查, x-phase: M1, security: [], responses: {'200': {description: Alive, content: {application/json: {schema: {$ref: '#/components/schemas/Health'}}}}, default: *problem}}
+  /health/ready:
+    get: {operationId: health_ready, summary: 就绪检查, x-phase: M1, security: [], responses: {'200': {description: Ready, content: {application/json: {schema: {$ref: '#/components/schemas/Health'}}}}, '503': *problem, default: *problem}}
+  /auth/csrf:
+    get: {operationId: auth_csrf, summary: 获取预登录或当前会话CSRF凭据, x-phase: M2, security: [], responses: {'200': {description: CSRF token; no-store, content: {application/json: {schema: {$ref: '#/components/schemas/CsrfToken'}}}}, default: *problem}}
+  /auth/login:
+    post: {operationId: auth_login, summary: 账号登录并轮换会话, x-phase: M2, security: [], parameters: [*csrf], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LoginRequest'}}}}, responses: {<<: *errors, '200': {description: User and rotated CSRF; session in HttpOnly cookie, content: {application/json: {schema: {$ref: '#/components/schemas/LoginResult'}}}}}}
+  /auth/logout:
+    post: {operationId: auth_logout, summary: 撤销当前会话, x-phase: M2, parameters: [*csrf], responses: {<<: *errors, '204': {description: Session revoked and cookie cleared}}}
+  /me:
+    get: {operationId: identity_me, summary: 读取本人身份, x-phase: M2, responses: {<<: *errors, '200': {description: Current user, content: {application/json: {schema: {$ref: '#/components/schemas/User'}}}}}}
+  /me/preferences:
+    get: {operationId: identity_get_preferences, summary: 读取本人偏好, x-phase: M2, responses: {<<: *errors, '200': {description: Preferences, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Preferences'}}}}}}
+    put: {operationId: identity_put_preferences, summary: 更新本人偏好, x-phase: M2, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PreferencesWrite'}}}}, responses: {<<: *errors, '200': {description: Updated preferences, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Preferences'}}}}, '412': *problem, '428': *problem}}
+  /me/profile:
+    get: {operationId: identity_get_profile, summary: 读取本人档案, x-phase: M2, responses: {<<: *errors, '200': {description: Profile, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}}}
+    put: {operationId: identity_put_profile, summary: 更新本人档案, x-phase: M2, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProfileWrite'}}}}, responses: {<<: *errors, '200': {description: Updated profile, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}, '412': *problem, '428': *problem}}
+  /capabilities:
+    get: {operationId: identity_capabilities, summary: 查询服务端已开启能力, x-phase: M2, responses: {<<: *errors, '200': {description: Server feature gates; not local device capabilities, content: {application/json: {schema: {$ref: '#/components/schemas/Capabilities'}}}}}}
+  /dashboard:
+    get: {operationId: cases_dashboard, summary: 读取角色工作台摘要, x-phase: M2, parameters: [{name: view, in: query, required: true, schema: {type: string, enum: [learner, counselor]}}], responses: {<<: *errors, '200': {description: Existing role and authorized cases only, content: {application/json: {schema: {$ref: '#/components/schemas/Dashboard'}}}}}}
+  /cases:
+    get: {operationId: cases_list, summary: 列出已授权个案, x-phase: M2, parameters: [*limit, *cursor, {name: state, in: query, schema: {type: string, enum: [pending_match, active, closed]}}], responses: {<<: *errors, '200': {description: Scoped list, content: {application/json: {schema: {$ref: '#/components/schemas/CasePage'}}}}}}
+  /cases/{case_id}:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: cases_get, summary: 读取授权个案, x-phase: M2, responses: {<<: *errors, '200': {description: Case, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Case'}}}}}}
+  /cases/{case_id}/profile:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: cases_profile, summary: 读取授权个案档案, x-phase: M2, responses: {<<: *errors, '200': {description: Learner or assigned counselor only, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Profile'}}}}}}
+  /cases/{case_id}/materials:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: cases_materials, summary: 读取授权资料文件, x-phase: M2, parameters: *list_params, responses: {<<: *errors, '200': {description: Counselors can only read ready materials, content: {application/json: {schema: {$ref: '#/components/schemas/FilePage'}}}}}}
+  /cases/{case_id}/match:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: cases_match_get, summary: 读取支持匹配, x-phase: M2, responses: {<<: *errors, '200': {description: Match, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SupportMatch'}}}}}}
+    put: {operationId: cases_match_put, summary: 保存匹配草稿, x-phase: M2, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MatchWrite'}}}}, responses: {<<: *errors, '200': {description: Assigned counselor; draft only, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SupportMatch'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /cases/{case_id}/match/confirm:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: cases_match_confirm, summary: 确认支持匹配, x-phase: M2, parameters: *command_headers, responses: {<<: *errors, '200': {description: Assigned counselor; validates complete draft, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SupportMatch'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /cases/{case_id}/records:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: training_records, summary: 读取描述性训练记录, x-phase: M3, parameters: *list_params, responses: {<<: *errors, '200': {description: Observed facts; no undefined ability score, content: {application/json: {schema: {$ref: '#/components/schemas/RecordPage'}}}}}}
+  /files:
+    post: {operationId: files_upload, summary: 上传至私有隔离区, x-phase: M2, parameters: *write_headers, requestBody: {required: true, content: {multipart/form-data: {schema: {$ref: '#/components/schemas/FileUpload'}}}}, responses: {<<: *errors, '202': {description: Quarantined asset; not yet ready, content: {application/json: {schema: {$ref: '#/components/schemas/FileAsset'}}}}, '413': *problem, '415': *problem}}
+  /files/{file_id}:
+    parameters: [{name: file_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: files_get, summary: 读取文件状态, x-phase: M2, responses: {<<: *errors, '200': {description: File metadata without storage key, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/FileAsset'}}}}}}
+    delete: {operationId: files_delete, summary: 删除本人未被引用文件, x-phase: M2, parameters: *put_headers, responses: {<<: *errors, '204': {description: Removed; linked files rejected}, '409': *problem, '412': *problem, '428': *problem}}
+  /files/{file_id}/content:
+    parameters: [{name: file_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: files_content, summary: 鉴权读取就绪文件, x-phase: M2, responses: {<<: *errors, '200': {description: Authorized stream; actual validated MIME and safe Content-Disposition; no public URL, content: {application/octet-stream: {schema: {type: string, format: binary}}}}, '409': *problem}}
+  /cases/{case_id}/sop-plans:
+    parameters: [{name: case_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: sop_plans_list, summary: 列出授权SOP计划, x-phase: M2, parameters: *list_params, responses: {<<: *errors, '200': {description: Learners see published plans only, content: {application/json: {schema: {$ref: '#/components/schemas/PlanPage'}}}}}}
+    post: {operationId: sop_plans_create, summary: 创建计划和初始草稿, x-phase: M2, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlanCreate'}}}}, responses: {<<: *errors, '201': {description: Assigned counselor only, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SopPlan'}}}}}}
+  /sop-plans/{plan_id}:
+    parameters: [{name: plan_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: sop_plans_get, summary: 读取授权SOP计划, x-phase: M2, responses: {<<: *errors, '200': {description: Plan; learner draft reference is null, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SopPlan'}}}}}}
+  /sop-plans/{plan_id}/revisions:
+    parameters: [{name: plan_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: sop_revisions_create, summary: 创建新草稿版本, x-phase: M2, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RevisionCreate'}}}}, responses: {<<: *errors, '201': {description: Assigned counselor; one current draft per plan, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SopRevision'}}}}, '409': *problem}}
+  /sop-revisions/{revision_id}:
+    parameters: [{name: revision_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: sop_revisions_get, summary: 读取授权SOP版本, x-phase: M2, responses: {<<: *errors, '200': {description: Draft visible only to assigned counselor, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SopRevision'}}}}}}
+    put: {operationId: sop_revisions_put, summary: 整体保存草稿版本, x-phase: M2, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RevisionWrite'}}}}, responses: {<<: *errors, '200': {description: Draft only; published content immutable, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/SopRevision'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /sop-revisions/{revision_id}/publish:
+    parameters: [{name: revision_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: sop_publish, summary: 冻结SOP并原子创建唯一任务, x-phase: M2, parameters: *command_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PublishRequest'}}}}, responses: {<<: *errors, '200': {description: Same operation returns the same task; active task conflict rejected, content: {application/json: {schema: {$ref: '#/components/schemas/Publication'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /tasks:
+    get: {operationId: training_tasks_list, summary: 列出授权训练任务, x-phase: M2, parameters: [*limit, *cursor, {name: status, in: query, schema: *task_status}, {name: case_id, in: query, schema: *uuid}], responses: {<<: *errors, '200': {description: Scoped task list, content: {application/json: {schema: {$ref: '#/components/schemas/TaskPage'}}}}}}
+  /tasks/{task_id}:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: training_tasks_get, summary: 读取固定训练内容与进度, x-phase: M2, responses: {<<: *errors, '200': {description: Task aggregate, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Task'}}}}}}
+  /tasks/{task_id}/actions:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: training_tasks_action, summary: 开始暂停继续或取消任务, x-phase: M2, parameters: *command_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/TaskAction'}}}}, responses: {<<: *errors, '200': {description: Learner start/pause/resume; counselor cancel with reason; enforce state machine, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Task'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /tasks/{task_id}/steps/{step_id}:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}, {name: step_id, in: path, required: true, schema: *uuid}]
+    put: {operationId: training_steps_put, summary: 保存可执行步骤进度, x-phase: M2, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ProgressWrite'}}}}, responses: {<<: *errors, '200': {description: Owner only; task ETag; valid current step and ready attachments, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Task'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /tasks/{task_id}/events:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: training_events, summary: 批量写入去重观测事件, x-phase: M3, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EventBatch'}}}}, responses: {<<: *errors, '200': {description: Owner only; observations do not complete tasks, content: {application/json: {schema: {$ref: '#/components/schemas/EventReceipt'}}}}, '409': *problem}}
+  /tasks/{task_id}/submissions:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: training_submissions_list, summary: 读取全部历史提交, x-phase: M2, parameters: *list_params, responses: {<<: *errors, '200': {description: Historical attempts, content: {application/json: {schema: {$ref: '#/components/schemas/SubmissionPage'}}}}}}
+    post: {operationId: training_submissions_create, summary: 锁定本次训练提交, x-phase: M2, parameters: *command_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SubmissionCreate'}}}}, responses: {<<: *errors, '201': {description: Owner; required steps complete; immutable snapshot, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Submission'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /submissions/{submission_id}:
+    parameters: [{name: submission_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: training_submissions_get, summary: 读取快照与父任务当前版本, x-phase: M2, responses: {<<: *errors, '200': {description: Snapshot immutable; ETag follows projected task_version, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Submission'}}}}}}
+  /submissions/{submission_id}/feedback:
+    parameters: [{name: submission_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: training_feedback, summary: 审核当前提交并更新任务, x-phase: M2, parameters: *command_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/FeedbackCreate'}}}}, responses: {<<: *errors, '201': {description: Scoped counselor; latest unreviewed submission; one principal feedback, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/FeedbackResult'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /tasks/{task_id}/prompt-override:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    put: {operationId: support_prompt_override, summary: 调整当前任务文字提示等级, x-phase: M3, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PromptOverrideWrite'}}}}, responses: {<<: *errors, '200': {description: Scoped counselor; non-final task; quiet preference wins, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Task'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /tasks/{task_id}/annotations:
+    parameters: [{name: task_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: support_annotations_list, summary: 列出授权标注, x-phase: M3, parameters: *list_params, responses: {<<: *errors, '200': {description: Published annotations plus own drafts, content: {application/json: {schema: {$ref: '#/components/schemas/AnnotationPage'}}}}}}
+    post: {operationId: support_annotations_create, summary: 创建问题或指引标注草稿, x-phase: M3, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnnotationCreate'}}}}, responses: {<<: *errors, '201': {description: Learner question; counselor guidance; matching asset/submission, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Annotation'}}}}}}
+  /annotations/{annotation_id}:
+    parameters: [{name: annotation_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: support_annotations_get, summary: 读取授权标注, x-phase: M3, responses: {<<: *errors, '200': {description: Author may read draft; participants may read published, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Annotation'}}}}}}
+    put: {operationId: support_annotations_put, summary: 修改本人标注草稿, x-phase: M3, parameters: *put_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AnnotationWrite'}}}}, responses: {<<: *errors, '200': {description: Author and draft only; cannot replace image/context, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Annotation'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /annotations/{annotation_id}/publish:
+    parameters: [{name: annotation_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: support_annotations_publish, summary: 发布不可变二维标注, x-phase: M3, parameters: *command_headers, responses: {<<: *errors, '200': {description: Author; valid geometry and non-empty text, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Annotation'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /assistance-requests:
+    get: {operationId: support_requests_list, summary: 列出授权求助, x-phase: M3, parameters: [*limit, *cursor, {name: state, in: query, schema: {type: string, enum: [queued, accepted, resolved, cancelled]}}, {name: case_id, in: query, schema: *uuid}], responses: {<<: *errors, '200': {description: Scoped requests, content: {application/json: {schema: {$ref: '#/components/schemas/AssistancePage'}}}}}}
+    post: {operationId: support_requests_create, summary: 创建文字或标注求助, x-phase: M3, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AssistanceCreate'}}}}, responses: {<<: *errors, '201': {description: Learner; active support; nested IDs match; no GPS or arbitrary recipient, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Assistance'}}}}, '409': *problem}}
+  /assistance-requests/{request_id}:
+    parameters: [{name: request_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: support_requests_get, summary: 读取求助状态, x-phase: M3, responses: {<<: *errors, '200': {description: Queued is distinct from counselor accepted, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Assistance'}}}}}}
+  /assistance-requests/{request_id}/actions:
+    parameters: [{name: request_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: support_requests_action, summary: 接单解决或取消求助, x-phase: M3, parameters: *command_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/AssistanceAction'}}}}, responses: {<<: *errors, '200': {description: Counselor accept/resolve; learner cancel non-final request, headers: {ETag: *etag}, content: {application/json: {schema: {$ref: '#/components/schemas/Assistance'}}}}, '409': *problem, '412': *problem, '428': *problem}}
+  /assistance-requests/{request_id}/messages:
+    parameters: [{name: request_id, in: path, required: true, schema: *uuid}]
+    get: {operationId: support_messages_list, summary: 读取求助上下文消息, x-phase: M3, parameters: *list_params, responses: {<<: *errors, '200': {description: Authorized participants only, content: {application/json: {schema: {$ref: '#/components/schemas/MessagePage'}}}}}}
+    post: {operationId: support_messages_create, summary: 追加求助上下文消息, x-phase: M3, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MessageCreate'}}}}, responses: {<<: *errors, '201': {description: Participants only; non-final request; append-only, content: {application/json: {schema: {$ref: '#/components/schemas/SupportMessage'}}}}, '409': *problem}}
+  /notifications:
+    get: {operationId: notifications_list, summary: 补拉本人持久化通知, x-phase: M3, parameters: [*after, *limit], responses: {<<: *errors, '200': {description: next_seq is the last returned sequence; 0 starts retained history, content: {application/json: {schema: {$ref: '#/components/schemas/NotificationPage'}}}}, '410': *problem}}
+  /notifications/stream:
+    get: {operationId: notifications_stream, summary: 订阅可恢复通知流, x-phase: M3, parameters: [*after, *last], x-sse-event-schema: {$ref: '#/components/schemas/Notification'}, responses: {<<: *errors, '200': {description: SSE notification event with seq as id; 15s heartbeat; periodically reauthorize; Last-Event-ID wins, content: {text/event-stream: {schema: {type: string}}}}, '410': *problem}}
+  /notifications/{notification_id}/read:
+    parameters: [{name: notification_id, in: path, required: true, schema: *uuid}]
+    post: {operationId: notifications_read, summary: 标记本人通知已读, x-phase: M3, parameters: *write_headers, responses: {<<: *errors, '204': {description: Recipient only; repeated marking is safe}}}
