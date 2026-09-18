@@ -1,0 +1,29 @@
+name: Refresh foundation contract
+on:
+  push:
+    branches: [feat/architecture-foundation]
+    paths: [.github/workflows/refresh-foundation-contract.yml]
+permissions:
+  contents: write
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/architecture-foundation
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - uses: pnpm/action-setup@v4
+      - run: python3 tools/normalize_contract.py
+      - run: pnpm install --frozen-lockfile && pnpm generate:api
+      - name: Commit generated contract files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add contracts/openapi.yaml apps/web/src/shared/api/schema.d.ts
+          git diff --cached --quiet || git commit -m 'fix(contract): normalize descriptions and regenerate API types'
+          git pull --rebase origin feat/architecture-foundation
+          git push origin HEAD:feat/architecture-foundation
