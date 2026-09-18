@@ -1094,7 +1094,7 @@ export interface components {
             status: "in_progress" | "completed";
             attachment_ids: string[];
         };
-        /** @description Observation only. Time samples are cumulative per session/step */
+        /** @description Observation only. Time samples are cumulative per session/step, not additive. IDs deduplicate. */
         TaskEvent: {
             /** Format: uuid */
             event_id: string;
@@ -1391,7 +1391,7 @@ export interface components {
     };
     requestBodies: never;
     headers: {
-        /** @description Quoted resource version. Task child commands use the current task version */
+        /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
         ETag: string;
     };
     pathItems: never;
@@ -1680,7 +1680,7 @@ export interface operations {
             /** @description Preferences */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -1745,7 +1745,7 @@ export interface operations {
             /** @description Updated preferences */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -1821,7 +1821,7 @@ export interface operations {
             /** @description Profile */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -1886,7 +1886,7 @@ export interface operations {
             /** @description Updated profile */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2138,7 +2138,7 @@ export interface operations {
             /** @description Case */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2317,7 +2317,7 @@ export interface operations {
             /** @description Match */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2384,7 +2384,7 @@ export interface operations {
             /** @description Assigned counselor; draft only */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2475,7 +2475,7 @@ export interface operations {
             /** @description Assigned counselor; validates complete draft */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2704,7 +2704,7 @@ export interface operations {
             /** @description File metadata without storage key */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -2985,7 +2985,7 @@ export interface operations {
             /** @description Assigned counselor only */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3045,7 +3045,7 @@ export interface operations {
             /** @description Plan; learner draft reference is null */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3112,7 +3112,7 @@ export interface operations {
             /** @description Assigned counselor; one current draft per plan */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3181,7 +3181,7 @@ export interface operations {
             /** @description Draft visible only to assigned counselor */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3248,7 +3248,7 @@ export interface operations {
             /** @description Draft only; published content immutable */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3489,7 +3489,7 @@ export interface operations {
             /** @description Task aggregate */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3557,7 +3557,7 @@ export interface operations {
             /** @description Learner start/pause/resume; counselor cancel with reason; enforce state machine */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3652,7 +3652,7 @@ export interface operations {
             /** @description Owner only; task ETag; valid current step and ready attachments */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3882,7 +3882,7 @@ export interface operations {
             /** @description Owner; required steps complete; immutable snapshot */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -3969,7 +3969,7 @@ export interface operations {
             /** @description Snapshot immutable; ETag follows projected task_version */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4037,7 +4037,7 @@ export interface operations {
             /** @description Scoped counselor; latest unreviewed submission; one principal feedback */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4131,7 +4131,7 @@ export interface operations {
             /** @description Scoped counselor; non-final task; quiet preference wins */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4286,7 +4286,7 @@ export interface operations {
             /** @description Learner question; counselor guidance; matching asset/submission */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4346,7 +4346,7 @@ export interface operations {
             /** @description Author may read draft; participants may read published */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4413,7 +4413,7 @@ export interface operations {
             /** @description Author and draft only; cannot replace image/context */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4504,7 +4504,7 @@ export interface operations {
             /** @description Author; valid geometry and non-empty text */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4657,7 +4657,7 @@ export interface operations {
             /** @description Learner; active support; nested IDs match; no GPS or arbitrary recipient */
             201: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4726,7 +4726,7 @@ export interface operations {
             /** @description Queued is distinct from counselor accepted */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
@@ -4794,7 +4794,7 @@ export interface operations {
             /** @description Counselor accept/resolve; learner cancel non-final request */
             200: {
                 headers: {
-                    /** @description Quoted resource version. Task child commands use the current task version */
+                    /** @description Quoted resource version. Task child commands use the current task version, including the Submission task_version projection. */
                     ETag?: string;
                     [name: string]: unknown;
                 };
