@@ -42,10 +42,11 @@ docker compose up -d --wait --wait-timeout 180
 备份范围是 PostgreSQL 与私有文件，两者缺一不可。备份前暂停业务写入，记录提交版本与迁移版本；备份存放在加密且受限的位置，不进入 Git。
 
 ```bash
-mkdir -p backups
-chmod 700 backups
-docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc' > backups/database.dump
+python3 tools/database_backup.py backup backups/database.dump
+python3 tools/database_backup.py verify backups/database.dump
 ```
+
+备份脚本拒绝覆盖已有文件、以 0600 权限创建归档并生成 SHA-256；`verify` 校验后只恢复到随机命名的临时测试库，验证迁移和作业表并清理，不覆盖当前数据库。恢复输入必须是可信的自有备份。CI 在容器栈执行相同的备份/恢复验证。
 
 S3 使用桶版本控制、生命周期和独立备份策略；本地测试存储使用 `job-lens_private-files` 卷快照。恢复在隔离环境执行：恢复数据库 → 恢复同一时间点文件 → 执行兼容迁移 → 检查资源计数、文件校验和与核心记录 → 运行烟测，再恢复写入。
 

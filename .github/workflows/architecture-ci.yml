@@ -76,6 +76,10 @@ jobs:
       - run: cp .env.example .env && docker compose config --quiet
       - run: docker compose up -d --build --wait --wait-timeout 180
       - run: python tools/smoke.py && docker compose exec -T api python tools/worker_smoke.py
+      - name: Verify database backup in an isolated restore target
+        run: |
+          python tools/database_backup.py backup backups/ci.dump
+          python tools/database_backup.py verify backups/ci.dump
       - run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
         env: {E2E_BASE_URL: 'http://127.0.0.1:8080'}

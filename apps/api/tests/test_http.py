@@ -51,3 +51,20 @@ def test_no_fake_business_routes_or_http_200_errors(settings):
         assert (
             client.get("/api/v1/health/live", headers={"Host": "evil.invalid"}).status_code == 400
         )
+
+
+def test_host_rejection_uses_the_shared_problem_contract(settings):
+    with TestClient(create_app(settings, DatabaseProbe())) as client:
+        result = client.get("/api/v1/health/live", headers={"Host": "untrusted.invalid"})
+        assert result.status_code == 400
+        assert result.headers["content-type"].startswith("application/problem+json")
+        assert result.json()["trace_id"] == result.headers["x-request-id"]
+
+
+def test_method_rejection_preserves_allow_header(settings):
+    with TestClient(create_app(settings, DatabaseProbe())) as client:
+        result = client.post("/api/v1/health/live")
+        assert result.status_code == 405
+        assert "GET" in result.headers["allow"]
+        assert result.json()["status"] == 405
+        assert result.headers["content-type"].startswith("application/problem+json")

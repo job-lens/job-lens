@@ -36,7 +36,9 @@ class Problem(BaseModel):
     trace_id: str
 
 
-def problem_response(request: Request, status: int, code: str, title: str) -> JSONResponse:
+def problem_response(
+    request: Request, status: int, code: str, title: str, headers: dict[str, str] | None = None
+) -> JSONResponse:
     trace_id = getattr(request.state, "trace_id", uuid4().hex)
     payload = Problem(
         type=f"urn:job-lens:problem:{code.lower().replace('_', '-')}",
@@ -49,7 +51,15 @@ def problem_response(request: Request, status: int, code: str, title: str) -> JS
         payload.model_dump(),
         status_code=status,
         media_type="application/problem+json",
-        headers={"Cache-Control": "no-store", "X-Request-ID": trace_id},
+        headers={
+            **{
+                key: value
+                for key, value in (headers or {}).items()
+                if key.lower() in {"allow", "retry-after", "www-authenticate"}
+            },
+            "Cache-Control": "no-store",
+            "X-Request-ID": trace_id,
+        },
     )
 
 
@@ -91,6 +101,19 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
                 "request_failed type=%s trace_id=%s", type(exc).__name__, request.state.trace_id
             )
             response = problem_response(request, 500, "INTERNAL_ERROR", "服务暂不可用")
+        if (
+            request.url.path.startswith("/api/")
+            and response.status_code >= 400
+            and not response.headers.get("content-type", "").startswith("application/problem+json")
+        ):
+            # Normalize rejections from middleware as well as route exceptions.
+            response = problem_response(
+                request,
+                response.status_code,
+                f"HTTP_{response.status_code}",
+                "请求无法处理",
+                dict(response.headers),
+            )
         response.headers["X-Request-ID"] = request.state.trace_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         if request.url.path.startswith("/api/"):
@@ -116,7 +139,9 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
 
     @api.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
-        return problem_response(request, exc.status_code, f"HTTP_{exc.status_code}", "请求无法处理")
+        return problem_response(
+            request, exc.status_code, f"HTTP_{exc.status_code}", "请求无法处理", exc.headers
+        )
 
     error_response: dict[str, Any] = {
         "description": "Structured failure",
