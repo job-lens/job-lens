@@ -1,0 +1,78 @@
+schema_version = 1
+[owners]
+architecture = "刘峥岩"
+backend = "贺凡恩"
+learner = "前端 A"
+counselor = "前端 B"
+[backend.identity]
+depends_on = []
+[backend.cases]
+depends_on = ["identity"]
+[backend.sop]
+depends_on = ["cases"]
+[backend.training]
+depends_on = ["cases", "sop"]
+[backend.support]
+depends_on = ["cases", "training"]
+[frontend.auth]
+depends_on = []
+[frontend.profile]
+depends_on = []
+[frontend.learner]
+depends_on = []
+[frontend.counselor]
+depends_on = []
+[frontend.sop]
+depends_on = []
+[frontend.training]
+depends_on = []
+[frontend.support]
+depends_on = []
+[[routes]]
+path = "/profile"
+feature = "profile"
+export = "ProfilePage"
+[[routes]]
+path = "/preferences"
+feature = "profile"
+export = "PreferencesPage"
+[[routes]]
+path = "/learner"
+feature = "learner"
+export = "LearnerPage"
+role = "learner"
+[[routes]]
+path = "/learner/tasks/:id"
+feature = "training"
+export = "TrainingPage"
+role = "learner"
+[[routes]]
+path = "/learner/records"
+feature = "learner"
+export = "RecordsPage"
+role = "learner"
+[[routes]]
+path = "/learner/support/:id"
+feature = "support"
+export = "SupportPage"
+role = "learner"
+[[routes]]
+path = "/counselor"
+feature = "counselor"
+export = "CounselorPage"
+role = "counselor"
+[[routes]]
+path = "/counselor/cases/:id"
+feature = "counselor"
+export = "CasePage"
+role = "counselor"
+[[routes]]
+path = "/counselor/sop/:id"
+feature = "sop"
+export = "SopPage"
+role = "counselor"
+[[routes]]
+path = "/counselor/submissions/:id"
+feature = "training"
+export = "FeedbackPage"
+role = "counselor"
