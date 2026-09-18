@@ -1,0 +1,61 @@
+name: Architecture CI
+on:
+  pull_request:
+  push:
+    branches: [main, feat/architecture-foundation]
+permissions:
+  contents: read
+concurrency:
+  group: architecture-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  source:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - run: git archive --format=tar HEAD -o foundation-source.tar
+      - uses: actions/upload-artifact@v4
+        with: {name: foundation-source, path: foundation-source.tar, retention-days: 3}
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: job_lens_test_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d job_lens_test_ci"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      JOB_LENS_TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/job_lens_test_ci
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: astral-sh/setup-uv@v6
+        with: {version: '0.8.15', python-version: '3.13'}
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run mypy
+      - run: uv run pytest --junitxml=test-results/python.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: python-results, path: test-results, retention-days: 7}
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: {node-version-file: .node-version, cache: pnpm}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint && pnpm typecheck
+      - run: pnpm test && pnpm build
+      - run: pnpm generate:api
+      - run: git diff --exit-code -- apps/web/src/shared/api/schema.d.ts
