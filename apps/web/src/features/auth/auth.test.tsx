@@ -25,3 +25,13 @@ it('redirects expired sessions to login', async () => {
   server.use(http.get('*/api/v1/me',()=>HttpResponse.json({code:'SESSION_EXPIRED',title:'会话失效'},{status:401})));
   renderGate(); expect(await screen.findByRole('heading',{name:'登录'})).toBeInTheDocument();
 });
+
+it('renders content only for a confirmed matching role', async () => {
+  server.use(http.get('*/api/v1/me',()=>HttpResponse.json({id:'x',display_name:'测试',roles:['counselor']})));
+  renderGate(); expect(await screen.findByRole('heading',{name:'受保护内容'})).toBeVisible();
+});
+it('keeps protected content hidden when identity is unavailable', async () => {
+  server.use(http.get('*/api/v1/me',()=>HttpResponse.json({code:'UNAVAILABLE'},{status:503})));
+  renderGate(); expect(await screen.findByRole('alert')).toHaveTextContent('身份服务暂不可用');
+  expect(screen.queryByText('受保护内容')).not.toBeInTheDocument();
+});

@@ -1,46 +1,49 @@
-# 融职境
+# 融职境 · Job Lens
 
-面向孤独症青年的复杂岗位职业潜能开发、训练评估与企业适配平台。
+面向岗位训练学员与辅导员的双端支持系统。单仓库、React / TypeScript Web、Python / FastAPI 模块化单体和 PostgreSQL；后续小程序、App 复用业务 API 与数据。
 
-## 这个项目在解决什么
+## 启动
 
-中国孤独症人群超过一千万，就业率长期在 5%–15% 之间，岗位高度集中在货架整理、烘焙、保洁这类重复性低技能工作。就业难的成因不只是能力不足——岗位信息的呈现方式、职场规则的隐性程度、环境刺激强度和支持方式，都与孤独症青年的认知特点不匹配。
+```bash
+git clone --branch feat/architecture-foundation https://github.com/job-lens/job-lens.git
+cd job-lens
+cp .env.example .env
+docker compose up -d --build --wait --wait-timeout 180
+```
 
-现有的职业训练多发生在学校、机构或模拟教室，真实岗位里的噪音、陌生人、临时任务和隐性规则无法提前呈现，训练成绩因此难以转化为留岗能力。独立 VR 设备能做情境模拟，但采购成本高、佩戴门槛高、训练数据延伸不到真实工位。
+打开 **http://localhost:8080** 查看真实 API 与数据库连接状态。启动包含 Web 构建、数据库迁移、API、独立 worker 和 Caddy 网关。
 
-融职境把主终端放在手机上：用摄像头、陀螺仪和端侧 AI 做实景引导与 AR 标注，把岗位拆成可训练、可证明、可迁移的任务，并把训练数据一路延伸到实习和入职阶段。
+```bash
+python tools/smoke.py
+docker compose exec -T api python tools/worker_smoke.py
+```
 
-## 面向谁
+## 工程入口
 
-- **孤独症青年**（16–35 岁，有就业意愿，具备一定规则理解和持续注意能力）——直接使用者
-- **就业辅导员 / 特教教师**——训练组织者，负责岗位拆解、能力评估与支持方案更新
-- **企业导师 / 技术主管**——岗位接纳方，关注任务能否稳定完成、异常如何沟通
-- **家庭照护者**——影响就业选择，承担通勤与情绪支持
-
-岗位方向聚焦数据标注、软件测试辅助、内容审核、文档质检、流程校验、知识库维护、档案数字化等结构清晰但认知要求较高的工种，目标是从「岗位安置」转向「能力发现 → 复杂任务训练 → 技术岗位适配 → 长期职业发展」。
-
-## 产品构成
-
-| 模块 | 核心职责 |
+| 路径 | 内容 |
 | --- | --- |
-| 青年端 App | 任务预习、模拟训练、真实工位引导、状态记录、求助 |
-| 辅导员工作台 | 建档测评、训练计划、任务配置、报告审核、实习跟踪 |
-| 企业端门户 | 岗位录入、授权报告查看、实习排期、带教反馈 |
-| AI 训练评估引擎 | SOP 改写、提示推荐、薄弱步骤识别、报告生成 |
-| 内容管理后台 | 岗位任务树、360 视频、AR 标注、情境脚本管理 |
+| `apps/web` | 应用壳、七个功能模块、生成式路由、会话与角色边界、类型化请求、设备适配 |
+| `apps/api` | 五个业务模块、公共接口、数据库模型、迁移、事务与异步作业基础设施 |
+| `contracts` | 55 个产品操作的 OpenAPI、已接入操作登记、运行时 OpenAPI |
+| `architecture.toml` | 模块依赖、前端路由与职责清单 |
+| `tools`、`tests` | 架构与契约检查、生成工具、基础设施及浏览器测试 |
+| `infra`、`compose.yaml` | 构建、网络、启动顺序、TLS 入口与环境配置 |
 
-## 当前阶段
+[架构图](docs/architecture.md) · [开发说明](docs/development.md) · [部署与恢复](docs/deployment.md) · [贡献规范](CONTRIBUTING.md)
 
-项目处于 **MS1 · 战略决策与首个可串联版本**，产品定义尚在讨论中，总架构未定稿，仓库暂不包含实现代码。
+## 当前可执行范围
 
-按《架构设计规范》，总架构定稿（空骨架代码经 PR Review 合并入库）之前不进入功能开发。目录结构、技术栈与本地开发方式将在 MS2 补入本文档。
+工程基线已接入健康检查和持久化系统作业，提供可验证的权限、状态、存储与事务基础设施。产品契约为 **44 个路径、55 个操作、64 个模型**；HTTP 当前接入 `health_live`、`health_ready`。登录、SOP 编辑、训练与辅导页面是后续功能开发入口，未使用假成功接口代替业务实现。
 
-进度看 [Milestones](../../milestones)，讨论中的提案看 [`proposal` 标签](../../issues?q=is%3Aissue+label%3Aproposal)。
+## 检查
 
-## 参与开发
+```bash
+uv sync --locked
+pnpm install --frozen-lockfile
+make check
+make test
+```
 
-流程、分支与 PR 规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。所有改动从 Issue 出发，经 PR 合入 main，合并前必经 Review。
+CI 在真实 PostgreSQL 上验证迁移、数据库约束与并发，另执行 React 构建、生成产物差异检查、Docker 启动和 Playwright 烟测。
 
-## License
-
-[Apache License 2.0](LICENSE)
+Apache-2.0 · [License](LICENSE)

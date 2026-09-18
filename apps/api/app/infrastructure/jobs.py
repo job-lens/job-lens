@@ -120,6 +120,7 @@ def finish(session: Session, lease: Lease, error_code: str | None = None) -> boo
         return False
     if error_code is None:
         job.state = "done"
+        job.error_code = None
     else:
         job.state = (
             "failed"

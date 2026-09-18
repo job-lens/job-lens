@@ -44,9 +44,9 @@ class SopRevision(Entity, Base):
         ForeignKeyConstraint(["plan_id", "case_id"], ["sop_plans.id", "sop_plans.case_id"]),
         UniqueConstraint("plan_id", "number"),
         UniqueConstraint("id", "case_id"),
-        CheckConstraint("state IN ('draft','published')", name="state"),
+        CheckConstraint("state IN ('draft','published','archived')", name="state"),
         CheckConstraint("number >= 1 AND version >= 1 AND schema_version >= 1", name="versions"),
-        CheckConstraint("(state = 'published') = (published_at IS NOT NULL)", name="publication"),
+        CheckConstraint("(state <> 'draft') = (published_at IS NOT NULL)", name="publication"),
         Index(
             "uq_sop_current_draft", "plan_id", unique=True, postgresql_where=text("state = 'draft'")
         ),
@@ -65,5 +65,7 @@ class SopStep(Base):
     __table_args__ = (
         UniqueConstraint("revision_id", "position"),
         CheckConstraint("position BETWEEN 1 AND 100", name="position"),
-        CheckConstraint("estimated_seconds IS NULL OR estimated_seconds >= 1", name="duration"),
+        CheckConstraint(
+            "estimated_seconds IS NULL OR estimated_seconds BETWEEN 0 AND 86400", name="duration"
+        ),
     )

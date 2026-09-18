@@ -1,9 +1,10 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import (
     CheckConstraint,
     Date,
+    DateTime,
     ForeignKey,
     ForeignKeyConstraint,
     Index,
@@ -27,6 +28,7 @@ class TrainingTask(Entity, Base):
     status: Mapped[str] = mapped_column(String(24), default="not_started")
     due_on: Mapped[date | None] = mapped_column(Date)
     prompt_override: Mapped[int | None] = mapped_column(Integer)
+    prompt_reason: Mapped[str | None] = mapped_column(String(500))
     version: Mapped[int] = mapped_column(Integer, default=1)
     __table_args__ = (
         ForeignKeyConstraint(
@@ -40,7 +42,8 @@ class TrainingTask(Entity, Base):
         ),
         CheckConstraint("version >= 1", name="version"),
         CheckConstraint(
-            "prompt_override IS NULL OR prompt_override BETWEEN 0 AND 3", name="prompt"
+            "(prompt_override IS NULL AND prompt_reason IS NULL) OR (prompt_override IS NOT NULL AND prompt_override BETWEEN 1 AND 3 AND prompt_reason IS NOT NULL AND length(trim(prompt_reason)) BETWEEN 1 AND 500)",
+            name="prompt",
         ),
         Index(
             "uq_case_active_task",
@@ -77,6 +80,7 @@ class TaskEvent(Entity, Base):
     sequence: Mapped[int] = mapped_column(Integer)
     kind: Mapped[str] = mapped_column(String(32))
     value: Mapped[int | None] = mapped_column(Integer)
+    observed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
         ForeignKeyConstraint(
             ["task_id", "revision_id"], ["training_tasks.id", "training_tasks.revision_id"]
@@ -85,7 +89,9 @@ class TaskEvent(Entity, Base):
         CheckConstraint(
             "kind IN ('hint_requested','self_reported_error','time_sample')", name="kind"
         ),
-        CheckConstraint("sequence >= 0 AND (value IS NULL OR value >= 0)", name="values"),
+        CheckConstraint(
+            "sequence >= 1 AND (value IS NULL OR value BETWEEN 0 AND 86400000)", name="values"
+        ),
     )
 
 
@@ -93,6 +99,7 @@ class Submission(Entity, Base):
     __tablename__ = "submissions"
     task_id: Mapped[UUID] = mapped_column(ForeignKey("training_tasks.id"), index=True)
     attempt_no: Mapped[int] = mapped_column(Integer)
+    note: Mapped[str] = mapped_column(String(500), default="")
     schema_version: Mapped[int] = mapped_column(Integer, default=1)
     snapshot: Mapped[JsonObject] = mapped_column(JSONB)
     __table_args__ = (

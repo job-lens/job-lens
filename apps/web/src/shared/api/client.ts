@@ -12,7 +12,7 @@ export class ApiError extends Error {
 
 export function createApiClient(fetcher?: typeof fetch) {
   let csrfToken: string | undefined;
-  const client = createClient<paths>({ baseUrl: new URL('/api/v1', globalThis.location?.origin ?? 'http://localhost').href, credentials: 'same-origin', fetch: fetcher });
+  const client = createClient<paths>({ baseUrl: new URL('/api/v1', globalThis.location?.origin ?? 'http://localhost').href, credentials: 'same-origin', fetch: fetcher ?? ((...args) => globalThis.fetch(...args)) });
   client.use({
     onRequest({ request }) {
       if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method) && csrfToken) {

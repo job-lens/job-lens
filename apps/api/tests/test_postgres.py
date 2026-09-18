@@ -274,3 +274,72 @@ def test_job_skip_locked(db):
         finally:
             release.set()
         assert future.result() != second.job_id
+
+
+def test_task_rejects_draft_revision_and_identity_reassignment(db):
+    _, counselor, case_id = actors(db)
+    with db.transaction() as session:
+        plan = SopPlan(case_id=case_id, title="test", author_id=counselor)
+        session.add(plan)
+        session.flush()
+        draft = SopRevision(plan_id=plan.id, case_id=case_id, number=1)
+        session.add(draft)
+        session.flush()
+        rid = draft.id
+    with pytest.raises(IntegrityError), db.transaction() as session:
+        session.add(TrainingTask(case_id=case_id, revision_id=rid))
+        session.flush()
+    with db.transaction() as session:
+        draft = session.get(SopRevision, rid)
+        draft.state, draft.published_at = "published", utcnow()
+        session.flush()
+        current = TrainingTask(case_id=case_id, revision_id=rid)
+        session.add(current)
+        session.flush()
+        tid = current.id
+    with pytest.raises(IntegrityError), db.transaction() as session:
+        session.execute(
+            update(TrainingTask).where(TrainingTask.id == tid).values(revision_id=uuid4())
+        )
+
+
+def test_task_hint_override_requires_reason(db):
+    *_, tid, _, _ = task(db)
+    for level, reason in [(0, "text"), (2, None), (2, " "), (None, "text")]:
+        with pytest.raises(IntegrityError), db.transaction() as session:
+            session.execute(
+                update(TrainingTask)
+                .where(TrainingTask.id == tid)
+                .values(prompt_override=level, prompt_reason=reason)
+            )
+    with db.transaction() as session:
+        session.execute(
+            update(TrainingTask)
+            .where(TrainingTask.id == tid)
+            .values(prompt_override=2, prompt_reason="增加文字提示")
+        )
+
+
+def test_job_success_clears_previous_retry_error(db):
+    with db.transaction() as session:
+        jid = enqueue(session, "system.ping", {}, "retry-success")
+    with db.transaction() as session:
+        lease = claim(session)
+        assert finish(session, lease, "TRANSIENT")
+        session.execute(
+            update(Job).where(Job.id == jid).values(next_run_at=utcnow() - timedelta(seconds=1))
+        )
+    with db.transaction() as session:
+        lease = claim(session)
+        assert finish(session, lease)
+        row = session.get(Job, jid)
+        assert row.state == "done" and row.error_code is None
+
+
+def test_empty_database_migration_roundtrip(db):
+    # The fixture above only admits an explicitly named disposable *_test database.
+    config = Config("apps/api/alembic.ini")
+    command.downgrade(config, "base")
+    command.upgrade(config, "head")
+    command.check(config)
+    assert db.ready()
