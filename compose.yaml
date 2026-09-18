@@ -1,0 +1,64 @@
+name: job-lens
+x-api: &api
+  build:
+    context: .
+    dockerfile: infra/api.Dockerfile
+  environment: &environment
+    JOB_LENS_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-job_lens}:${POSTGRES_PASSWORD:?Copy .env.example to .env}@db:5432/${POSTGRES_DB:-job_lens}
+    JOB_LENS_ENVIRONMENT: ${JOB_LENS_ENVIRONMENT:-development}
+    JOB_LENS_PUBLIC_ORIGIN: ${JOB_LENS_PUBLIC_ORIGIN:-http://localhost:8080}
+    JOB_LENS_TRUSTED_HOSTS: ${JOB_LENS_TRUSTED_HOSTS:-["localhost","127.0.0.1","api"]}
+    JOB_LENS_STORAGE_ROOT: /srv/.data/private
+    JOB_LENS_STORAGE_KIND: ${JOB_LENS_STORAGE_KIND:-local}
+    JOB_LENS_S3_BUCKET: ${JOB_LENS_S3_BUCKET:-}
+  volumes:
+    - private-files:/srv/.data/private
+  init: true
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-job_lens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env}
+      POSTGRES_DB: ${POSTGRES_DB:-job_lens}
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  migrate:
+    <<: *api
+    command: [alembic, -c, apps/api/alembic.ini, upgrade, head]
+    depends_on:
+      db: {condition: service_healthy}
+    restart: "no"
+  api:
+    <<: *api
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+  worker:
+    <<: *api
+    command: [python, -m, app.worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped
+  gateway:
+    build:
+      context: .
+      dockerfile: infra/web.Dockerfile
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+volumes:
+  database:
+  private-files:
