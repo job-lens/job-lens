@@ -1,0 +1,17 @@
+:root {
+  font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --surface: #ffffff;
+  --canvas: #f5f6f5;
+  --text: #1b2624;
+  --muted: #445650;
+  --line: #b8c4bf;
+  --accent: #285b4e;
+  --focus: #155dc2;
+  --radius: 0.65rem;
+  --space: 1rem;
+  --font-scale: 1;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --surface: #1d2522; --canvas: #131916; --text: #ecf2ee; --muted: #c1d0c8; --line: #677d71; --accent: #a0d6bf; --focus: #8fbfff; color-scheme: dark; }
+}
