@@ -140,7 +140,11 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     @api.exception_handler(HTTPException)
     async def http_error(request: Request, exc: HTTPException) -> JSONResponse:
         return problem_response(
-            request, exc.status_code, f"HTTP_{exc.status_code}", "请求无法处理", exc.headers
+            request,
+            exc.status_code,
+            f"HTTP_{exc.status_code}",
+            "请求无法处理",
+            dict(exc.headers) if exc.headers else None,
         )
 
     error_response: dict[str, Any] = {
