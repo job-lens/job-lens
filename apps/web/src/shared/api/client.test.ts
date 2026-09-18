@@ -20,3 +20,19 @@ describe('contract transport', () => {
     expect(request.url).not.toContain('csrf-token');
   });
 });
+
+it('preserves native request cancellation in Node 24 and jsdom', async () => {
+  const controller = new AbortController();
+  const fetcher = vi.fn<typeof fetch>(async input => {
+    const request = input as Request;
+    return new Promise<Response>((_resolve, reject) => {
+      request.signal.addEventListener('abort', () => reject(request.signal.reason), { once: true });
+    });
+  });
+  const { client } = createApiClient(fetcher);
+  const pending = client.GET('/me', { signal: controller.signal });
+  const rejection = expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+  await vi.waitFor(() => expect(fetcher).toHaveBeenCalledOnce());
+  controller.abort();
+  await rejection;
+});
