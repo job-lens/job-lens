@@ -1,0 +1,11 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--canvas); color: var(--text); font-size: calc(1rem * var(--font-scale)); line-height: 1.6; }
+a { color: var(--accent); text-underline-offset: .2em; }
+button, input, select { font: inherit; }
+button, nav a { min-height: 44px; display: inline-flex; align-items: center; padding: .55rem .85rem; }
+button { cursor: pointer; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+h1, h2, p { overflow-wrap: anywhere; }
+.skip-link { position: absolute; left: 1rem; top: -8rem; background: var(--surface); padding: 1rem; z-index: 10; }
+.skip-link:focus { top: 1rem; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
