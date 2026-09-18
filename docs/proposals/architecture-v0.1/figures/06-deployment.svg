@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1060" viewBox="0 0 1040 1060" role="img" aria-label="融职境｜试用环境部署">
+<title>融职境｜试用环境部署</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="1060" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜试用环境部署</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">部署视图 · 单一 HTTPS 入口，业务与数据端口不暴露公网</text>
+<rect x="350" y="110" width="340" height="85" rx="7" fill="#F5F6F7" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="144" font-size="24" font-weight="600" text-anchor="middle">浏览器</text>
+<text x="520" y="175" font-size="18" text-anchor="middle">学员 / 辅导员</text>
+<rect x="30" y="290" width="980" height="610" rx="9" fill="none" stroke="#8798A6" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="45" y="318" font-size="19" font-weight="600" text-anchor="start">试用环境 · 私有网络 / Docker Compose</text>
+<rect x="315" y="335" width="410" height="112" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="369" font-size="24" font-weight="600" text-anchor="middle">Caddy 网关</text>
+<text x="520" y="400" font-size="18" text-anchor="middle">HTTPS 终止 / Web 静态资源</text>
+<text x="520" y="428" font-size="18" text-anchor="middle">/api/v1 → API</text>
+<path d="M520 195 L520 335" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="439.6" y="228" width="160.9" height="25" fill="white"/>
+<text x="520" y="245" font-size="18" text-anchor="middle">公网 HTTPS :443</text>
+<rect x="65" y="530" width="300" height="115" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="215" y="564" font-size="23" font-weight="600" text-anchor="middle">API 进程</text>
+<text x="215" y="595" font-size="18" text-anchor="middle">FastAPI / Uvicorn</text>
+<text x="215" y="623" font-size="18" text-anchor="middle">业务 HTTP + SSE</text>
+<rect x="395" y="530" width="280" height="115" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="535" y="564" font-size="23" font-weight="600" text-anchor="middle">worker 进程</text>
+<text x="535" y="595" font-size="18" text-anchor="middle">Python · 同后端镜像</text>
+<text x="535" y="623" font-size="18" text-anchor="middle">扫描 / 清理 / 重试</text>
+<rect x="715" y="530" width="260" height="115" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="845" y="564" font-size="23" font-weight="600" text-anchor="middle">扫描器</text>
+<text x="845" y="595" font-size="18" text-anchor="middle">文件检查</text>
+<text x="845" y="623" font-size="18" text-anchor="middle">仅内部调用</text>
+<path d="M390 447 L215 530" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="194.7" y="472" width="114.6" height="25" fill="white"/>
+<text x="252" y="489" font-size="18" text-anchor="middle">HTTP :8000</text>
+<path d="M675 586 L715 586" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="671" y="558" width="48" height="25" fill="white"/>
+<text x="695" y="575" font-size="18" text-anchor="middle">扫描</text>
+<rect x="125" y="755" width="320" height="110" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="285" y="789" font-size="24" font-weight="600" text-anchor="middle">PostgreSQL</text>
+<text x="285" y="820" font-size="18" text-anchor="middle">业务、会话、通知与 jobs</text>
+<text x="285" y="848" font-size="18" text-anchor="middle">私有端口 :5432</text>
+<rect x="625" y="755" width="320" height="110" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="785" y="789" font-size="24" font-weight="600" text-anchor="middle">私有对象存储</text>
+<text x="785" y="820" font-size="18" text-anchor="middle">隔离区 / 就绪区</text>
+<text x="785" y="848" font-size="18" text-anchor="middle">服务身份授权</text>
+<path d="M215 645 L215 755" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="150.6" y="689" width="42.8" height="25" fill="white"/>
+<text x="172" y="706" font-size="18" text-anchor="middle">SQL</text>
+<path d="M460 645 L410 755" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="397.6" y="689" width="42.8" height="25" fill="white"/>
+<text x="419" y="706" font-size="18" text-anchor="middle">SQL</text>
+<path d="M590 645 L720 755" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="674.4" y="676" width="63.3" height="25" fill="white"/>
+<text x="706" y="693" font-size="18" text-anchor="middle">HTTPS</text>
+<path d="M365 570 L375 570 L375 713 L785 713 L785 755" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="477.1" y="686" width="209.8" height="25" fill="white"/>
+<text x="582" y="703" font-size="18" text-anchor="middle">授权文件读写 · HTTPS</text>
+<rect x="280" y="940" width="480" height="60" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="974" font-size="24" font-weight="600" text-anchor="middle">独立故障域：加密备份</text>
+<path d="M290 865 L290 940" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="155" y="905" width="102" height="25" fill="white"/>
+<text x="206" y="922" font-size="18" text-anchor="middle">数据库备份</text>
+<path d="M785 865 L785 965 L760 965" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="802" y="905" width="84" height="25" fill="white"/>
+<text x="844" y="922" font-size="18" text-anchor="middle">文件备份</text>
+<line x1="32" y1="1001" x2="1008" y2="1001" stroke="#CDD6DD"/>
+<text x="32" y="1031" font-size="17" fill="#45677E" text-anchor="start">图例：虚线框=部署网络边界；框=运行节点/存储；箭头标注协议；备份与主环境隔离。</text>
+</g></svg>
