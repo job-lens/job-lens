@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1010" viewBox="0 0 1040 1010" role="img" aria-label="融职境｜后端逻辑结构">
+<title>融职境｜后端逻辑结构</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="1010" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜后端逻辑结构</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">组件视图 · 单个 Python 业务服务内部</text>
+<rect x="320" y="110" width="400" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="144" font-size="24" font-weight="600" text-anchor="middle">HTTP 路由与输入输出</text>
+<text x="520" y="175" font-size="18" text-anchor="middle">FastAPI Router / Pydantic</text>
+<rect x="35" y="280" width="970" height="415" rx="9" fill="none" stroke="#8798A6" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="50" y="308" font-size="19" font-weight="600" text-anchor="start">业务模块 · Python 用例服务 / 单事务边界</text>
+<rect x="60" y="340" width="270" height="105" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="195" y="374" font-size="23" font-weight="600" text-anchor="middle">identity</text>
+<text x="195" y="405" font-size="18" text-anchor="middle">用户、角色、会话</text>
+<text x="195" y="433" font-size="18" text-anchor="middle">档案与个性化偏好</text>
+<rect x="385" y="340" width="270" height="105" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="374" font-size="23" font-weight="600" text-anchor="middle">cases</text>
+<text x="520" y="405" font-size="18" text-anchor="middle">个案授权、支持匹配</text>
+<text x="520" y="433" font-size="18" text-anchor="middle">方向、重点与周期</text>
+<rect x="710" y="340" width="270" height="105" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="845" y="374" font-size="23" font-weight="600" text-anchor="middle">sop</text>
+<text x="845" y="405" font-size="18" text-anchor="middle">计划、步骤、提醒</text>
+<text x="845" y="433" font-size="18" text-anchor="middle">草稿与发布版本</text>
+<rect x="185" y="555" width="300" height="110" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="335" y="589" font-size="23" font-weight="600" text-anchor="middle">training</text>
+<text x="335" y="620" font-size="18" text-anchor="middle">任务、进度、提交快照</text>
+<text x="335" y="648" font-size="18" text-anchor="middle">审核与返工</text>
+<rect x="590" y="555" width="300" height="110" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="740" y="589" font-size="23" font-weight="600" text-anchor="middle">support</text>
+<text x="740" y="620" font-size="18" text-anchor="middle">求助、消息与二维标注</text>
+<text x="740" y="648" font-size="18" text-anchor="middle">辅导上下文</text>
+<path d="M520 200 L520 280" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="415" y="225" width="210" height="25" fill="white"/>
+<text x="520" y="242" font-size="18" text-anchor="middle">解析请求、调用应用用例</text>
+<path d="M845 445 L845 488 L400 488 L400 555" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="482.7" y="463" width="284.5" height="25" fill="white"/>
+<text x="625" y="480" font-size="18" text-anchor="middle">发布用例：冻结版本 → 创建任务</text>
+<path d="M590 610 L485 610" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="496" y="584" width="84" height="25" fill="white"/>
+<text x="538" y="601" font-size="18" text-anchor="middle">调整提示</text>
+<rect x="55" y="785" width="295" height="110" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="202.5" y="819" font-size="23" font-weight="600" text-anchor="middle">事务与查询适配</text>
+<text x="202.5" y="850" font-size="18" text-anchor="middle">SQLAlchemy / PostgreSQL</text>
+<text x="202.5" y="878" font-size="18" text-anchor="middle">连接、锁与迁移</text>
+<rect x="375" y="785" width="295" height="110" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="522.5" y="819" font-size="23" font-weight="600" text-anchor="middle">文件与作业适配</text>
+<text x="522.5" y="850" font-size="18" text-anchor="middle">私有存储 / PostgreSQL jobs</text>
+<text x="522.5" y="878" font-size="18" text-anchor="middle">扫描、租约与重试</text>
+<rect x="695" y="785" width="295" height="110" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="842.5" y="819" font-size="23" font-weight="600" text-anchor="middle">通知与审计适配</text>
+<text x="842.5" y="850" font-size="18" text-anchor="middle">持久化通知 / SSE</text>
+<text x="842.5" y="878" font-size="18" text-anchor="middle">授权投影与审计记录</text>
+<path d="M210 695 L210 785" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="168" y="730" width="84" height="25" fill="white"/>
+<text x="210" y="747" font-size="18" text-anchor="middle">事务读写</text>
+<path d="M520 695 L520 785" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="469" y="730" width="102" height="25" fill="white"/>
+<text x="520" y="747" font-size="18" text-anchor="middle">文件与作业</text>
+<path d="M835 695 L835 785" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="784" y="730" width="102" height="25" fill="white"/>
+<text x="835" y="747" font-size="18" text-anchor="middle">同事务留痕</text>
+<line x1="32" y1="951" x2="1008" y2="951" stroke="#CDD6DD"/>
+<text x="32" y="981" font-size="17" fill="#45677E" text-anchor="start">图例：框=逻辑组件；虚线框=同一服务边界；箭头=调用依赖；业务模块不独立部署。</text>
+</g></svg>
