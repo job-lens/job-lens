@@ -1,0 +1,9 @@
+# Generated artefacts: a formatter here would fight the generators' diff checks.
+apps/web/src/shared/api/schema.d.ts
+apps/web/src/app/routes.generated.ts
+apps/web/architecture.generated.json
+contracts/runtime.openapi.json
+pnpm-lock.yaml
+uv.lock
+dist
+node_modules

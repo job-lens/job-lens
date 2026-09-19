@@ -14,10 +14,13 @@
     "test": "pnpm --filter @job-lens/web test",
     "test:e2e": "playwright test",
     "generate:api": "openapi-typescript contracts/openapi.yaml -o apps/web/src/shared/api/schema.d.ts",
-    "check:boundaries": "pnpm --filter @job-lens/web exec node tools/check-boundaries.mjs"
+    "check:boundaries": "pnpm --filter @job-lens/web exec node tools/check-boundaries.mjs",
+    "format": "prettier --write \"apps/web/**/*.{ts,tsx,js,mjs,css,html}\" \"tests/e2e/**/*.ts\" playwright.config.ts",
+    "format:check": "prettier --check \"apps/web/**/*.{ts,tsx,js,mjs,css,html}\" \"tests/e2e/**/*.ts\" playwright.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.0",
-    "openapi-typescript": "^7.8.0"
+    "openapi-typescript": "^7.8.0",
+    "prettier": "^3.6.0"
   }
 }
