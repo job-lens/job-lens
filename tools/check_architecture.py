@@ -1,5 +1,6 @@
 """Check executable module boundaries; run from any working directory."""
 
+import argparse
 import ast
 import importlib.util
 import tomllib
@@ -95,6 +96,28 @@ def violations(module: str, source: str, rules: dict) -> list[str]:
     return errors
 
 
+def used_dependencies() -> dict[str, set[str]]:
+    """Which other modules each module actually imports, whatever the manifest claims."""
+    found: dict[str, set[str]] = {}
+    for path in (APP / "modules").rglob("*.py"):
+        module = ".".join(path.relative_to(APP.parent).with_suffix("").parts)
+        own = module.split(".")[2]
+        for target in imports(path.read_text(), module):
+            parts = target.split(".")
+            if len(parts) > 2 and parts[:2] == ["app", "modules"] and parts[2] != own:
+                found.setdefault(own, set()).add(parts[2])
+    return found
+
+
+def unused_declarations(rules: dict, used: dict[str, set[str]]) -> list[str]:
+    """A declaration nobody imports is intent, not fact; say so before the two drift apart."""
+    return [
+        f"{name}: declares {dep} but never imports it"
+        for name in sorted(rules)
+        for dep in sorted(set(rules[name]["depends_on"]) - used.get(name, set()))
+    ]
+
+
 def check() -> list[str]:
     manifest = tomllib.loads((ROOT / "architecture.toml").read_text())
     rules = manifest["backend"]
@@ -127,7 +150,19 @@ def check() -> list[str]:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--strict", action="store_true", help="fail on declared dependencies nothing imports"
+    )
+    args = parser.parse_args()
     problems = check()
+    manifest = tomllib.loads((ROOT / "architecture.toml").read_text())
+    unused = unused_declarations(manifest["backend"], used_dependencies())
+    if args.strict:
+        problems += unused
+    else:
+        for line in unused:
+            print(f"WARNING {line}")
     if problems:
         raise SystemExit("\n".join(problems))
     print("Backend architecture boundaries: PASS")

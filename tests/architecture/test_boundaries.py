@@ -1,6 +1,6 @@
 import pytest
 
-from tools.check_architecture import check, violations
+from tools.check_architecture import check, unused_declarations, used_dependencies, violations
 from tools.generate_architecture import ROOT, artifacts
 
 RULES = {"sop": {"depends_on": ["cases"]}}
@@ -83,3 +83,18 @@ def test_database_constraint_names_are_unique():
 
 def test_package_public_import_is_allowed():
     assert not violations("app.modules.sop.service", "from app.modules.cases import public", RULES)
+
+
+def test_declared_dependency_without_an_import_is_reported():
+    assert unused_declarations({"sop": {"depends_on": ["cases"]}}, {})
+    assert unused_declarations({"sop": {"depends_on": ["cases"]}}, {"sop": {"training"}})
+
+
+def test_declared_dependency_that_is_imported_is_not_reported():
+    assert not unused_declarations({"sop": {"depends_on": ["cases"]}}, {"sop": {"cases"}})
+    assert not unused_declarations({"sop": {"depends_on": []}}, {})
+
+
+def test_used_dependencies_reads_the_real_tree():
+    used = used_dependencies()
+    assert used.get("training") == {"cases"}, used
