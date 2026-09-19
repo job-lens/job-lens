@@ -6,11 +6,11 @@ from app.core.types import Actor
 from app.modules.cases.public import CaseAccess
 from app.modules.identity.public import MediaPreferences
 from app.modules.sop.public import PublishedSop
-from app.modules.sop.service import validate_publication
+from app.modules.sop.rules import validate_publication
 from app.modules.support.public import Marker
-from app.modules.support.service import transition_assistance
+from app.modules.support.rules import transition_assistance
 from app.modules.training.public import TRANSITIONS, TaskStatus
-from app.modules.training.service import transition, validate_feedback
+from app.modules.training.rules import transition, validate_feedback
 
 
 @pytest.fixture

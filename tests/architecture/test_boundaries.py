@@ -21,10 +21,40 @@ def test_repository_boundaries():
         ("app.modules.sop.router", "from .models import SopPlan"),
         ("app.modules.sop.service", "from app import bootstrap"),
         ("app.infrastructure.fake", "import app.main"),
+        ("app.modules.sop.service", "from app.web.deps import actor"),
+        ("app.core.fake", "from app.web import deps"),
+        ("app.modules.sop.public", "from app.modules.sop.models import SopPlan"),
+        ("app.modules.sop.public", "from .models import SopPlan"),
+        ("app.modules.sop.rules", "from sqlalchemy import select"),
+        ("app.modules.sop.rules", "from sqlalchemy.orm import Session"),
+        ("app.web.sop", "from app.modules.sop.models import SopPlan"),
+        ("app.modules.sop.service", "from app.modules.cases.service import read_access"),
+        ("app.modules.sop.queries", "from app.modules.sop.service import publish"),
     ],
 )
 def test_forbidden_dependency_is_rejected(module, source):
     assert violations(module, source, RULES)
+
+
+@pytest.mark.parametrize(
+    "module,source",
+    [
+        # public may expose read-only queries, so the session type itself is allowed.
+        ("app.modules.sop.public", "from sqlalchemy.orm import Session"),
+        ("app.modules.sop.public", "from app.core.types import Actor"),
+        ("app.modules.sop.rules", "from app.core.errors import conflict"),
+        ("app.modules.sop.rules", "from app.modules.cases.public import CaseAccess"),
+        # The assembly layer is allowed to reach services and public boundaries.
+        ("app.web.sop", "from app.modules.sop.service import publish"),
+        ("app.web.sop", "from app.modules.cases.public import CaseAccess"),
+        # queries.py is the second declared cross-module surface, next to public.py.
+        ("app.modules.sop.service", "from app.modules.cases.queries import load_access"),
+        ("app.modules.sop.service", "from app.modules.cases import queries"),
+        ("app.modules.sop.queries", "from app.modules.sop.models import SopPlan"),
+    ],
+)
+def test_allowed_dependency_is_accepted(module, source):
+    assert not violations(module, source, RULES)
 
 
 def test_public_dependency_is_allowed():

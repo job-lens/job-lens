@@ -19,7 +19,7 @@ from app.infrastructure.jobs import claim, enqueue, finish, renew
 from app.infrastructure.models import IdempotencyRecord, Job, Notification, NotificationCounter
 from app.infrastructure.notifications import append_notifications, mark_read, read_notifications
 from app.modules.cases.models import Case, CaseGrant
-from app.modules.cases.service import read_access, scope_predicate
+from app.modules.cases.queries import read_access, scope_predicate
 from app.modules.identity.models import Preferences, User
 from app.modules.sop.models import SopPlan, SopRevision, SopStep
 from app.modules.training.models import StepProgress, Submission, TrainingTask

@@ -7,6 +7,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / "apps/api/app"
+# The two files another module may import: values and the read-only lookups returning them.
+SURFACES = ("public", "queries")
 
 
 def imports(source: str, module: str) -> set[str]:
@@ -50,6 +52,8 @@ def violations(module: str, source: str, rules: dict) -> list[str]:
             ["app", "main"],
             ["app", "bootstrap"],
             ["app", "worker"],
+            # app.web assembles modules into HTTP; depending on it would invert the layering.
+            ["app", "web"],
         ]:
             errors.append(f"{module}: cannot import composition root {target}")
         if module.startswith("app.core.") and target.startswith(
@@ -64,9 +68,9 @@ def violations(module: str, source: str, rules: dict) -> list[str]:
                 continue
             other = parts[2]
             if other != own and (
-                other not in rules[own]["depends_on"] or len(parts) < 4 or parts[3] != "public"
+                other not in rules[own]["depends_on"] or len(parts) < 4 or parts[3] not in SURFACES
             ):
-                errors.append(f"{module}: {target} must use a declared public dependency")
+                errors.append(f"{module}: {target} must use a declared public surface")
         if (
             own
             and target.startswith("app.")
@@ -74,8 +78,20 @@ def violations(module: str, source: str, rules: dict) -> list[str]:
             and module.endswith(".models")
         ):
             errors.append(f"{module}: models cannot import use cases or routers")
-        if own and module.endswith(".router") and ".models" in target:
+        if (own and module.endswith(".router") or module.startswith("app.web.")) and (
+            ".models" in target
+        ):
             errors.append(f"{module}: routes must call services, not models")
+        # public.py is the only surface other modules may touch. Values and read-only queries
+        # cross it; ORM instances do not, or the owning module loses control of its writes.
+        if own and module.endswith(".public") and target.startswith(f"app.modules.{own}.models"):
+            errors.append(f"{module}: public boundaries cannot expose ORM models")
+        # rules.py holds decisions that must stay testable without a database.
+        if own and module.endswith(".rules") and target.split(".")[0] == "sqlalchemy":
+            errors.append(f"{module}: rules cannot depend on persistence")
+        # A read surface that can reach service could trigger writes behind a caller's back.
+        if own and module.endswith(".queries") and target.startswith(f"app.modules.{own}.service"):
+            errors.append(f"{module}: queries cannot import use cases")
     return errors
 
 
