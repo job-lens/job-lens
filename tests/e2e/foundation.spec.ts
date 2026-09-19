@@ -4,11 +4,13 @@ test('real Web -> gateway -> API -> migrated PostgreSQL', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('status')).toHaveText('API 与数据库已连接');
 });
-test('a direct workspace URL preserves the SPA and fails closed without identity service', async ({ page }) => {
+test('a direct workspace URL preserves the SPA and fails closed without a session', async ({ page }) => {
+  // The gateway must serve index.html for a deep link, and the real API must reject the visitor.
   await page.goto('/learner');
-  await expect(page.getByText('身份服务暂不可用')).toBeVisible();
-  await page.reload();
-  await expect(page.getByText('身份服务暂不可用')).toBeVisible();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole('heading', { name: '登录' })).toBeVisible();
+  await page.goto('/learner');
+  await expect(page).toHaveURL(/\/login$/);
 });
 test('unknown client paths render an error instead of breaking the app', async ({ page }) => {
   await page.goto('/missing-page');
