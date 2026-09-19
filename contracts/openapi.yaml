@@ -32,7 +32,7 @@ components:
     ETag: &etag {description: "Quoted resource version. Task child commands use the current task version, including the Submission task_version projection.", schema: {type: string, pattern: '^"[1-9][0-9]*"$'}}
   responses:
     Problem: &problem
-      description: See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes.
+      description: See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes.
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
     Problem:

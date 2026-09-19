@@ -1370,7 +1370,7 @@ export interface components {
         };
     };
     responses: {
-        /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+        /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
         Problem: {
             headers: {
                 [name: string]: unknown;
@@ -1416,7 +1416,7 @@ export interface operations {
                     "application/json": components["schemas"]["Health"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1445,7 +1445,7 @@ export interface operations {
                     "application/json": components["schemas"]["Health"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -1454,7 +1454,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1483,7 +1483,7 @@ export interface operations {
                     "application/json": components["schemas"]["CsrfToken"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1518,7 +1518,7 @@ export interface operations {
                     "application/json": components["schemas"]["LoginResult"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1527,7 +1527,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1536,7 +1536,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1545,7 +1545,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1574,7 +1574,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1583,7 +1583,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1592,7 +1592,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1601,7 +1601,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1630,7 +1630,7 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1639,7 +1639,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1648,7 +1648,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1657,7 +1657,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1688,7 +1688,7 @@ export interface operations {
                     "application/json": components["schemas"]["Preferences"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1697,7 +1697,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1706,7 +1706,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1715,7 +1715,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1753,7 +1753,7 @@ export interface operations {
                     "application/json": components["schemas"]["Preferences"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1762,7 +1762,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1771,7 +1771,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1780,7 +1780,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -1789,7 +1789,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -1798,7 +1798,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1829,7 +1829,7 @@ export interface operations {
                     "application/json": components["schemas"]["Profile"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1838,7 +1838,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1847,7 +1847,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1856,7 +1856,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1894,7 +1894,7 @@ export interface operations {
                     "application/json": components["schemas"]["Profile"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1903,7 +1903,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1912,7 +1912,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1921,7 +1921,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -1930,7 +1930,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -1939,7 +1939,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -1968,7 +1968,7 @@ export interface operations {
                     "application/json": components["schemas"]["Capabilities"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1977,7 +1977,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -1986,7 +1986,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1995,7 +1995,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2026,7 +2026,7 @@ export interface operations {
                     "application/json": components["schemas"]["Dashboard"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2035,7 +2035,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2044,7 +2044,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2053,7 +2053,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2086,7 +2086,7 @@ export interface operations {
                     "application/json": components["schemas"]["CasePage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2095,7 +2095,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2104,7 +2104,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2113,7 +2113,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2146,7 +2146,7 @@ export interface operations {
                     "application/json": components["schemas"]["Case"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2155,7 +2155,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2164,7 +2164,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2173,7 +2173,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2204,7 +2204,7 @@ export interface operations {
                     "application/json": components["schemas"]["CaseProfile"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2213,7 +2213,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2222,7 +2222,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2231,7 +2231,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2265,7 +2265,7 @@ export interface operations {
                     "application/json": components["schemas"]["FilePage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2274,7 +2274,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2283,7 +2283,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2292,7 +2292,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2325,7 +2325,7 @@ export interface operations {
                     "application/json": components["schemas"]["SupportMatch"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2334,7 +2334,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2343,7 +2343,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2352,7 +2352,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2392,7 +2392,7 @@ export interface operations {
                     "application/json": components["schemas"]["SupportMatch"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2401,7 +2401,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2410,7 +2410,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2419,7 +2419,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2428,7 +2428,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -2437,7 +2437,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -2446,7 +2446,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2483,7 +2483,7 @@ export interface operations {
                     "application/json": components["schemas"]["SupportMatch"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2492,7 +2492,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2501,7 +2501,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2510,7 +2510,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2519,7 +2519,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -2528,7 +2528,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -2537,7 +2537,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2571,7 +2571,7 @@ export interface operations {
                     "application/json": components["schemas"]["RecordPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2580,7 +2580,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2589,7 +2589,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2598,7 +2598,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2634,7 +2634,7 @@ export interface operations {
                     "application/json": components["schemas"]["FileAsset"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2643,7 +2643,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2652,7 +2652,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2661,7 +2661,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             413: {
                 headers: {
                     [name: string]: unknown;
@@ -2670,7 +2670,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             415: {
                 headers: {
                     [name: string]: unknown;
@@ -2679,7 +2679,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2712,7 +2712,7 @@ export interface operations {
                     "application/json": components["schemas"]["FileAsset"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2721,7 +2721,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2730,7 +2730,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2739,7 +2739,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2771,7 +2771,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2780,7 +2780,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2789,7 +2789,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2798,7 +2798,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2807,7 +2807,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -2816,7 +2816,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -2825,7 +2825,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2856,7 +2856,7 @@ export interface operations {
                     "application/octet-stream": string;
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2865,7 +2865,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2874,7 +2874,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2883,7 +2883,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2892,7 +2892,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2926,7 +2926,7 @@ export interface operations {
                     "application/json": components["schemas"]["PlanPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -2935,7 +2935,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -2944,7 +2944,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2953,7 +2953,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -2993,7 +2993,7 @@ export interface operations {
                     "application/json": components["schemas"]["SopPlan"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3002,7 +3002,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3011,7 +3011,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3020,7 +3020,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3053,7 +3053,7 @@ export interface operations {
                     "application/json": components["schemas"]["SopPlan"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3062,7 +3062,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3071,7 +3071,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3080,7 +3080,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3120,7 +3120,7 @@ export interface operations {
                     "application/json": components["schemas"]["SopRevision"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3129,7 +3129,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3138,7 +3138,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3147,7 +3147,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3156,7 +3156,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3189,7 +3189,7 @@ export interface operations {
                     "application/json": components["schemas"]["SopRevision"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3198,7 +3198,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3207,7 +3207,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3216,7 +3216,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3256,7 +3256,7 @@ export interface operations {
                     "application/json": components["schemas"]["SopRevision"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3265,7 +3265,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3274,7 +3274,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3283,7 +3283,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3292,7 +3292,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -3301,7 +3301,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -3310,7 +3310,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3349,7 +3349,7 @@ export interface operations {
                     "application/json": components["schemas"]["Publication"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3358,7 +3358,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3367,7 +3367,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3376,7 +3376,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3385,7 +3385,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -3394,7 +3394,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -3403,7 +3403,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3437,7 +3437,7 @@ export interface operations {
                     "application/json": components["schemas"]["TaskPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3446,7 +3446,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3455,7 +3455,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3464,7 +3464,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3497,7 +3497,7 @@ export interface operations {
                     "application/json": components["schemas"]["Task"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3506,7 +3506,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3515,7 +3515,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3524,7 +3524,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3565,7 +3565,7 @@ export interface operations {
                     "application/json": components["schemas"]["Task"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3574,7 +3574,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3583,7 +3583,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3592,7 +3592,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3601,7 +3601,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -3610,7 +3610,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -3619,7 +3619,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3660,7 +3660,7 @@ export interface operations {
                     "application/json": components["schemas"]["Task"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3669,7 +3669,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3678,7 +3678,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3687,7 +3687,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3696,7 +3696,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -3705,7 +3705,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -3714,7 +3714,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3752,7 +3752,7 @@ export interface operations {
                     "application/json": components["schemas"]["EventReceipt"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3761,7 +3761,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3770,7 +3770,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3779,7 +3779,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3788,7 +3788,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3822,7 +3822,7 @@ export interface operations {
                     "application/json": components["schemas"]["SubmissionPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3831,7 +3831,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3840,7 +3840,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3849,7 +3849,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3890,7 +3890,7 @@ export interface operations {
                     "application/json": components["schemas"]["Submission"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3899,7 +3899,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3908,7 +3908,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -3917,7 +3917,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -3926,7 +3926,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -3935,7 +3935,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -3944,7 +3944,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -3977,7 +3977,7 @@ export interface operations {
                     "application/json": components["schemas"]["Submission"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -3986,7 +3986,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3995,7 +3995,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4004,7 +4004,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4045,7 +4045,7 @@ export interface operations {
                     "application/json": components["schemas"]["FeedbackResult"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4054,7 +4054,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4063,7 +4063,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4072,7 +4072,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4081,7 +4081,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -4090,7 +4090,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -4099,7 +4099,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4139,7 +4139,7 @@ export interface operations {
                     "application/json": components["schemas"]["Task"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4148,7 +4148,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4157,7 +4157,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4166,7 +4166,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4175,7 +4175,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -4184,7 +4184,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -4193,7 +4193,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4227,7 +4227,7 @@ export interface operations {
                     "application/json": components["schemas"]["AnnotationPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4236,7 +4236,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4245,7 +4245,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4254,7 +4254,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4294,7 +4294,7 @@ export interface operations {
                     "application/json": components["schemas"]["Annotation"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4303,7 +4303,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4312,7 +4312,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4321,7 +4321,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4354,7 +4354,7 @@ export interface operations {
                     "application/json": components["schemas"]["Annotation"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4363,7 +4363,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4372,7 +4372,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4381,7 +4381,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4421,7 +4421,7 @@ export interface operations {
                     "application/json": components["schemas"]["Annotation"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4430,7 +4430,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4439,7 +4439,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4448,7 +4448,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4457,7 +4457,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -4466,7 +4466,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -4475,7 +4475,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4512,7 +4512,7 @@ export interface operations {
                     "application/json": components["schemas"]["Annotation"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4521,7 +4521,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4530,7 +4530,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4539,7 +4539,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4548,7 +4548,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -4557,7 +4557,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -4566,7 +4566,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4600,7 +4600,7 @@ export interface operations {
                     "application/json": components["schemas"]["AssistancePage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4609,7 +4609,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4618,7 +4618,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4627,7 +4627,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4665,7 +4665,7 @@ export interface operations {
                     "application/json": components["schemas"]["Assistance"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4674,7 +4674,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4683,7 +4683,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4692,7 +4692,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4701,7 +4701,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4734,7 +4734,7 @@ export interface operations {
                     "application/json": components["schemas"]["Assistance"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4743,7 +4743,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4752,7 +4752,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4761,7 +4761,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4802,7 +4802,7 @@ export interface operations {
                     "application/json": components["schemas"]["Assistance"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4811,7 +4811,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4820,7 +4820,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4829,7 +4829,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4838,7 +4838,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             412: {
                 headers: {
                     [name: string]: unknown;
@@ -4847,7 +4847,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             428: {
                 headers: {
                     [name: string]: unknown;
@@ -4856,7 +4856,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4890,7 +4890,7 @@ export interface operations {
                     "application/json": components["schemas"]["MessagePage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4899,7 +4899,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4908,7 +4908,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4917,7 +4917,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -4955,7 +4955,7 @@ export interface operations {
                     "application/json": components["schemas"]["SupportMessage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -4964,7 +4964,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -4973,7 +4973,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -4982,7 +4982,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -4991,7 +4991,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -5023,7 +5023,7 @@ export interface operations {
                     "application/json": components["schemas"]["NotificationPage"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5032,7 +5032,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5041,7 +5041,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5050,7 +5050,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             410: {
                 headers: {
                     [name: string]: unknown;
@@ -5059,7 +5059,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -5092,7 +5092,7 @@ export interface operations {
                     "text/event-stream": string;
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5101,7 +5101,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5110,7 +5110,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5119,7 +5119,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             410: {
                 headers: {
                     [name: string]: unknown;
@@ -5128,7 +5128,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;
@@ -5160,7 +5160,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -5169,7 +5169,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -5178,7 +5178,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -5187,7 +5187,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description See api-contract.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
+            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
             default: {
                 headers: {
                     [name: string]: unknown;

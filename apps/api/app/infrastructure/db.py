@@ -9,6 +9,10 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, sess
 
 from app.core.config import Settings
 
+# Readiness requires an exact match, which assumes migrations complete before the API starts --
+# the compose stack enforces that by running migrate as a prerequisite one-shot service. An
+# expand/contract rollout would advance the database while old containers still serve, turning
+# them all unready; switch this to a lowest-supported revision when that rollout is introduced.
 SCHEMA_REVISION = "0002_integrity"
 
 

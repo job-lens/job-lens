@@ -2,7 +2,7 @@ name: Architecture CI
 on:
   pull_request:
   push:
-    branches: [main, feat/architecture-foundation]
+    branches: [main]
 permissions:
   contents: read
 concurrency:

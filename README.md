@@ -5,7 +5,7 @@
 ## 启动
 
 ```bash
-git clone --branch feat/architecture-foundation https://github.com/job-lens/job-lens.git
+git clone https://github.com/job-lens/job-lens.git
 cd job-lens
 cp .env.example .env
 docker compose up -d --build --wait --wait-timeout 180
