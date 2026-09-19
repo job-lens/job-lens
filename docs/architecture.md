@@ -112,7 +112,7 @@ flowchart LR
 | --- | ---: | ---: |
 | cases | 8 | 0 |
 | identity | 9 | 0 |
-| infrastructure | 7 | 0 |
+| infrastructure | 6 | 0 |
 | platform | 2 | 2 |
 | sop | 7 | 0 |
 | support | 12 | 0 |

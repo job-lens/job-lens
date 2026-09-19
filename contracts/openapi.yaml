@@ -27,7 +27,6 @@ components:
     Limit: &limit {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
     Cursor: &cursor {name: cursor, in: query, schema: {type: string, maxLength: 512}}
     AfterSeq: &after {name: after_seq, in: query, schema: {<<: *seq, default: '0'}}
-    LastEventId: &last {name: Last-Event-ID, in: header, schema: *seq}
   headers:
     ETag: &etag {description: "Quoted resource version. Task child commands use the current task version, including the Submission task_version projection.", schema: {type: string, pattern: '^"[1-9][0-9]*"$'}}
   responses:
@@ -371,8 +370,6 @@ paths:
     post: {operationId: support_messages_create, summary: 追加求助上下文消息, x-phase: M3, parameters: *write_headers, requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MessageCreate'}}}}, responses: {<<: *errors, '201': {description: "Participants only; non-final request; append-only", content: {application/json: {schema: {$ref: '#/components/schemas/SupportMessage'}}}}, '409': *problem}}
   /notifications:
     get: {operationId: notifications_list, summary: 补拉本人持久化通知, x-phase: M3, parameters: [*after, *limit], responses: {<<: *errors, '200': {description: "next_seq is the last returned sequence; 0 starts retained history", content: {application/json: {schema: {$ref: '#/components/schemas/NotificationPage'}}}}, '410': *problem}}
-  /notifications/stream:
-    get: {operationId: notifications_stream, summary: 订阅可恢复通知流, x-phase: M3, parameters: [*after, *last], x-sse-event-schema: {$ref: '#/components/schemas/Notification'}, responses: {<<: *errors, '200': {description: "SSE notification event with seq as id; 15s heartbeat; periodically reauthorize; Last-Event-ID wins", content: {text/event-stream: {schema: {type: string}}}}, '410': *problem}}
   /notifications/{notification_id}/read:
     parameters: [{name: notification_id, in: path, required: true, schema: *uuid}]
     post: {operationId: notifications_read, summary: 标记本人通知已读, x-phase: M3, parameters: *write_headers, responses: {<<: *errors, '204': {description: "Recipient only; repeated marking is safe"}}}
