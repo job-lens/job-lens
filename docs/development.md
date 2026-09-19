@@ -20,7 +20,19 @@ make api
 
 ## 代码边界
 
-`app/main.py`、`app/bootstrap.py`、`app/worker.py` 是装配入口。后端业务模块包含内部模型、用例服务与 `public.py`；跨模块只允许导入 `architecture.toml` 声明依赖的 `public.py`。路由只调用服务，不直接查询 ORM；服务在最外层 `Database.transaction()` 中统一提交。禁止内部函数独立 commit 和基础设施反向引用业务模块。
+`app/main.py`、`app/bootstrap.py`、`app/worker.py` 与 `app/web/` 是装配入口。`app/web/` 持有路由、`Depends` 装配与 HTTP 模型；业务模块不得反向导入它。请求的事务由 `app/web/deps.py` 在最外层打开，模块内部函数不独立 commit。
+
+后端业务模块按职责分四类文件，缺省不必全建：
+
+| 文件 | 放什么 | 约束 |
+| --- | --- | --- |
+| `models.py` | ORM 模型与表约束 | 不导入用例与路由 |
+| `rules.py` | 不依赖存储的业务判定 | 不导入 sqlalchemy |
+| `queries.py` | 返回值对象的只读查询 | 不导入本模块 `service` |
+| `service.py` | 需要 session 的写入编排 | 事务由调用方持有 |
+| `public.py` | 跨模块可见的不可变值对象 | 不导出 ORM 模型 |
+
+跨模块只允许导入 `architecture.toml` 声明依赖的 `public.py` 与 `queries.py`，前者传值、后者取值；ORM 实例不跨模块边界，否则拥有方失去对自身写入的控制。以上每条都由 `tools/check_architecture.py` 检查并各配负例断言，改动边界先改检查脚本。
 
 前端 `app` 组合页面与 Provider，`features` 保存业务功能，`shared` 保存实际共用组件、请求与设备能力。功能模块通过 `public.tsx` 暴露页面。当前模块间不直接互相依赖；新增依赖必须登记并通过边界检查。
 
