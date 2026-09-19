@@ -32,7 +32,7 @@ make api
 | `service.py` | 需要 session 的写入编排 | 事务由调用方持有 |
 | `public.py` | 跨模块可见的不可变值对象 | 不导出 ORM 模型 |
 
-跨模块只允许导入 `architecture.toml` 声明依赖的 `public.py` 与 `queries.py`，前者传值、后者取值；ORM 实例不跨模块边界，否则拥有方失去对自身写入的控制。以上每条都由 `tools/check_architecture.py` 检查并各配负例断言，改动边界先改检查脚本。
+跨模块只允许导入 `architecture.toml` 声明依赖的 `public.py` 与 `queries.py`，前者传值、后者取值；ORM 实例不跨模块边界，否则拥有方失去对自身写入的控制。以上每条都由 `tools/check_architecture.py` 检查并各配负例断言，改动边界先改检查脚本。该脚本同时反向提示：`architecture.toml` 里声明了却没有任何实际 import 的依赖会列为 WARNING，提醒这张表当前有几行仍是设计意图而非事实；`--strict` 可将其升级为失败，待模块全部接线后在 CI 启用。
 
 前端 `app` 组合页面与 Provider，`features` 保存业务功能，`shared` 保存实际共用组件、请求与设备能力。功能模块通过 `public.tsx` 暴露页面。当前模块间不直接互相依赖；新增依赖必须登记并通过边界检查。
 
