@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
 from sqlalchemy import and_, func, or_, select, update
@@ -20,7 +20,13 @@ class Lease:
     seconds: int
 
 
-def enqueue(session: Session, kind: str, payload: JsonObject, dedupe_key: str) -> UUID:
+def enqueue(
+    session: Session,
+    kind: str,
+    payload: JsonObject,
+    dedupe_key: str,
+    run_at: datetime | None = None,
+) -> UUID:
     statement = (
         insert(Job)
         .values(
@@ -32,7 +38,7 @@ def enqueue(session: Session, kind: str, payload: JsonObject, dedupe_key: str) -
             state="pending",
             attempts=0,
             max_attempts=5,
-            next_run_at=utcnow(),
+            next_run_at=run_at or utcnow(),
         )
         .on_conflict_do_nothing(index_elements=[Job.dedupe_key])
         .returning(Job.id)

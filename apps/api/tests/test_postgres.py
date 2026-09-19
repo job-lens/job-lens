@@ -15,7 +15,13 @@ from app.core.errors import AppError
 from app.core.security import new_token, token_digest
 from app.core.types import Actor
 from app.infrastructure.db import Database, utcnow
-from app.infrastructure.idempotency import CommandResult, Scope, execute_once, fingerprint
+from app.infrastructure.idempotency import (
+    CommandResult,
+    Scope,
+    execute_once,
+    fingerprint,
+    purge_expired,
+)
 from app.infrastructure.jobs import claim, enqueue, finish, renew
 from app.infrastructure.models import IdempotencyRecord, Job, Notification, NotificationCounter
 from app.infrastructure.notifications import append_notifications, mark_read, read_notifications
@@ -25,6 +31,7 @@ from app.modules.identity.models import Preferences, Profile, SessionRecord, Use
 from app.modules.identity.queries import load_user, resolve_actor
 from app.modules.sop.models import SopPlan, SopRevision, SopStep
 from app.modules.training.models import StepProgress, Submission, TrainingTask
+from app.worker import PERIODIC, Worker, build_handlers, schedule
 from pydantic import SecretStr
 from sqlalchemy import func, select, text, update
 from sqlalchemy.engine import make_url
@@ -414,3 +421,45 @@ def test_user_without_a_profile_is_not_readable(db):
     with db.transaction() as s, pytest.raises(AppError) as error:
         load_user(s, actor)
     assert error.value.status == 404
+def test_expired_idempotency_records_are_purged(db):
+    learner, _, _ = actors(db)
+    with db.transaction() as s:
+        for name, age in [("stale", timedelta(hours=1)), ("live", -timedelta(hours=1))]:
+            s.add(
+                IdempotencyRecord(
+                    actor_id=learner,
+                    method="POST",
+                    path=f"/{name}",
+                    key=f"{name}-key-000000000001",
+                    fingerprint="f" * 64,
+                    response_headers={},
+                    expires_at=utcnow() - age,
+                )
+            )
+    with db.transaction() as s:
+        assert purge_expired(s, utcnow()) == 1
+    with db.transaction() as s:
+        assert [r.path for r in s.scalars(select(IdempotencyRecord))] == ["/live"]
+
+
+def test_periodic_job_enters_once_per_slot(db):
+    now = utcnow()
+    with db.transaction() as s:
+        first = schedule(s, "system.ping", 3600, now)
+        assert schedule(s, "system.ping", 3600, now + timedelta(minutes=5)) == first
+        later = schedule(s, "system.ping", 3600, now + timedelta(hours=1))
+    assert later != first
+    with db.transaction() as s:
+        rows = s.scalars(select(Job).order_by(Job.next_run_at)).all()
+        assert len(rows) == 2
+        assert rows[1].next_run_at > rows[0].next_run_at
+
+
+def test_worker_rearms_a_periodic_job_after_finishing(db):
+    with db.transaction() as s:
+        schedule(s, "system.ping", 3600, utcnow())
+    worker = Worker(db, build_handlers(db), periodic=PERIODIC | {"system.ping": 3600})
+    assert worker.run_once()
+    with db.transaction() as s:
+        states = sorted(r.state for r in s.scalars(select(Job)))
+        assert states == ["done", "pending"], states

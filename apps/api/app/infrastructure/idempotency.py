@@ -2,10 +2,10 @@ import hashlib
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -78,3 +78,13 @@ def execute_once(
     record.response_headers = allowed_headers
     session.flush()
     return CommandResult(result.status, result.body, allowed_headers)
+
+
+def purge_expired(session: Session, now: datetime) -> int:
+    """Records outlive their replay window by design; a sweep is what actually removes them."""
+    removed = session.scalars(
+        delete(IdempotencyRecord)
+        .where(IdempotencyRecord.expires_at <= now)
+        .returning(IdempotencyRecord.id)
+    ).all()
+    return len(removed)
