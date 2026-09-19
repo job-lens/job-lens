@@ -43,7 +43,7 @@ def test_no_fake_business_routes_or_http_200_errors(settings):
         assert client.get("/api/v1/tasks").status_code == 404
         assert client.get("/api/v1/tasks").json()["status"] == 404
         paths = client.get("/api/openapi.json").json()["paths"]
-        assert set(paths) == {"/api/v1/health/live", "/api/v1/health/ready"}
+        assert set(paths) == {"/api/v1/health/live", "/api/v1/health/ready", "/api/v1/me"}
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "trace-123"})
         assert result.headers["x-request-id"] == "trace-123"
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "a" * 1000})
@@ -68,3 +68,12 @@ def test_method_rejection_preserves_allow_header(settings):
         assert "GET" in result.headers["allow"]
         assert result.json()["status"] == 405
         assert result.headers["content-type"].startswith("application/problem+json")
+
+
+def test_me_requires_a_session_cookie(settings):
+    with TestClient(create_app(settings, DatabaseProbe())) as client:
+        result = client.get("/api/v1/me")
+        assert result.status_code == 401
+        assert result.headers["content-type"].startswith("application/problem+json")
+        assert result.json()["code"] == "UNAUTHENTICATED"
+        assert result.headers["cache-control"] == "no-store"

@@ -111,7 +111,7 @@ flowchart LR
 | 模块 | 契约操作 | 已接入 HTTP |
 | --- | ---: | ---: |
 | cases | 8 | 0 |
-| identity | 9 | 0 |
+| identity | 9 | 1 |
 | infrastructure | 7 | 0 |
 | platform | 2 | 2 |
 | sop | 7 | 0 |

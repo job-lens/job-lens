@@ -3,13 +3,11 @@ import re
 import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from typing import Any, Literal
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict
 from starlette.exceptions import HTTPException
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import Response
@@ -17,50 +15,13 @@ from starlette.responses import Response
 from app.core.config import Settings
 from app.core.errors import AppError
 from app.infrastructure.db import Database
+from app.web import identity, platform
+from app.web.problem import problem_response
 
 logger = logging.getLogger("job_lens")
 _REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
-
-
-class Health(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    status: Literal["ok"]
-
-
-class Problem(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    title: str
-    status: int
-    code: str
-    trace_id: str
-
-
-def problem_response(
-    request: Request, status: int, code: str, title: str, headers: dict[str, str] | None = None
-) -> JSONResponse:
-    trace_id = getattr(request.state, "trace_id", uuid4().hex)
-    payload = Problem(
-        type=f"urn:job-lens:problem:{code.lower().replace('_', '-')}",
-        title=title,
-        status=status,
-        code=code,
-        trace_id=trace_id,
-    )
-    return JSONResponse(
-        payload.model_dump(),
-        status_code=status,
-        media_type="application/problem+json",
-        headers={
-            **{
-                key: value
-                for key, value in (headers or {}).items()
-                if key.lower() in {"allow", "retry-after", "www-authenticate"}
-            },
-            "Cache-Control": "no-store",
-            "X-Request-ID": trace_id,
-        },
-    )
+# Routers are assembled here and nowhere else; modules never mount themselves.
+ROUTERS = (platform.router, identity.router)
 
 
 def create_app(settings: Settings | None = None, database: Database | None = None) -> FastAPI:
@@ -147,31 +108,6 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
             dict(exc.headers) if exc.headers else None,
         )
 
-    error_response: dict[str, Any] = {
-        "description": "Structured failure",
-        "content": {"application/problem+json": {"schema": Problem.model_json_schema()}},
-    }
-    errors: dict[int | str, dict[str, Any]] = {"default": error_response}
-
-    @api.get(
-        "/api/v1/health/live", operation_id="health_live", response_model=Health, responses=errors
-    )
-    def live() -> Health:
-        return Health(status="ok")
-
-    @api.get(
-        "/api/v1/health/ready",
-        operation_id="health_ready",
-        response_model=Health,
-        responses={**errors, 503: error_response},
-    )
-    def ready(request: Request) -> Health:
-        try:
-            available = request.app.state.database.ready()
-        except Exception:
-            available = False
-        if not available:
-            raise AppError(503, "NOT_READY", "服务尚未就绪")
-        return Health(status="ok")
-
+    for router in ROUTERS:
+        api.include_router(router, prefix="/api/v1")
     return api

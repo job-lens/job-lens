@@ -12,6 +12,7 @@ from alembic.migration import MigrationContext
 from app.bootstrap import metadata
 from app.core.config import Settings
 from app.core.errors import AppError
+from app.core.security import new_token, token_digest
 from app.core.types import Actor
 from app.infrastructure.db import Database, utcnow
 from app.infrastructure.idempotency import CommandResult, Scope, execute_once, fingerprint
@@ -20,7 +21,8 @@ from app.infrastructure.models import IdempotencyRecord, Job, Notification, Noti
 from app.infrastructure.notifications import append_notifications, mark_read, read_notifications
 from app.modules.cases.models import Case, CaseGrant
 from app.modules.cases.queries import read_access, scope_predicate
-from app.modules.identity.models import Preferences, User
+from app.modules.identity.models import Preferences, Profile, SessionRecord, User, UserRole
+from app.modules.identity.queries import load_user, resolve_actor
 from app.modules.sop.models import SopPlan, SopRevision, SopStep
 from app.modules.training.models import StepProgress, Submission, TrainingTask
 from pydantic import SecretStr
@@ -343,3 +345,72 @@ def test_empty_database_migration_roundtrip(db):
     command.upgrade(config, "head")
     command.check(config)
     assert db.ready()
+
+
+def signed_in(db, roles=("learner",), *, revoked=False, age=timedelta(), idle=timedelta()):
+    """Create a user with roles, a profile and one session; return its raw token."""
+    token = new_token()
+    now = utcnow()
+    with db.transaction() as s:
+        user = User(login_name=f"user-{uuid4().hex[:8]}", password_hash="test-only")
+        s.add(user)
+        s.flush()
+        s.add(Profile(user_id=user.id, display_name="测试用户"))
+        s.add_all([UserRole(user_id=user.id, role=role) for role in roles])
+        s.add(
+            SessionRecord(
+                user_id=user.id,
+                created_at=now - age,
+                token_hash=token_digest(token),
+                csrf_hash="c" * 64,
+                last_seen_at=now - idle,
+                expires_at=now + timedelta(hours=12) - age,
+                revoked_at=now if revoked else None,
+            )
+        )
+        return user.id, token
+
+
+def test_session_resolves_to_an_actor_with_declared_roles(db):
+    user_id, token = signed_in(db, ("learner", "counselor"))
+    with db.transaction() as s:
+        actor = resolve_actor(s, token, utcnow())
+        assert actor.user_id == user_id
+        assert actor.roles == frozenset({"learner", "counselor"})
+        view = load_user(s, actor)
+        assert view.display_name == "测试用户"
+        assert view.roles == ("counselor", "learner")
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"revoked": True},
+        {"age": timedelta(hours=13)},
+        {"idle": timedelta(hours=3)},
+        {"roles": ()},
+    ],
+)
+def test_session_resolution_rejects_unusable_sessions(db, kwargs):
+    _, token = signed_in(db, **kwargs)
+    with db.transaction() as s, pytest.raises(AppError) as error:
+        resolve_actor(s, token, utcnow())
+    assert error.value.status == 401
+
+
+def test_session_resolution_rejects_an_unknown_token(db):
+    signed_in(db)
+    with db.transaction() as s, pytest.raises(AppError) as error:
+        resolve_actor(s, new_token(), utcnow())
+    assert error.value.status == 401
+
+
+def test_user_without_a_profile_is_not_readable(db):
+    with db.transaction() as s:
+        user = User(login_name="no-profile", password_hash="test-only")
+        s.add(user)
+        s.flush()
+        actor = Actor(user.id, frozenset({"learner"}))
+    with db.transaction() as s, pytest.raises(AppError) as error:
+        load_user(s, actor)
+    assert error.value.status == 404

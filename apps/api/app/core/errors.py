@@ -16,3 +16,7 @@ def not_found() -> AppError:
 
 def conflict(code: str = "STATE_CONFLICT") -> AppError:
     return AppError(409, code, "状态已变更，请刷新后重试")
+
+
+def unauthenticated() -> AppError:
+    return AppError(401, "UNAUTHENTICATED", "请先登录")
