@@ -6,4 +6,8 @@ import './index.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Application root is missing');
-ReactDOM.createRoot(root).render(<React.StrictMode><App /></React.StrictMode>);
+ReactDOM.createRoot(root).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);

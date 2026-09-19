@@ -4,7 +4,9 @@ test('real Web -> gateway -> API -> migrated PostgreSQL', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('status')).toHaveText('API 与数据库已连接');
 });
-test('a direct workspace URL preserves the SPA and fails closed without a session', async ({ page }) => {
+test('a direct workspace URL preserves the SPA and fails closed without a session', async ({
+  page,
+}) => {
   // The gateway must serve index.html for a deep link, and the real API must reject the visitor.
   await page.goto('/learner');
   await expect(page).toHaveURL(/\/login$/);
@@ -17,16 +19,31 @@ test('unknown client paths render an error instead of breaking the app', async (
   await expect(page.getByText('页面不存在')).toBeVisible();
 });
 test('mocked learner identity cannot enter the counselor workspace', async ({ page }) => {
-  await page.route('**/api/v1/me', route => route.fulfill({json: {
-    id:'00000000-0000-4000-8000-000000000001', display_name:'测试账号', roles:['learner'],
-  }}));
+  await page.route('**/api/v1/me', route =>
+    route.fulfill({
+      json: {
+        id: '00000000-0000-4000-8000-000000000001',
+        display_name: '测试账号',
+        roles: ['learner'],
+      },
+    }),
+  );
   await page.goto('/counselor');
   await expect(page.getByText('无权访问此区域')).toBeVisible();
 });
 test('mocked expired session redirects to the login boundary', async ({ page }) => {
-  await page.route('**/api/v1/me', route => route.fulfill({status:401, json: {
-    type:'urn:job-lens:problem:unauthenticated', status:401, code:'UNAUTHENTICATED', title:'请登录',trace_id:'test',
-  }}));
+  await page.route('**/api/v1/me', route =>
+    route.fulfill({
+      status: 401,
+      json: {
+        type: 'urn:job-lens:problem:unauthenticated',
+        status: 401,
+        code: 'UNAUTHENTICATED',
+        title: '请登录',
+        trace_id: 'test',
+      },
+    }),
+  );
   await page.goto('/learner');
   await expect(page).toHaveURL(/\/login$/);
 });
