@@ -34,7 +34,7 @@ make api
 
 跨模块只允许导入 `architecture.toml` 声明依赖的 `public.py` 与 `queries.py`，前者传值、后者取值；ORM 实例不跨模块边界，否则拥有方失去对自身写入的控制。以上每条都由 `tools/check_architecture.py` 检查并各配负例断言，改动边界先改检查脚本。该脚本同时反向提示：`architecture.toml` 里声明了却没有任何实际 import 的依赖会列为 WARNING，提醒这张表当前有几行仍是设计意图而非事实；`--strict` 可将其升级为失败，待模块全部接线后在 CI 启用。
 
-前端 `app` 组合页面与 Provider，`features` 保存业务功能，`shared` 保存实际共用组件、请求与设备能力。功能模块通过 `public.tsx` 暴露页面。当前模块间不直接互相依赖；新增依赖必须登记并通过边界检查。
+前端 `app` 组合页面与 Provider，`features` 保存业务功能，`shared` 保存实际共用组件、请求与设备能力。功能模块通过 `public.tsx` 暴露页面。当前模块间不直接互相依赖；新增依赖必须登记并通过边界检查。`shared` 的准入规则与已有能力见 `apps/web/src/shared/README.md`：出现第二个使用方才上移，并且任何会发声或震动的调用都走 `usePrompt`，它已绑定本人偏好，直接用 `usePlatform` 自己拼偏好对象是唯一会漏掉安静模式的写法。
 
 `architecture.toml` 驱动三个产物：路由 `routes.generated.ts`、前端边界清单 `architecture.generated.json`、`docs/architecture.md`。数据关系来自 ORM 外键，状态图来自训练状态表，部署依赖来自 Compose。CI 检查生成差异，不能只改图而不改模型。
 

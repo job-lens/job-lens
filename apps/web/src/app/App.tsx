@@ -4,6 +4,7 @@ import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router'
 import { LoginPage, SessionGate } from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
 import { PlatformContext } from '@/shared/platform/context';
+import { PreferencesProvider } from '@/shared/preferences/public';
 import { webPlatform } from '@/shared/platform/web';
 import { createQueryClient } from './query';
 import { featureRoutes } from './routes.generated';
@@ -52,7 +53,9 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <PlatformContext.Provider value={webPlatform}>
-        <RouterProvider router={router} />
+        <PreferencesProvider>
+          <RouterProvider router={router} />
+        </PreferencesProvider>
       </PlatformContext.Provider>
     </QueryClientProvider>
   );
