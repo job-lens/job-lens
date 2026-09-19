@@ -784,23 +784,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/notifications/stream": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 订阅可恢复通知流 */
-        get: operations["notifications_stream"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/notifications/{notification_id}/read": {
         parameters: {
             query?: never;
@@ -1387,7 +1370,6 @@ export interface components {
         Limit: number;
         Cursor: string;
         AfterSeq: string;
-        LastEventId: string;
     };
     requestBodies: never;
     headers: {
@@ -5021,75 +5003,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationPage"];
-                };
-            };
-            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
-            410: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-            /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": components["schemas"]["Problem"];
-                };
-            };
-        };
-    };
-    notifications_stream: {
-        parameters: {
-            query?: {
-                after_seq?: string;
-            };
-            header?: {
-                "Last-Event-ID"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description SSE notification event with seq as id; 15s heartbeat; periodically reauthorize; Last-Event-ID wins */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/event-stream": string;
                 };
             };
             /** @description See docs/development.md for 400/401/403/404/409/410/412/413/415/422/428/429/503 conditions and stable business codes. */

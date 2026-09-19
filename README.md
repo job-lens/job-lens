@@ -24,7 +24,7 @@ docker compose exec -T api python tools/worker_smoke.py
 | --- | --- |
 | `apps/web` | 应用壳、七个功能模块、生成式路由、会话与角色边界、类型化请求、设备适配 |
 | `apps/api` | 五个业务模块、公共接口、数据库模型、迁移、事务与异步作业基础设施 |
-| `contracts` | 55 个产品操作的 OpenAPI、已接入操作登记、运行时 OpenAPI |
+| `contracts` | 54 个产品操作的 OpenAPI、已接入操作登记、运行时 OpenAPI |
 | `architecture.toml` | 模块依赖、前端路由与职责清单 |
 | `tools`、`tests` | 架构与契约检查、生成工具、基础设施及浏览器测试 |
 | `infra`、`compose.yaml` | 构建、网络、启动顺序、TLS 入口与环境配置 |
@@ -33,7 +33,7 @@ docker compose exec -T api python tools/worker_smoke.py
 
 ## 当前可执行范围
 
-工程基线已接入健康检查和持久化系统作业，提供可验证的权限、状态、存储与事务基础设施。产品契约为 **44 个路径、55 个操作、64 个模型**；HTTP 当前接入 `health_live`、`health_ready` 与 `identity_me`，后者打通 Cookie 会话到业务响应的完整装配路径。登录、SOP 编辑、训练与辅导页面是后续功能开发入口，未使用假成功接口代替业务实现。
+工程基线已接入健康检查和持久化系统作业，提供可验证的权限、状态、存储与事务基础设施。产品契约为 **43 个路径、54 个操作、64 个模型**；HTTP 当前接入 `health_live`、`health_ready` 与 `identity_me`，后者打通 Cookie 会话到业务响应的完整装配路径。登录、SOP 编辑、训练与辅导页面是后续功能开发入口，未使用假成功接口代替业务实现。
 
 ## 检查
 
