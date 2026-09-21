@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="840" viewBox="0 0 1040 840" role="img" aria-label="融职境｜训练任务状态机">
+<title>融职境｜训练任务状态机</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="840" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜训练任务状态机</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">状态视图 · 学员执行、辅导员审核与指定步骤返工</text>
+<rect x="45" y="150" width="250" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="170" y="184" font-size="23" font-weight="600" text-anchor="middle">未开始</text>
+<text x="170" y="215" font-size="18" text-anchor="middle">not_started</text>
+<rect x="400" y="150" width="250" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="525" y="184" font-size="23" font-weight="600" text-anchor="middle">进行中</text>
+<text x="525" y="215" font-size="18" text-anchor="middle">in_progress</text>
+<rect x="745" y="150" width="250" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="870" y="184" font-size="23" font-weight="600" text-anchor="middle">已暂停</text>
+<text x="870" y="215" font-size="18" text-anchor="middle">paused</text>
+<path d="M295 195 L400 195" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="291.2" y="166" width="109.6" height="25" fill="white"/>
+<text x="346" y="183" font-size="18" text-anchor="middle">学员 start</text>
+<path d="M650 177 L745 177" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="666.4" y="149" width="63.3" height="25" fill="white"/>
+<text x="698" y="166" font-size="18" text-anchor="middle">pause</text>
+<path d="M745 218 L650 218" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="661.2" y="229" width="73.6" height="25" fill="white"/>
+<text x="698" y="246" font-size="18" text-anchor="middle">resume</text>
+<rect x="400" y="365" width="250" height="105" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="525" y="399" font-size="23" font-weight="600" text-anchor="middle">已提交 / 待反馈</text>
+<text x="525" y="430" font-size="18" text-anchor="middle">submitted</text>
+<text x="525" y="458" font-size="18" text-anchor="middle">提交快照锁定</text>
+<path d="M525 240 L525 365" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="438" y="291" width="174" height="25" fill="white"/>
+<text x="525" y="308" font-size="18" text-anchor="middle">完成必需步骤后提交</text>
+<rect x="45" y="570" width="250" height="100" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="170" y="604" font-size="23" font-weight="600" text-anchor="middle">需修改</text>
+<text x="170" y="635" font-size="18" text-anchor="middle">changes_requested</text>
+<rect x="745" y="570" width="250" height="100" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="870" y="604" font-size="23" font-weight="600" text-anchor="middle">已完成</text>
+<text x="870" y="635" font-size="18" text-anchor="middle">completed</text>
+<path d="M400 425 L170 425 L170 570" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="152" y="397" width="138" height="25" fill="white"/>
+<text x="221" y="414" font-size="18" text-anchor="middle">反馈：要求修改</text>
+<path d="M650 425 L870 425 L870 570" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="772" y="397" width="102" height="25" fill="white"/>
+<text x="823" y="414" font-size="18" text-anchor="middle">反馈：通过</text>
+<path d="M45 620 L20 620 L20 110 L525 110 L525 150" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="146.2" y="83" width="235.6" height="25" fill="white"/>
+<text x="264" y="100" font-size="18" text-anchor="middle">学员 start：重做指定步骤</text>
+<rect x="400" y="570" width="250" height="100" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="525" y="604" font-size="23" font-weight="600" text-anchor="middle">已取消</text>
+<text x="525" y="635" font-size="18" text-anchor="middle">cancelled</text>
+<path d="M585 470 L585 570" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="593.1" y="509" width="137.8" height="25" fill="white"/>
+<text x="662" y="526" font-size="18" text-anchor="middle">辅导员 cancel</text>
+<text x="45" y="736" font-size="19" text-anchor="start">cancel 可作用于任一非终态，必须填写原因；已完成与已取消不再转出。</text>
+<line x1="32" y1="781" x2="1008" y2="781" stroke="#CDD6DD"/>
+<text x="32" y="811" font-size="17" fill="#45677E" text-anchor="start">图例：框=任务状态；箭头=允许的转移；通话与标注属于辅导方式，不改变任务状态。</text>
+</g></svg>
