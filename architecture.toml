@@ -28,6 +28,8 @@ depends_on = []
 depends_on = []
 [frontend.support]
 depends_on = []
+[frontend.notifications]
+depends_on = []
 [[routes]]
 path = "/profile"
 feature = "profile"
@@ -75,4 +77,24 @@ role = "counselor"
 path = "/counselor/submissions/:id"
 feature = "training"
 export = "FeedbackPage"
+role = "counselor"
+[[routes]]
+path = "/counselor/support"
+feature = "support"
+export = "CounselorSupportPage"
+role = "counselor"
+[[routes]]
+path = "/counselor/support/:id"
+feature = "support"
+export = "AssistancePage"
+role = "counselor"
+[[routes]]
+path = "/counselor/tasks/:id"
+feature = "training"
+export = "CounselorTaskPage"
+role = "counselor"
+[[routes]]
+path = "/counselor/notifications"
+feature = "notifications"
+export = "CounselorNotificationsPage"
 role = "counselor"

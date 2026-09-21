@@ -11,4 +11,8 @@ export const featureRoutes: (RouteObject & { role?: 'learner' | 'counselor' })[]
   { path: '/counselor/cases/:id', role: 'counselor', lazy: async () => ({ Component: (await import('../features/counselor/public')).CasePage }) },
   { path: '/counselor/sop/:id', role: 'counselor', lazy: async () => ({ Component: (await import('../features/sop/public')).SopPage }) },
   { path: '/counselor/submissions/:id', role: 'counselor', lazy: async () => ({ Component: (await import('../features/training/public')).FeedbackPage }) },
+  { path: '/counselor/support', role: 'counselor', lazy: async () => ({ Component: (await import('../features/support/public')).CounselorSupportPage }) },
+  { path: '/counselor/support/:id', role: 'counselor', lazy: async () => ({ Component: (await import('../features/support/public')).AssistancePage }) },
+  { path: '/counselor/tasks/:id', role: 'counselor', lazy: async () => ({ Component: (await import('../features/training/public')).CounselorTaskPage }) },
+  { path: '/counselor/notifications', role: 'counselor', lazy: async () => ({ Component: (await import('../features/notifications/public')).CounselorNotificationsPage }) },
 ];

@@ -19,5 +19,8 @@
   },
   "support": {
     "depends_on": []
+  },
+  "notifications": {
+    "depends_on": []
   }
 }
