@@ -1,20 +1,24 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# 编辑器
-.vscode/
-.idea/
-*.swp
-
-# 环境与密钥
+# Local settings and credentials
 .env
-.env.local
-*.local
-
-# 依赖与构建产物（具体栈定稿后在本文件补充）
+.env.*
+!.env.example
+!.env.production.example
+.venv/
 node_modules/
-dist/
-build/
-__pycache__/
-*.log
+**/dist/
+**/__pycache__/
+*.py[cod]
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage/
+test-results/
+playwright-report/
+.data/
+backups/
+*.db
+*.egg-info/
+.DS_Store

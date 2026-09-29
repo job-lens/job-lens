@@ -1,0 +1,40 @@
+[project]
+name = "job-lens"
+version = "0.1.0"
+description = "Job Lens modular application foundation"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "fastapi>=0.128,<1", "pydantic>=2.12,<3", "pydantic-settings>=2.10,<3",
+  "uvicorn>=0.35,<1", "sqlalchemy>=2.0.41,<2.1", "alembic>=1.16,<2",
+  "psycopg[binary]>=3.2,<4", "argon2-cffi>=25.1,<26", "boto3>=1.40,<2"
+]
+[dependency-groups]
+dev = [
+  "pytest>=8.4,<10", "pytest-cov>=6,<8", "httpx>=0.28,<1",
+  "ruff>=0.12,<1", "mypy>=1.16,<2", "pyyaml>=6,<7", "types-pyyaml>=6,<7",
+  "jsonschema>=4.23,<5", "openapi-spec-validator>=0.7,<1"
+]
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+[tool.hatch.build.targets.wheel]
+packages = ["apps/api/app"]
+[tool.pytest.ini_options]
+pythonpath = ["apps/api", "."]
+testpaths = ["apps/api/tests", "tests/architecture"]
+addopts = "-ra"
+markers = ["postgres: requires JOB_LENS_TEST_DATABASE_URL", "integration: external adapter integration"]
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+exclude = ["apps/api/migrations/versions", "apps/web", "node_modules"]
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+python_version = "3.13"
+files = ["apps/api/app"]
+strict = true
+[[tool.mypy.overrides]]
+module = ["boto3", "botocore.*"]
+ignore_missing_imports = true
