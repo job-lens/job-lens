@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1050" viewBox="0 0 1040 1050" role="img" aria-label="融职境｜总体架构">
+<title>融职境｜总体架构</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="1050" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜总体架构</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">容器视图 · 当前 Web 与后续客户端共用业务接口</text>
+<rect x="80" y="105" width="310" height="90" rx="7" fill="#F5F6F7" stroke="#45677E" stroke-width="1.6"/>
+<text x="235" y="139" font-size="23" font-weight="600" text-anchor="middle">学员</text>
+<text x="235" y="170" font-size="18" text-anchor="middle">人员 · 建档、训练、提交与求助</text>
+<rect x="445" y="105" width="310" height="90" rx="7" fill="#F5F6F7" stroke="#45677E" stroke-width="1.6"/>
+<text x="600" y="139" font-size="23" font-weight="600" text-anchor="middle">辅导员</text>
+<text x="600" y="170" font-size="18" text-anchor="middle">人员 · 匹配、SOP 与辅导反馈</text>
+<rect x="280" y="265" width="410" height="115" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="485" y="299" font-size="25" font-weight="600" text-anchor="middle">Web 应用</text>
+<text x="485" y="330" font-size="18" text-anchor="middle">容器 · React / TypeScript</text>
+<text x="485" y="358" font-size="18" text-anchor="middle">学员区 + 辅导员区</text>
+<rect x="785" y="265" width="225" height="115" rx="7" fill="#F5F6F7" stroke="#45677E" stroke-width="1.6" stroke-dasharray="8 5"/>
+<text x="897.5" y="299" font-size="22" font-weight="600" text-anchor="middle">小程序 / App</text>
+<text x="897.5" y="330" font-size="18" text-anchor="middle">后续客户端</text>
+<text x="897.5" y="358" font-size="18" text-anchor="middle">平台登录与设备适配</text>
+<path d="M235 195 L235 230 L400 230 L400 265" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="262" y="206" width="84" height="25" fill="white"/>
+<text x="304" y="223" font-size="18" text-anchor="middle">执行训练</text>
+<path d="M600 195 L600 265" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="604" y="218" width="102" height="25" fill="white"/>
+<text x="655" y="235" font-size="18" text-anchor="middle">组织与反馈</text>
+<rect x="315" y="455" width="360" height="122" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="495" y="489" font-size="25" font-weight="600" text-anchor="middle">业务 API</text>
+<text x="495" y="520" font-size="18" text-anchor="middle">容器 · Python / FastAPI</text>
+<text x="495" y="548" font-size="18" text-anchor="middle">权限、状态、事务与通知</text>
+<path d="M485 380 L485 455" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="263.8" y="404" width="204.4" height="25" fill="white"/>
+<text x="366" y="421" font-size="18" text-anchor="middle">HTTPS · JSON / SSE</text>
+<path d="M897 380 L897 517 L675 517" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)" stroke-dasharray="7 5"/>
+<rect x="733.5" y="491" width="125" height="25" fill="white"/>
+<text x="796" y="508" font-size="18" text-anchor="middle">同一业务 API</text>
+<rect x="30" y="665" width="300" height="120" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="180" y="699" font-size="24" font-weight="600" text-anchor="middle">PostgreSQL</text>
+<text x="180" y="730" font-size="18" text-anchor="middle">数据存储 · 业务 / 会话 / 通知</text>
+<text x="180" y="758" font-size="18" text-anchor="middle">幂等记录与后台作业</text>
+<rect x="715" y="665" width="295" height="120" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="862.5" y="699" font-size="24" font-weight="600" text-anchor="middle">私有文件存储</text>
+<text x="862.5" y="730" font-size="18" text-anchor="middle">数据存储 · 隔离区 / 就绪区</text>
+<text x="862.5" y="758" font-size="18" text-anchor="middle">资料、截图与训练附件</text>
+<rect x="340" y="855" width="360" height="115" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="889" font-size="24" font-weight="600" text-anchor="middle">后台 worker</text>
+<text x="520" y="920" font-size="18" text-anchor="middle">容器 · Python / 同后端代码库</text>
+<text x="520" y="948" font-size="18" text-anchor="middle">扫描、归一化、清理与重试</text>
+<path d="M345 577 L200 665" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="137.3" y="597" width="153.3" height="25" fill="white"/>
+<text x="214" y="614" font-size="18" text-anchor="middle">业务读写 · SQL</text>
+<path d="M645 577 L840 665" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="705.1" y="597" width="209.8" height="25" fill="white"/>
+<text x="810" y="614" font-size="18" text-anchor="middle">授权文件读写 · HTTPS</text>
+<path d="M340 912 L180 912 L180 785" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="65" y="824" width="238.1" height="25" fill="white"/>
+<text x="184" y="841" font-size="18" text-anchor="middle">领取作业 / 写结果 · SQL</text>
+<path d="M700 912 L860 912 L860 785" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="771.1" y="824" width="173.8" height="25" fill="white"/>
+<text x="858" y="841" font-size="18" text-anchor="middle">处理文件 · HTTPS</text>
+<line x1="32" y1="991" x2="1008" y2="991" stroke="#CDD6DD"/>
+<text x="32" y="1021" font-size="17" fill="#45677E" text-anchor="start">图例：蓝色=应用容器；绿色=数据存储；灰色=人员/后续客户端；虚线箭头=后续接入。</text>
+</g></svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1060" viewBox="0 0 1040 1060" role="img" aria-label="融职境｜SOP 发布与学员同步">
+<title>融职境｜SOP 发布与学员同步</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="1060" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜SOP 发布与学员同步</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">时序视图 · 事务提交后再通知，响应超时复用幂等键</text>
+<rect x="30" y="115" width="200" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="130" y="149" font-size="23" font-weight="600" text-anchor="middle">辅导员 Web</text>
+<text x="130" y="180" font-size="18" text-anchor="middle">React</text>
+<line x1="130" y1="205" x2="130" y2="945" stroke="#8798A6" stroke-dasharray="5 5"/>
+<rect x="290" y="115" width="200" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="390" y="149" font-size="23" font-weight="600" text-anchor="middle">业务 API</text>
+<text x="390" y="180" font-size="18" text-anchor="middle">FastAPI</text>
+<line x1="390" y1="205" x2="390" y2="945" stroke="#8798A6" stroke-dasharray="5 5"/>
+<rect x="555" y="115" width="200" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="655" y="149" font-size="23" font-weight="600" text-anchor="middle">PostgreSQL</text>
+<text x="655" y="180" font-size="18" text-anchor="middle">事务 / 通知表</text>
+<line x1="655" y1="205" x2="655" y2="945" stroke="#8798A6" stroke-dasharray="5 5"/>
+<rect x="815" y="115" width="200" height="90" rx="7" fill="#EDF4FA" stroke="#45677E" stroke-width="1.6"/>
+<text x="915" y="149" font-size="23" font-weight="600" text-anchor="middle">学员 Web</text>
+<text x="915" y="180" font-size="18" text-anchor="middle">React</text>
+<line x1="915" y1="205" x2="915" y2="945" stroke="#8798A6" stroke-dasharray="5 5"/>
+<path d="M130 265 L390 265" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="146.4" y="233" width="225.3" height="25" fill="white"/>
+<text x="259" y="250" font-size="18" text-anchor="middle">1 发布（版本 + 幂等键）</text>
+<path d="M390 330 L655 330" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="407.7" y="298" width="230.5" height="25" fill="white"/>
+<text x="523" y="315" font-size="18" text-anchor="middle">2 开始事务、校验授权与锁</text>
+<rect x="440" y="368" width="355" height="224" rx="9" fill="none" stroke="#8798A6" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="455" y="396" font-size="19" font-weight="600" text-anchor="start">原子事务</text>
+<text x="461" y="432" font-size="21" text-anchor="start">冻结 SOP 发布版本</text>
+<text x="461" y="477" font-size="21" text-anchor="start">创建任务、进度与幂等结果</text>
+<text x="461" y="522" font-size="21" text-anchor="start">保存通知与审计</text>
+<text x="461" y="565" font-size="22" font-weight="600" text-anchor="start">COMMIT</text>
+<path d="M655 635 L390 635" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)" stroke-dasharray="7 5"/>
+<rect x="469.7" y="602" width="104.5" height="25" fill="white"/>
+<text x="522" y="619" font-size="18" text-anchor="middle">3 提交成功</text>
+<path d="M390 695 L130 695" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)" stroke-dasharray="7 5"/>
+<rect x="183.7" y="662" width="150.6" height="25" fill="white"/>
+<text x="259" y="679" font-size="18" text-anchor="middle">4 返回 task_id</text>
+<path d="M390 753 L655 753" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="442.7" y="719" width="158.5" height="25" fill="white"/>
+<text x="522" y="736" font-size="18" text-anchor="middle">5 读取已提交通知</text>
+<path d="M390 815 L915 815" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="541" y="782" width="220.1" height="25" fill="white"/>
+<text x="651" y="799" font-size="18" text-anchor="middle">6 SSE：序号 + 对象引用</text>
+<path d="M915 870 L390 870" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="557.8" y="837" width="186.4" height="25" fill="white"/>
+<text x="651" y="854" font-size="18" text-anchor="middle">7 GET /tasks/{id}</text>
+<path d="M390 925 L915 925" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)" stroke-dasharray="7 5"/>
+<rect x="510.1" y="892" width="281.8" height="25" fill="white"/>
+<text x="651" y="909" font-size="18" text-anchor="middle">8 返回授权任务及固定 SOP 版本</text>
+<line x1="32" y1="1001" x2="1008" y2="1001" stroke="#CDD6DD"/>
+<text x="32" y="1031" font-size="17" fill="#45677E" text-anchor="start">图例：实线=请求/推送；虚线=响应；竖虚线=生命线；事务框内的写入一次提交。</text>
+</g></svg>

@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="1120" viewBox="0 0 1040 1120" role="img" aria-label="融职境｜核心实体关系">
+<title>融职境｜核心实体关系</title>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L10 5 L0 10 Z" fill="#45677E"/></marker></defs>
+<rect width="1040" height="1120" fill="white"/>
+<g font-family="Noto Sans CJK SC,Microsoft YaHei,Arial,sans-serif" fill="#17334D" font-weight="400">
+<text x="32" y="44" font-size="30" font-weight="600" text-anchor="start">融职境｜核心实体关系</text>
+<text x="32" y="76" font-size="18" fill="#45677E" text-anchor="start">数据视图 · 计划版本、训练实例与提交历史</text>
+<rect x="35" y="125" width="265" height="110" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="167.5" y="159" font-size="23" font-weight="600" text-anchor="middle">users</text>
+<text x="167.5" y="190" font-size="18" text-anchor="middle">PK id</text>
+<text x="167.5" y="218" font-size="18" text-anchor="middle">学员或辅导员</text>
+<rect x="385" y="125" width="270" height="110" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="159" font-size="23" font-weight="600" text-anchor="middle">case_grants</text>
+<text x="520" y="190" font-size="18" text-anchor="middle">FK counselor_id / case_id</text>
+<text x="520" y="218" font-size="18" text-anchor="middle">scope / revoked_at</text>
+<rect x="745" y="125" width="265" height="110" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="877.5" y="159" font-size="23" font-weight="600" text-anchor="middle">cases</text>
+<text x="877.5" y="190" font-size="18" text-anchor="middle">PK id · FK learner_id</text>
+<text x="877.5" y="218" font-size="18" text-anchor="middle">lifecycle</text>
+<path d="M300 180 L385 180" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="309.4" y="152" width="63.3" height="25" fill="white"/>
+<text x="341" y="169" font-size="18" text-anchor="middle">1 : N</text>
+<path d="M655 180 L745 180" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="668.4" y="152" width="63.3" height="25" fill="white"/>
+<text x="700" y="169" font-size="18" text-anchor="middle">N : 1</text>
+<path d="M155 235 L155 280 L885 280 L885 235" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="428.1" y="255" width="183.9" height="25" fill="white"/>
+<text x="520" y="272" font-size="18" text-anchor="middle">learner_id：1 : N</text>
+<rect x="35" y="350" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="167.5" y="384" font-size="23" font-weight="600" text-anchor="middle">sop_plans</text>
+<text x="167.5" y="415" font-size="18" text-anchor="middle">PK id · FK case_id</text>
+<text x="167.5" y="443" font-size="18" text-anchor="middle">title</text>
+<rect x="385" y="350" width="270" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="384" font-size="22" font-weight="600" text-anchor="middle">sop_revisions</text>
+<text x="520" y="415" font-size="18" text-anchor="middle">PK id · FK plan_id</text>
+<text x="520" y="443" font-size="18" text-anchor="middle">revision_no / state</text>
+<rect x="745" y="350" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="877.5" y="384" font-size="22" font-weight="600" text-anchor="middle">training_tasks</text>
+<text x="877.5" y="415" font-size="18" text-anchor="middle">PK id · FK revision_id</text>
+<text x="877.5" y="443" font-size="18" text-anchor="middle">case_id / status / version</text>
+<path d="M745 190 L712 190 L712 322 L165 322 L165 350" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="361.4" y="297" width="189.3" height="25" fill="white"/>
+<text x="456" y="314" font-size="18" text-anchor="middle">个案下的计划：1 : N</text>
+<path d="M300 408 L385 408" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="311.4" y="379" width="63.3" height="25" fill="white"/>
+<text x="343" y="396" font-size="18" text-anchor="middle">1 : N</text>
+<path d="M655 408 L745 408" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="653" y="379" width="94.1" height="25" fill="white"/>
+<text x="700" y="396" font-size="18" text-anchor="middle">1 : 0..1</text>
+<path d="M895 235 L995 235 L995 350" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="932.4" y="292" width="63.3" height="25" fill="white"/>
+<text x="964" y="309" font-size="18" text-anchor="middle">1 : N</text>
+<rect x="35" y="590" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="167.5" y="624" font-size="23" font-weight="600" text-anchor="middle">sop_steps</text>
+<text x="167.5" y="655" font-size="18" text-anchor="middle">FK revision_id</text>
+<text x="167.5" y="683" font-size="18" text-anchor="middle">step_id / position</text>
+<rect x="385" y="590" width="270" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="624" font-size="23" font-weight="600" text-anchor="middle">step_progress</text>
+<text x="520" y="655" font-size="18" text-anchor="middle">FK task_id / step_id</text>
+<text x="520" y="683" font-size="18" text-anchor="middle">status / attachment_ids</text>
+<rect x="745" y="590" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="877.5" y="624" font-size="23" font-weight="600" text-anchor="middle">submissions</text>
+<text x="877.5" y="655" font-size="18" text-anchor="middle">FK task_id / revision_id</text>
+<text x="877.5" y="683" font-size="18" text-anchor="middle">attempt_no / snapshot</text>
+<path d="M385 410 L337 410 L337 530 L170 530 L170 590" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="194.3" y="504" width="63.3" height="25" fill="white"/>
+<text x="226" y="521" font-size="18" text-anchor="middle">1 : N</text>
+<path d="M875 465 L875 590" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="883.4" y="517" width="63.3" height="25" fill="white"/>
+<text x="915" y="534" font-size="18" text-anchor="middle">1 : N</text>
+<path d="M770 465 L705 525 L525 525 L525 590" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="486.2" y="499" width="145.6" height="25" fill="white"/>
+<text x="559" y="516" font-size="18" text-anchor="middle">任务进度 1 : N</text>
+<path d="M300 650 L385 650" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="301" y="621" width="84" height="25" fill="white"/>
+<text x="343" y="638" font-size="18" text-anchor="middle">步骤归属</text>
+<rect x="385" y="830" width="270" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="520" y="864" font-size="23" font-weight="600" text-anchor="middle">annotations</text>
+<text x="520" y="895" font-size="18" text-anchor="middle">FK asset_id / task_id</text>
+<text x="520" y="923" font-size="18" text-anchor="middle">submission_id / markers</text>
+<rect x="745" y="830" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="877.5" y="864" font-size="23" font-weight="600" text-anchor="middle">feedback</text>
+<text x="877.5" y="895" font-size="18" text-anchor="middle">FK submission_id UNIQUE</text>
+<text x="877.5" y="923" font-size="18" text-anchor="middle">outcome / redo_step_ids</text>
+<rect x="35" y="830" width="265" height="115" rx="7" fill="#EEF6F2" stroke="#45677E" stroke-width="1.6"/>
+<text x="167.5" y="864" font-size="23" font-weight="600" text-anchor="middle">files</text>
+<text x="167.5" y="895" font-size="18" text-anchor="middle">PK id / checksum</text>
+<text x="167.5" y="923" font-size="18" text-anchor="middle">state / storage_key</text>
+<path d="M875 705 L875 830" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="876" y="755" width="94.1" height="25" fill="white"/>
+<text x="923" y="772" font-size="18" text-anchor="middle">1 : 0..1</text>
+<path d="M745 648 L702 648 L702 779 L520 779 L520 830" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="531.2" y="753" width="145.6" height="25" fill="white"/>
+<text x="604" y="770" font-size="18" text-anchor="middle">提交标注 1 : N</text>
+<path d="M300 884 L385 884" fill="none" stroke="#45677E" stroke-width="1.8" marker-end="url(#a)"/>
+<rect x="311.4" y="856" width="63.3" height="25" fill="white"/>
+<text x="343" y="873" font-size="18" text-anchor="middle">1 : N</text>
+<text x="35" y="999" font-size="19" text-anchor="start">发布版本和提交快照不可变；任务固定引用训练版本；一份提交只保留一份主反馈。</text>
+<line x1="32" y1="1061" x2="1008" y2="1061" stroke="#CDD6DD"/>
+<text x="32" y="1091" font-size="17" fill="#45677E" text-anchor="start">图例：框=数据实体；PK=主键，FK=外键；箭头标明关系；1:N=一对多，0..1=可选单个。</text>
+</g></svg>
