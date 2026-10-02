@@ -45,6 +45,7 @@ export function SessionGate({ role }: { role?: 'learner' | 'counselor' }) {
 export function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [privateEntry, setPrivateEntry] = useState(false);
   const client = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
@@ -101,7 +102,7 @@ export function LoginPage() {
         </Link>
       </header>
       <main id="login-main" className={styles.content} tabIndex={-1}>
-        <Companions />
+        <Companions privateEntry={privateEntry} />
         <h1 className="qx-display">登录</h1>
         {state?.expired && (
           <p className="qx-meta" role="status">
@@ -133,6 +134,8 @@ export function LoginPage() {
             placeholder="密码"
             type="password"
             autoComplete="current-password"
+            onFocus={() => setPrivateEntry(true)}
+            onBlur={() => setPrivateEntry(false)}
             required
             maxLength={256}
           />

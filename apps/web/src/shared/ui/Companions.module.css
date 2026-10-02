@@ -1,0 +1,35 @@
+.group {
+  position: relative;
+  flex: none;
+}
+.crowd {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.control {
+  position: absolute;
+  right: calc(-1 * var(--qx-space-8));
+  bottom: var(--qx-space-2);
+}
+.group[data-private='true'] :global(.agent-avatar),
+.group[data-private='true'] :global(.aa-eye) {
+  animation: none;
+}
+.group[data-private='true'] :global(.aa-gaze) {
+  transform: translate(-15px, -6px) rotate(14deg);
+}
+.group[data-private='true'] :global(.aa-head) {
+  transform: rotate(-6deg);
+}
+.group[data-motion='off'] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (max-width: 520px) {
+  .control {
+    right: calc(-1 * var(--qx-space-3));
+  }
+}
