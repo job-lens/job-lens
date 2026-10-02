@@ -51,6 +51,8 @@ def render():
             item = annotated(schema["items"])
             return f"list[{item}]"
         if kind == "string":
+            if schema.get("format") == "binary":
+                return "UploadFile"
             return {"uuid": "UUID", "date": "date", "date-time": "datetime"}.get(
                 schema.get("format"), "str"
             )
@@ -64,6 +66,8 @@ def render():
             "maxItems": "max_length",
             "minimum": "ge",
             "maximum": "le",
+            "exclusiveMinimum": "gt",
+            "exclusiveMaximum": "lt",
             "pattern": "pattern",
         }
         return ", ".join(
@@ -72,6 +76,8 @@ def render():
 
     def annotated(schema):
         base = annotation(schema)
+        if schema.get("format") == "binary":
+            return f"Annotated[{base}, WithJsonSchema({schema!r})]"
         metadata = limits(schema)
         return f"Annotated[{base}, Field({metadata})]" if metadata else base
 
@@ -90,8 +96,8 @@ def render():
                 f"class {name}(BaseModel):",
                 '    model_config = ConfigDict(extra="forbid", from_attributes=True'
                 + (
-                    f', json_schema_extra={{"allOf": {schema["allOf"]!r}}}'
-                    if "allOf" in schema
+                    f', json_schema_extra={ {key: schema[key] for key in ("allOf", "anyOf") if key in schema}!r}'
+                    if "allOf" in schema or "anyOf" in schema
                     else ""
                 )
                 + ")",
@@ -125,6 +131,7 @@ from datetime import date, datetime
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
+from fastapi import UploadFile
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, WithJsonSchema
 """
     if imports:

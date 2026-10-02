@@ -24,7 +24,13 @@ export function AssistancePage() {
   return <AssistanceDetail requestId={id} />;
 }
 
-function AssistanceDetail({ requestId }: { requestId: string }) {
+export function AssistanceDetail({
+  requestId,
+  learner = false,
+}: {
+  requestId: string;
+  learner?: boolean;
+}) {
   const assistance = useAssistance(requestId);
   const messages = useAssistanceMessages(requestId);
   const action = useAssistanceAction(requestId);
@@ -82,7 +88,17 @@ function AssistanceDetail({ requestId }: { requestId: string }) {
       {!closed && (
         <>
           <div className={styles.actions}>
-            {req.state === 'queued' && (
+            {learner && (
+              <button
+                className="qx-btn qx-btn--secondary"
+                type="button"
+                disabled={busy}
+                onClick={() => action.mutate({ action: 'cancel', version: req.version })}
+              >
+                取消求助
+              </button>
+            )}
+            {!learner && req.state === 'queued' && (
               <button
                 type="button"
                 disabled={busy}
@@ -91,7 +107,7 @@ function AssistanceDetail({ requestId }: { requestId: string }) {
                 接单
               </button>
             )}
-            {req.state === 'accepted' && (
+            {!learner && req.state === 'accepted' && (
               <button
                 type="button"
                 disabled={busy}

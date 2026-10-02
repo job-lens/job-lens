@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ApiError } from '@/shared/api/client';
-import { LoadingState } from '@/shared/ui/AsyncState';
+import { useQuery } from '@tanstack/react-query';
+import { api, ApiError, unwrap } from '@/shared/api/client';
+import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
 import type { components } from '@/shared/api/schema';
 import { AnnotationEditor } from './AnnotationEditor';
 import { OUTCOME_OPTIONS, TASK_STATUS_LABELS, TAG_OPTIONS } from './labels';
@@ -105,7 +106,7 @@ export function FeedbackForm({ submission }: { submission: Submission }) {
             点击证据图片放置标注点，填写说明后保存；保存的标注会随本次审核反馈给学员。
           </p>
           {evidenceIds.map(id => (
-            <AnnotationEditor
+            <EvidenceReview
               key={id}
               taskId={submission.task_id}
               submissionId={submission.id}
@@ -197,5 +198,31 @@ export function FeedbackForm({ submission }: { submission: Submission }) {
         )}
       </section>
     </div>
+  );
+}
+
+function EvidenceReview(props: {
+  taskId: string;
+  submissionId: string;
+  assetId: string;
+  onCreated: (id: string) => void;
+}) {
+  const file = useQuery({
+    queryKey: ['file', props.assetId],
+    queryFn: async ({ signal }) =>
+      unwrap(
+        await api.GET('/files/{file_id}', {
+          params: { path: { file_id: props.assetId } },
+          signal,
+        }),
+      ),
+  });
+  if (file.isPending) return <LoadingState />;
+  if (!file.data) return <ErrorPanel message="附件未能加载" retry={() => void file.refetch()} />;
+  if (file.data.mime_type.startsWith('image/')) return <AnnotationEditor {...props} />;
+  return (
+    <a href={`/api/v1/files/${props.assetId}/content`} target="_blank" rel="noreferrer">
+      查看附件：{file.data.filename}
+    </a>
   );
 }

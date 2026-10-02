@@ -39,6 +39,10 @@ path = "/preferences"
 feature = "profile"
 export = "PreferencesPage"
 [[routes]]
+path = "/notifications"
+feature = "notifications"
+export = "CounselorNotificationsPage"
+[[routes]]
 path = "/learner"
 feature = "learner"
 export = "LearnerPage"

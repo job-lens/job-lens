@@ -3,9 +3,33 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.types import Actor
-from app.modules.cases.queries import authorized_case_ids
-from app.modules.training.models import TrainingTask
+from app.core.errors import not_found
+from app.core.types import Actor, JsonObject
+from app.modules.cases.queries import authorized_case_ids, read_access
+from app.modules.training.models import StepProgress, Submission, TrainingTask
+
+
+def task_context(
+    session: Session, actor: Actor, task_id: UUID
+) -> tuple[UUID, UUID, str, frozenset[UUID]]:
+    row = session.scalar(select(TrainingTask).where(TrainingTask.id == task_id).execution_options(populate_existing=True))
+    if row is None:
+        raise not_found()
+    read_access(session, actor, row.case_id)
+    steps = frozenset(
+        session.scalars(select(StepProgress.step_id).where(StepProgress.task_id == task_id))
+    )
+    return row.case_id, row.revision_id, row.status, steps
+
+
+def submission_context(
+    session: Session, actor: Actor, submission_id: UUID
+) -> tuple[UUID, JsonObject]:
+    row = session.get(Submission, submission_id)
+    if row is None:
+        raise not_found()
+    task_context(session, actor, row.task_id)
+    return row.task_id, row.snapshot
 
 
 def current_tasks(

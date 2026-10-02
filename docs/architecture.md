@@ -112,10 +112,10 @@ flowchart LR
 | --- | ---: | ---: |
 | cases | 8 | 8 |
 | identity | 13 | 13 |
-| infrastructure | 6 | 0 |
+| infrastructure | 6 | 6 |
 | platform | 2 | 2 |
 | sop | 7 | 7 |
-| support | 12 | 0 |
-| training | 10 | 0 |
+| support | 12 | 12 |
+| training | 10 | 10 |
 
 接口契约覆盖业务范围；健康检查接入 HTTP，业务路由在对应模块后续实现时登记。

@@ -40,7 +40,11 @@ def command(
 
     def run() -> CommandResult:
         result = apply()
-        headers = {"ETag": f'"{getattr(result, etag)}"'} if etag else {}
+        value: object = result
+        if etag:
+            for part in etag.split("."):
+                value = getattr(value, part)
+        headers = {"ETag": f'"{value}"'} if etag else {}
         return CommandResult(status, cast(JsonValue, result.model_dump(mode="json")), headers)
 
     result = execute_once(

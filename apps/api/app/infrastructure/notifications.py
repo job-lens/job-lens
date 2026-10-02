@@ -96,3 +96,15 @@ def mark_read(session: Session, recipient: UUID, notification_id: UUID) -> None:
         raise not_found()
     if row.read_at is None:
         row.read_at = utcnow()
+
+
+def require_notification(session: Session, recipient: UUID, notification_id: UUID) -> None:
+    if (
+        session.scalar(
+            select(Notification.id).where(
+                Notification.id == notification_id, Notification.recipient_id == recipient
+            )
+        )
+        is None
+    ):
+        raise not_found()

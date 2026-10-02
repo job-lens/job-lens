@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, confirmHeaders, createHeaders, unwrap, updateHeaders } from '@/shared/api/client';
 import type { components } from '@/shared/api/schema';
 
@@ -50,6 +51,8 @@ export function useFeedback(submissionId: string) {
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['submission', submissionId] });
+      qc.invalidateQueries({ queryKey: ['task'] });
+      qc.invalidateQueries({ queryKey: ['tasks'] });
       // 审核会推进/回退任务状态，刷新个案列表与工作台「待反馈」计数。
       qc.invalidateQueries({ queryKey: ['cases'] });
       qc.invalidateQueries({ queryKey: ['dashboard'] });
@@ -118,6 +121,115 @@ export function useCreateAnnotation(taskId: string) {
         await api.POST('/tasks/{task_id}/annotations', {
           params: { path: { task_id: taskId }, header: createHeaders(crypto.randomUUID()) },
           body,
+        }),
+      ),
+  });
+}
+
+export function useTaskAction(taskId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      version,
+      action,
+    }: {
+      version: number;
+      action: 'start' | 'pause' | 'resume';
+    }) =>
+      unwrap(
+        await api.POST('/tasks/{task_id}/actions', {
+          params: {
+            path: { task_id: taskId },
+            header: confirmHeaders(version, crypto.randomUUID()),
+          },
+          body: { action },
+        }),
+      ),
+    onSuccess: task => {
+      qc.setQueryData(['task', taskId], task);
+      void qc.invalidateQueries({ queryKey: ['tasks'] });
+      void qc.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+export function useSaveProgress(taskId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      version,
+      stepId,
+      attachmentIds,
+    }: {
+      version: number;
+      stepId: string;
+      attachmentIds: string[];
+    }) =>
+      unwrap(
+        await api.PUT('/tasks/{task_id}/steps/{step_id}', {
+          params: { path: { task_id: taskId, step_id: stepId }, header: updateHeaders(version) },
+          body: { status: 'completed', attachment_ids: attachmentIds },
+        }),
+      ),
+    onSuccess: task => qc.setQueryData(['task', taskId], task),
+  });
+}
+export function useSubmitTask(taskId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ version, note }: { version: number; note: string }) =>
+      unwrap(
+        await api.POST('/tasks/{task_id}/submissions', {
+          params: {
+            path: { task_id: taskId },
+            header: confirmHeaders(version, crypto.randomUUID()),
+          },
+          body: { note },
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['task', taskId] });
+      void qc.invalidateQueries({ queryKey: ['submissions', taskId] });
+      void qc.invalidateQueries({ queryKey: ['tasks'] });
+      void qc.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+export function useSubmissions(taskId: string) {
+  return useInfiniteQuery({
+    queryKey: ['submissions', taskId],
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ signal, pageParam }) =>
+      unwrap(
+        await api.GET('/tasks/{task_id}/submissions', {
+          params: { path: { task_id: taskId }, query: { limit: 20, cursor: pageParam } },
+          signal,
+        }),
+      ),
+    getNextPageParam: page => page.next_cursor ?? undefined,
+    select: data => ({ ...data, items: data.pages.flatMap(page => page.items) }),
+  });
+}
+export function useRecordHint(taskId: string) {
+  const sessionId = useRef(crypto.randomUUID());
+  const sequence = useRef(0);
+  return useMutation({
+    mutationFn: async (stepId: string) =>
+      unwrap(
+        await api.POST('/tasks/{task_id}/events', {
+          params: { path: { task_id: taskId }, header: createHeaders(crypto.randomUUID()) },
+          body: {
+            events: [
+              {
+                event_id: crypto.randomUUID(),
+                session_id: sessionId.current,
+                sequence: ++sequence.current,
+                step_id: stepId,
+                kind: 'hint_requested',
+                value: 0,
+                observed_at: new Date().toISOString(),
+              },
+            ],
+          },
         }),
       ),
   });

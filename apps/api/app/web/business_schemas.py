@@ -4,6 +4,7 @@ from datetime import date, datetime
 from typing import Annotated, Any, Literal
 from uuid import UUID
 
+from fastapi import UploadFile
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, WithJsonSchema
 
 from app.web.schemas import Preferences
@@ -75,7 +76,7 @@ class FileUpload(BaseModel):
     case_id: UUID
     task_id: Annotated[UUID | None, BeforeValidator(reject_null), WithJsonSchema({'type': 'string', 'format': 'uuid'})] = Field(default=None, json_schema_extra=omit_default)
     purpose: Literal['profile_material', 'task_evidence', 'sop_media', 'support_message']
-    file: str
+    file: Annotated[UploadFile, WithJsonSchema({'type': 'string', 'format': 'binary'})]
 
 
 class FileAsset(BaseModel):
@@ -193,7 +194,7 @@ class Task(BaseModel):
 
 
 class TaskAction(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={"allOf": [{'if': {'properties': {'action': {'const': 'cancel'}}}, 'then': {'required': ['reason'], 'properties': {'reason': {'minLength': 1, 'pattern': '\\S'}}}}]})
+    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={'allOf': [{'if': {'properties': {'action': {'const': 'cancel'}}}, 'then': {'required': ['reason'], 'properties': {'reason': {'minLength': 1, 'pattern': '\\S'}}}}]})
     action: Literal['start', 'pause', 'resume', 'cancel']
     reason: Annotated[Annotated[str, Field(max_length=500)] | None, BeforeValidator(reject_null), WithJsonSchema({'type': 'string', 'maxLength': 500})] = Field(default=None, json_schema_extra=omit_default)
 
@@ -239,7 +240,7 @@ class SubmissionSnapshot(BaseModel):
 
 
 class FeedbackCreate(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={"allOf": [{'if': {'properties': {'outcome': {'const': 'changes_requested'}}}, 'then': {'properties': {'redo_step_ids': {'minItems': 1}}}, 'else': {'properties': {'redo_step_ids': {'maxItems': 0}}}}]})
+    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={'allOf': [{'if': {'properties': {'outcome': {'const': 'changes_requested'}}}, 'then': {'properties': {'redo_step_ids': {'minItems': 1}}}, 'else': {'properties': {'redo_step_ids': {'maxItems': 0}}}}]})
     outcome: Literal['passed', 'changes_requested']
     message: Annotated[str, Field(min_length=1, max_length=500)]
     tags: Annotated[list[Literal['title_correct', 'naming_adjustment', 'retake_required', 'other']], Field(max_length=5)]
@@ -248,7 +249,7 @@ class FeedbackCreate(BaseModel):
 
 
 class Feedback(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={"allOf": [{'if': {'properties': {'outcome': {'const': 'changes_requested'}}}, 'then': {'properties': {'redo_step_ids': {'minItems': 1}}}, 'else': {'properties': {'redo_step_ids': {'maxItems': 0}}}}]})
+    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={'allOf': [{'if': {'properties': {'outcome': {'const': 'changes_requested'}}}, 'then': {'properties': {'redo_step_ids': {'minItems': 1}}}, 'else': {'properties': {'redo_step_ids': {'maxItems': 0}}}}]})
     outcome: Literal['passed', 'changes_requested']
     message: Annotated[str, Field(min_length=1, max_length=500)]
     tags: Annotated[list[Literal['title_correct', 'naming_adjustment', 'retake_required', 'other']], Field(max_length=5)]
@@ -296,8 +297,8 @@ class RectMarker(BaseModel):
     y: Annotated[float, Field(ge=0, le=1)]
     text: Annotated[str, Field(min_length=1, max_length=200)]
     shape: Literal['rect']
-    width: Annotated[float, Field(le=1)]
-    height: Annotated[float, Field(le=1)]
+    width: Annotated[float, Field(le=1, gt=0)]
+    height: Annotated[float, Field(le=1, gt=0)]
 
 
 type Marker = Annotated[PointMarker | RectMarker, Field(discriminator='shape')]
@@ -361,13 +362,13 @@ class AssistanceAction(BaseModel):
 
 
 class MessageCreate(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True)
+    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={'anyOf': [{'properties': {'body': {'minLength': 1, 'pattern': '\\S'}}}, {'properties': {'attachment_ids': {'minItems': 1}}}]})
     body: Annotated[str, Field(max_length=2000)]
     attachment_ids: Annotated[list[UUID], Field(max_length=5)]
 
 
 class SupportMessage(BaseModel):
-    model_config = ConfigDict(extra="forbid", from_attributes=True)
+    model_config = ConfigDict(extra="forbid", from_attributes=True, json_schema_extra={'anyOf': [{'properties': {'body': {'minLength': 1, 'pattern': '\\S'}}}, {'properties': {'attachment_ids': {'minItems': 1}}}]})
     body: Annotated[str, Field(max_length=2000)]
     attachment_ids: Annotated[list[UUID], Field(max_length=5)]
     id: UUID

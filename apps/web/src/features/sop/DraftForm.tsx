@@ -108,6 +108,7 @@ export function DraftForm({
 
         <h4>训练步骤</h4>
         <StepList
+          caseId={caseId}
           steps={steps}
           disabled={busy}
           onChange={value => {

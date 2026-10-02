@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { ApiError } from '@/shared/api/client';
 import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
 import { PROMPT_LEVEL_OPTIONS, STEP_STATUS_LABELS, TASK_STATUS_LABELS } from './labels';
-import { useCancelTask, usePromptOverride, useTask } from './queries';
+import { useCancelTask, usePromptOverride, useSubmissions, useTask } from './queries';
 import styles from './training.module.css';
 
 /** 辅导员任务详情：查看训练进度、调整提示等级，必要时取消任务。 */
@@ -82,6 +82,47 @@ function TaskDetail({ taskId }: { taskId: string }) {
         <PromptOverrideCard taskId={taskId} version={t.version} current={t.prompt_override} />
       )}
       {!final && <CancelCard taskId={taskId} version={t.version} />}
+      <SubmissionHistory taskId={taskId} />
+    </section>
+  );
+}
+
+function SubmissionHistory({ taskId }: { taskId: string }) {
+  const submissions = useSubmissions(taskId);
+  if (submissions.isPending) return <LoadingState />;
+  if (!submissions.data)
+    return <ErrorPanel message="提交历史未能加载" retry={() => void submissions.refetch()} />;
+  return (
+    <section className={styles.card}>
+      <h3>提交与反馈</h3>
+      {!submissions.data.items.length && (
+        <p className={styles.note}>学员还没有提交。完成全部步骤后，可以发起审核。</p>
+      )}
+      <ul className={styles.stepReviewList}>
+        {submissions.data.items.map(submission => (
+          <li key={submission.id} className={styles.stepReviewRow}>
+            <span>第 {submission.attempt_no} 次提交</span>
+            <span className={styles.note}>
+              {new Date(submission.submitted_at).toLocaleString('zh-CN')}
+            </span>
+            <Link
+              to={`/counselor/submissions/${submission.id}`}
+              className="qx-btn qx-btn--secondary"
+            >
+              {submission.feedback ? '查看反馈' : '审核提交'}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {submissions.hasNextPage && (
+        <button
+          className="qx-btn qx-btn--secondary"
+          disabled={submissions.isFetchingNextPage}
+          onClick={() => void submissions.fetchNextPage()}
+        >
+          查看更多提交
+        </button>
+      )}
     </section>
   );
 }

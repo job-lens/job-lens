@@ -15,13 +15,33 @@ from starlette.responses import Response
 from app.core.config import Settings
 from app.core.errors import AppError
 from app.infrastructure.db import Database
-from app.web import cases, identity, platform, registration, sop
+from app.web import (
+    cases,
+    files,
+    identity,
+    notifications,
+    platform,
+    registration,
+    sop,
+    support,
+    training,
+)
 from app.web.problem import problem_response
 
 logger = logging.getLogger("job_lens")
 _REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
 # Routers are assembled here and nowhere else; modules never mount themselves.
-ROUTERS = (platform.router, identity.router, registration.router, cases.router, sop.router)
+ROUTERS = (
+    platform.router,
+    identity.router,
+    registration.router,
+    cases.router,
+    sop.router,
+    training.router,
+    support.router,
+    notifications.router,
+    files.router,
+)
 
 
 def create_app(settings: Settings | None = None, database: Database | None = None) -> FastAPI:

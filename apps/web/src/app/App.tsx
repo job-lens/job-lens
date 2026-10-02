@@ -7,6 +7,7 @@ import {
   ForgotPasswordPage,
   ResetPasswordPage,
   SessionControls,
+  WorkspaceNavigation,
   SessionGate,
 } from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
@@ -25,12 +26,10 @@ function Shell() {
         跳到主要内容
       </a>
       <header className={styles.header}>
-        <strong>融职境</strong>
-        <nav aria-label="主导航">
-          <Link to="/">首页</Link>
-          <Link to="/learner">学员端</Link>
-          <Link to="/counselor">辅导员端</Link>
-        </nav>
+        <Link to="/" className={styles.brand}>
+          融职境
+        </Link>
+        <WorkspaceNavigation />
         <SessionControls />
       </header>
       <main id="main" className={styles.main} tabIndex={-1}>

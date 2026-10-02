@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     s3_region: str = "us-east-1"
     mail_api_key: SecretStr | None = None
     mail_from: str | None = None
+    scan_host: str = "clamav"
+    scan_port: int = Field(default=3310, ge=1, le=65535)
     job_poll_seconds: float = Field(default=2, ge=0.1, le=60)
     job_lease_seconds: int = Field(default=60, ge=10, le=3600)
 

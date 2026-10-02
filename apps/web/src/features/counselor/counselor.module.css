@@ -1,13 +1,13 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space);
+  gap: var(--qx-space-6);
 }
 
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: var(--space);
+  gap: var(--qx-space-6);
 }
 
 .greeting {
@@ -20,15 +20,15 @@
   margin: 0;
 }
 .date {
-  color: var(--muted);
+  color: var(--qx-color-muted);
   margin: 0;
   flex: 1;
 }
 
 .card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: var(--space);
+  border: 1px solid var(--qx-color-rule);
+  border-radius: var(--qx-radius-card);
+  padding: var(--qx-space-6);
 }
 .card h3 {
   margin: 0 0 0.5rem;
@@ -42,7 +42,7 @@
 .countUnit {
   font-size: 0.6em;
   font-weight: 400;
-  color: var(--muted);
+  color: var(--qx-color-muted);
 }
 
 .taskList {
@@ -58,12 +58,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: var(--space);
+  margin-bottom: var(--qx-space-6);
 }
 .filter[aria-pressed='true'] {
-  background: var(--accent);
-  color: var(--surface);
-  border-color: var(--accent);
+  background: var(--qx-color-accent);
+  color: var(--qx-color-surface);
+  border-color: var(--qx-color-accent);
 }
 
 .caseList {
@@ -81,21 +81,21 @@
   width: 100%;
   text-decoration: none;
   color: inherit;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--qx-color-rule);
+  border-radius: var(--qx-radius-card);
   padding: 0.75rem;
 }
 .caseCard:hover {
-  border-color: var(--accent);
+  border-color: var(--qx-color-accent);
 }
 
 .badge {
-  font-size: 0.85em;
+  font-size: var(--qx-text-meta);
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  color: var(--muted);
+  background: var(--qx-color-canvas);
+  border: 1px solid var(--qx-color-rule);
+  color: var(--qx-color-muted);
   white-space: nowrap;
 }
 .caseId {
@@ -103,18 +103,18 @@
   font-variant-numeric: tabular-nums;
 }
 .caseLink {
-  color: var(--accent);
+  color: var(--qx-color-accent);
   white-space: nowrap;
 }
 
 .empty {
-  color: var(--muted);
+  color: var(--qx-color-muted);
 }
 
 .bottomNav {
   display: flex;
-  border-top: 1px solid var(--line);
-  margin-top: var(--space);
+  border-top: 1px solid var(--qx-color-rule);
+  margin-top: var(--qx-space-6);
   padding-top: 0.5rem;
 }
 .navItem,
@@ -122,10 +122,10 @@
   flex: 1;
   justify-content: center;
   text-decoration: none;
-  color: var(--muted);
+  color: var(--qx-color-muted);
 }
 .navItem[aria-current='page'] {
-  color: var(--accent);
+  color: var(--qx-color-accent);
   font-weight: 600;
 }
 .navItemDisabled {
@@ -135,7 +135,7 @@
 .casePage {
   display: flex;
   flex-direction: column;
-  gap: var(--space);
+  gap: var(--qx-space-6);
 }
 .casePage header {
   display: flex;
@@ -147,11 +147,11 @@
 }
 
 .note {
-  color: var(--muted);
+  color: var(--qx-color-muted);
 }
 
 .profileList {
-  margin: 0 0 var(--space);
+  margin: 0 0 var(--qx-space-6);
   padding: 0;
   list-style: none;
   display: flex;
@@ -164,7 +164,7 @@
   gap: 0.5rem;
 }
 .profileRow dt {
-  color: var(--muted);
+  color: var(--qx-color-muted);
 }
 .profileRow dd {
   margin: 0;
@@ -173,7 +173,7 @@
   font-variant-numeric: tabular-nums;
 }
 .prefList {
-  margin: 0 0 var(--space);
+  margin: 0 0 var(--qx-space-6);
   padding-left: 1.2rem;
 }
 
@@ -187,9 +187,9 @@
 .field textarea {
   font: inherit;
   padding: 0.5rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--qx-color-rule);
+  border-radius: var(--qx-radius-card);
+  background: var(--qx-color-surface);
   color: var(--text);
   max-width: 100%;
 }
@@ -207,15 +207,15 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  color: var(--accent);
+  padding: 0.55rem var(--qx-text-meta);
+  border: 1px solid var(--qx-color-rule);
+  border-radius: var(--qx-radius-card);
+  color: var(--qx-color-accent);
   text-decoration: none;
 }
 
 .error {
-  color: #b3261e;
+  color: var(--qx-color-danger);
 }
 
 .recordList {
@@ -227,8 +227,8 @@
   gap: 0.75rem;
 }
 .recordRow {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border: 1px solid var(--qx-color-rule);
+  border-radius: var(--qx-radius-card);
   padding: 0.75rem;
 }
 .recordHead {
@@ -243,6 +243,14 @@
 }
 .recordStats {
   margin: 0;
-  color: var(--muted);
+  color: var(--qx-color-muted);
   font-variant-numeric: tabular-nums;
+}
+
+.card {
+  background: var(--qx-color-surface);
+  border: 0;
+  border-radius: var(--qx-radius-card);
+  box-shadow: var(--qx-shadow-card);
+  padding: var(--qx-space-6);
 }

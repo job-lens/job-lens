@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ApiError } from '@/shared/api/client';
 import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
 import { useConfirmMatch, useMatch, useSaveMatch } from './queries';
@@ -9,6 +9,8 @@ export function MatchEditor({ caseId }: { caseId: string }) {
   const save = useSaveMatch(caseId);
   const confirm = useConfirmMatch(caseId);
 
+  const edited = useRef(false);
+  const [baseVersion, setBaseVersion] = useState(0);
   const [direction, setDirection] = useState('');
   const [focus, setFocus] = useState('');
   const [basis, setBasis] = useState('');
@@ -16,7 +18,8 @@ export function MatchEditor({ caseId }: { caseId: string }) {
 
   // 匹配草稿已存在时回填；保存/确认后经 invalidate 重新拉到最新值再同步。
   useEffect(() => {
-    if (!match.data) return;
+    if (!match.data || edited.current) return;
+    setBaseVersion(match.data.version);
     setDirection(match.data.direction);
     setFocus(match.data.focus);
     setBasis(match.data.basis);
@@ -24,7 +27,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
   }, [match.data]);
 
   if (match.isPending) return <LoadingState />;
-  if (match.isError) {
+  if (!match.data && match.isError) {
     if (match.error instanceof ApiError && match.error.status === 404)
       return <ErrorPanel message="此个案不存在或您无权访问" />;
     return <ErrorPanel message="匹配信息暂不可用" retry={() => void match.refetch()} />;
@@ -44,7 +47,11 @@ export function MatchEditor({ caseId }: { caseId: string }) {
     cycleWeeks !== current.cycle_weeks;
   async function confirmSaved() {
     try {
-      const latest = dirty ? await save.mutateAsync({ version: current.version, body }) : current;
+      const latest = dirty
+        ? await save.mutateAsync({ version: baseVersion || current.version, body })
+        : current;
+      edited.current = false;
+      setBaseVersion(latest.version);
       await confirm.mutateAsync({ version: latest.version });
     } catch {
       // The mutation error is shown below; do not confirm after a failed save.
@@ -63,7 +70,10 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           value={direction}
           maxLength={80}
           disabled={confirmed || busy}
-          onChange={e => setDirection(e.target.value)}
+          onChange={e => {
+            edited.current = true;
+            setDirection(e.target.value);
+          }}
         />
       </div>
       <div className={styles.field}>
@@ -74,7 +84,10 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           maxLength={500}
           rows={3}
           disabled={confirmed || busy}
-          onChange={e => setFocus(e.target.value)}
+          onChange={e => {
+            edited.current = true;
+            setFocus(e.target.value);
+          }}
         />
       </div>
       <div className={styles.field}>
@@ -86,7 +99,10 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           max={52}
           value={cycleWeeks}
           disabled={confirmed || busy}
-          onChange={e => setCycleWeeks(Number(e.target.value))}
+          onChange={e => {
+            edited.current = true;
+            setCycleWeeks(Number(e.target.value));
+          }}
         />
       </div>
       <div className={styles.field}>
@@ -97,7 +113,10 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           maxLength={1000}
           rows={3}
           disabled={confirmed || busy}
-          onChange={e => setBasis(e.target.value)}
+          onChange={e => {
+            edited.current = true;
+            setBasis(e.target.value);
+          }}
         />
       </div>
 
@@ -129,6 +148,26 @@ export function MatchEditor({ caseId }: { caseId: string }) {
             ? '内容已被他人修改，请刷新后重试'
             : '保存失败，请重试'}
         </p>
+      )}
+      {error instanceof ApiError && [412, 428].includes(error.status) && (
+        <button
+          className="qx-btn qx-btn--secondary"
+          type="button"
+          onClick={async () => {
+            const result = await match.refetch();
+            if (!result.data || result.error) return;
+            edited.current = false;
+            setBaseVersion(result.data.version);
+            setDirection(result.data.direction);
+            setFocus(result.data.focus);
+            setBasis(result.data.basis);
+            setCycleWeeks(result.data.cycle_weeks);
+            save.reset();
+            confirm.reset();
+          }}
+        >
+          读取最新匹配
+        </button>
       )}
     </section>
   );

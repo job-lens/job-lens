@@ -1,0 +1,38 @@
+.figure {
+  margin: var(--qx-space-4) 0;
+  max-width: 680px;
+  text-align: left;
+}
+.image {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+.image img {
+  display: block;
+  max-width: 100%;
+  max-height: 440px;
+  height: auto;
+  border-radius: var(--qx-radius-card);
+}
+.point,
+.rect {
+  position: absolute;
+  background: var(--qx-color-ink);
+  color: var(--qx-color-surface);
+  font-size: var(--qx-text-meta);
+  min-width: 24px;
+  min-height: 24px;
+  text-align: center;
+  border: 2px solid var(--qx-color-surface);
+}
+.point {
+  border-radius: var(--qx-radius-pill);
+  transform: translate(-50%, -50%);
+}
+.rect {
+  background: color-mix(in srgb, var(--qx-color-ink) 20%, transparent);
+  color: var(--qx-color-ink);
+  border-color: var(--qx-color-ink);
+}

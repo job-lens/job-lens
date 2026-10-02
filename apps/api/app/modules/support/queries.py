@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -18,3 +20,12 @@ def pending_count(session: Session, actor: Actor) -> int:
         )
         or 0
     )
+
+
+def request_counts(session: Session, actor: Actor, task_ids: list[UUID]) -> dict[UUID, int]:
+    rows = session.execute(
+        select(Assistance.task_id, func.count())
+        .where(Assistance.case_id.in_(authorized_case_ids(actor)), Assistance.task_id.in_(task_ids))
+        .group_by(Assistance.task_id)
+    )
+    return {task_id: count for task_id, count in rows if task_id is not None}

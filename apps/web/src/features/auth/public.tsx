@@ -201,3 +201,29 @@ export function SessionControls() {
     </div>
   );
 }
+
+export function WorkspaceNavigation() {
+  const session = useQuery({ queryKey: ['session'], queryFn: loadSession, enabled: false });
+  return (
+    <nav aria-label="主导航">
+      {session.data?.roles.includes('learner') && (
+        <>
+          <Link to="/learner">我的任务</Link>
+          <Link to="/learner/records">训练记录</Link>
+        </>
+      )}
+      {session.data?.roles.includes('counselor') && (
+        <>
+          <Link to="/counselor">个案工作台</Link>
+          <Link to="/counselor/support">求助</Link>
+        </>
+      )}
+      {session.data && (
+        <>
+          <Link to="/notifications">通知</Link>
+          <Link to="/preferences">偏好</Link>
+        </>
+      )}
+    </nav>
+  );
+}

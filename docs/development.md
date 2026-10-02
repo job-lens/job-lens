@@ -56,7 +56,7 @@ Cookie 写操作必须校验 CSRF 和 Origin。业务 POST 使用 `Idempotency-K
 
 ## 数据与运行机制
 
-数据库包含 **28 张关系表、三次冻结迁移**。`0001_foundation` 创建基础结构；`0002_integrity` 增加任务身份保护、持久化字段与事件不可变规则；`0003_identity_limiter` 增加持久化登录限流。迁移不导入实时 ORM；API 启动不执行 `create_all`。就绪检查要求数据库已到当前 schema revision。
+当前迁移头为 `0005_sop_plan_version`。`0001_foundation` 创建基础结构；`0002_integrity` 增加任务身份保护、持久化字段与事件不可变规则；`0003_identity_limiter` 增加持久化登录限流；`0004_email_account` 加入邮箱认证与凭据撤销；`0005_sop_plan_version` 加入 SOP 计划的并发版本。迁移不导入实时 ORM；API 启动不执行 `create_all`。就绪检查要求数据库已到当前 schema revision。
 
 SOP 发布后内容及步骤不可改写；任务只能从同个案的已发布版本创建，任务的个案和版本引用不能重指派；提交、反馈、消息、审计和观测事件追加保存。组合外键与部分唯一索引约束步骤上下文、当前草稿、活动任务及重复求助。
 
@@ -66,7 +66,17 @@ API 展示对象不直接等于数据库行：`CaseProfile` 组合档案与偏�
 
 周期作业由 worker 自行维持：启动时按 `PERIODIC` 播种，每次成功收尾后在同一事务内排下一槽。`jobs.dedupe_key` 是全局唯一索引，因此周期作业的键必须带时间槽（如 `system.purge_idempotency:2026-09-19T07:00:00+00:00`），否则 `on_conflict_do_nothing` 会挡住第二次入队。当前只注册幂等记录清理；文件扫描超时、任务长期无反馈等业务兜底随对应用例接入。
 
-文件通过私有 Local / S3 适配器读写，存储键与用户文件名分离。ClamAV 适配器提供真实流式扫描协议；未通过扫描的文件不得转为 ready。现阶段未接入上传 HTTP 与扫描 worker 流程。
+文件通过私有 Local / S3 适配器读写，存储键与用户文件名分离。上传、元数据、删除与授权内容读取 HTTP 已接入，上传返回隔离状态并在同一事务入队 `files.scan`；删除入队 `files.delete`。运行时 worker 使用 `JOB_LENS_SCAN_HOST`（默认 `clamav`）及 `JOB_LENS_SCAN_PORT`（默认 `3310`）连接真实 ClamAV。检测不可用时作业重试、文件保持隔离，未通过扫描的文件不得转为 ready。当前 Compose 未提供 ClamAV 服务，本地附件的真实扫描仍需独立配置；单元测试中的 CleanScanner 仅为显式测试替身。
+
+## 合成账号验收
+
+`tools/training_fixture.py` 只允许 `JOB_LENS_ENVIRONMENT=test` 且数据库名以 `_test` 结尾，拒绝覆盖已有体验账号。它通过真实 SOP/训练服务建立学员、辅导员和三个无必需附件的场景：待开始、待审核、需返工。没有复制任何其他项目的用户库或配置。
+
+```bash
+JOB_LENS_ENVIRONMENT=test JOB_LENS_FIXTURE_PASSWORD='<独立测试密码，至少12字符>' uv run python tools/training_fixture.py
+```
+
+浏览器 `training-workflow.spec.ts` 在同一测试数据库里使用真实 Cookie、步骤保存、提交、审核、返工、再次提交和通过接口；不拦截这些业务请求。测试会消耗初始待开始任务，应在一次性的容器测试库中执行。当前本地交付与后续范围见 [本轮交接](current-round-handoff.md)。
 
 ## 测试与构建
 

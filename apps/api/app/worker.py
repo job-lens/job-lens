@@ -10,8 +10,11 @@ from sqlalchemy.orm import Session
 from app.core.config import Settings
 from app.core.types import JsonObject
 from app.infrastructure.db import Database, utcnow
+from app.infrastructure.file_jobs import FileJobs
 from app.infrastructure.idempotency import purge_expired
 from app.infrastructure.jobs import claim, enqueue, finish, renew
+from app.infrastructure.scanning import ClamAVScanner
+from app.infrastructure.storage import LocalBlobStore, S3BlobStore
 
 logger = logging.getLogger("job_lens.worker")
 type Handler = Callable[[JsonObject], None]
@@ -25,14 +28,26 @@ def system_ping(payload: JsonObject) -> None:
         raise ValueError("system.ping takes an empty payload")
 
 
-def build_handlers(database: Database) -> dict[str, Handler]:
+def build_handlers(database: Database, settings: Settings | None = None) -> dict[str, Handler]:
     """Sweeps need their own transaction, so they close over the database rather than take one."""
 
     def purge_idempotency(payload: JsonObject) -> None:
         with database.transaction() as session:
             purge_expired(session, utcnow())
 
-    return {"system.ping": system_ping, "system.purge_idempotency": purge_idempotency}
+    handlers: dict[str, Handler] = {
+        "system.ping": system_ping,
+        "system.purge_idempotency": purge_idempotency,
+    }
+    if settings is not None:
+        store = (
+            LocalBlobStore(settings.storage_root)
+            if settings.storage_kind == "local"
+            else S3BlobStore(settings)
+        )
+        files = FileJobs(database, store, ClamAVScanner(settings.scan_host, settings.scan_port))
+        handlers.update({"files.scan": files.scan, "files.delete": files.delete})
+    return handlers
 
 
 def slot_start(now: datetime, period: int) -> datetime:
@@ -102,7 +117,7 @@ def main() -> None:
     config = Settings()
     database = Database.from_settings(config)
     # Handlers are added here with the corresponding feature, never from a payload import path.
-    handlers = build_handlers(database)
+    handlers = build_handlers(database, config)
     worker = Worker(
         database, handlers=handlers, lease_seconds=config.job_lease_seconds, periodic=PERIODIC
     )

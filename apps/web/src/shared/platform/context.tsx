@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { usePreferences } from '@/shared/preferences/public';
 import type { Platform } from './types';
 export const PlatformContext = createContext<Platform | null>(null);
@@ -15,9 +15,12 @@ export function usePlatform(): Platform {
 export function usePrompt() {
   const platform = usePlatform();
   const preferences = usePreferences();
-  return {
-    speak: (text: string) => platform.speak(text, preferences),
-    vibrate: () => platform.vibrate(preferences),
-    cancelSpeech: () => platform.cancelSpeech(),
-  };
+  return useMemo(
+    () => ({
+      speak: (text: string) => platform.speak(text, preferences),
+      vibrate: () => platform.vibrate(preferences),
+      cancelSpeech: () => platform.cancelSpeech(),
+    }),
+    [platform, preferences],
+  );
 }
