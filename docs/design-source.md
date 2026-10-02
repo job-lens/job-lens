@@ -12,12 +12,8 @@
 
 当前供用户查看的方向包括官网与登录页：使用来源的 qx 排版、按钮、输入框。登录独立于工作台外壳，没有表单面板。官网包含产品介绍、三个可切换的任务步骤示意、学员到辅导员的完整训练流程、两种角色用途及节奏支持。示意切换不调用业务 API，不模拟真实提交。
 
-用户明确要求参考原小精灵后，角色直接复用 Everplain 的本地 `agent-avatar` 实现，移除自行制作的金属机器人。来源是纯色几何轮廓、两只偏侧眼睛和原有角色色；没有渐变、高光、屏幕、嘴巴或手脚。形状、眼睛位置、张望与眨眼沿用原实现，只经过本仓 Prettier。包装层加入可保存的暂停选择、系统减少动态效果优先和密码输入时转开视线。角色文件是独立副本，没有修改 Everplain。
+最新用户澄清：全局设计规范可以复用，角色不可以直接复制。已删除此前复制的三个 `agent-avatar` 源文件。当前三个小精灵使用 Job Lens 自绘的非对称鹅卵石轮廓、正面眼睛与短弧微笑；配色由授权令牌的类别色调淡，动画独立编写。包装层保留用户暂停、系统减少动态效果优先、密码输入时闭眼的行为。
 
-| 角色源文件                                                                                 | 原文件 SHA-256                                                     |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| `/Users/huyan/Desktop/Everplain-tokens/frontend/src/modules/agent-avatar/avatars.tsx`      | `9e7e4101c74f84f9a17b2ffd679580f213d1632258dca4d534a0f931eb3ac64f` |
-| `/Users/huyan/Desktop/Everplain-tokens/frontend/src/modules/agent-avatar/AgentAvatar.tsx`  | `de381d99f3c1aac10a24375e160d73a225f0e5e4e18748b1bf230fa8ee134899` |
-| `/Users/huyan/Desktop/Everplain-tokens/frontend/src/modules/agent-avatar/agent-avatar.css` | `99f2c51cee00a1013d6803a20e1b6f1c707a6315257bc396f35c2ff3848376bb` |
+官网研究参考 [Todoist](https://www.todoist.com/)、[Linear 产品规划](https://linear.app/plan) 与 [Headspace](https://www.headspace.com/app) 的公开页面：借鉴具体产品演示、分段叙事与简洁操作入口，不复制页面文案、布局、角色或图片。研究图片仅放在忽略的本地目录，没有加入产品。官网的文件与清单图形是本仓自绘 SVG，步骤演示明确标记为示意，不模拟提交。
 
 真实登录、Cookie/CSRF、返回原页面、角色控制和登出逻辑保留。此分支是视觉方向预览，尚未代表全站业务页面组件迁移完成，也未代表注册、找回密码或训练后端链路已完成。关联官网 Issue #39 与账号前端 Issue #33；PR #40 保持 draft，不合并被用户否定的旧方向。
