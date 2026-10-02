@@ -23,6 +23,7 @@ from app.core.security import (
     verify_password,
 )
 from app.core.types import Actor
+from app.infrastructure.db import utcnow
 from app.infrastructure.models import AuditEvent
 from app.modules.identity.models import AuthLimit, Preferences, Profile, SessionRecord, User
 from app.modules.identity.public import UserView
@@ -47,6 +48,9 @@ def session_record(s: Session, token: str | None, now: datetime) -> SessionRecor
         .with_for_update()
         .execution_options(populate_existing=True)
     )
+    # A concurrent request may update last_seen while this request waits for the
+    # row lock. Validate at acquisition time, retaining the strict future guard.
+    now = max(now, utcnow())
     if (
         record is None
         or record.expires_at <= now
@@ -80,7 +84,7 @@ def csrf_grant(s: Session, token: str | None, now: datetime) -> SessionGrant:
     try:
         record = session_record(s, token, now)
         if record.user_id is not None:
-            resolve_actor(s, token or "", now)
+            resolve_actor(s, token or "", max(now, utcnow()))
     except AppError:
         return issue_session(s, None, now)
     csrf = new_token()
@@ -215,7 +219,7 @@ def save_personal(
 
 def touch_session(s: Session, token: str, now: datetime) -> None:
     record = session_record(s, token, now)
-    record.last_seen_at = now
+    record.last_seen_at = max(now, utcnow(), record.last_seen_at)
 
 
 def take_budget(s: Session, key: str, maximum: int, window: timedelta, now: datetime) -> None:
