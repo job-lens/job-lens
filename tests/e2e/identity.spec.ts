@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 
 const password = process.env.E2E_PASSWORD;
@@ -22,15 +23,9 @@ test.describe('real Cookie identity lifecycle', () => {
     await page.reload();
     await expect(page.getByRole('heading', { name: '个人资料' })).toBeVisible();
     if (process.env.E2E_FIXTURE_MODE === 'docker') {
-      execFileSync('docker', [
-        'compose',
-        'exec',
-        '-T',
-        'api',
-        'python',
-        'tools/identity_fixture.py',
-        'expire',
-      ]);
+      execFileSync('docker', ['compose', 'exec', '-T', 'api', 'python', '-', 'expire'], {
+        input: readFileSync('tools/identity_fixture.py'),
+      });
     } else {
       execFileSync(process.env.E2E_PYTHON ?? 'python', ['tools/identity_fixture.py', 'expire']);
     }

@@ -19,6 +19,18 @@ test('unknown client paths render an error instead of breaking the app', async (
   await expect(page.getByText('页面不存在')).toBeVisible();
 });
 test('mocked learner identity cannot enter the counselor workspace', async ({ page }) => {
+  await page.route('**/api/v1/me/preferences', route =>
+    route.fulfill({
+      json: {
+        font_scale: 1,
+        volume: 0.5,
+        quiet_mode: true,
+        speech_enabled: false,
+        vibration_enabled: false,
+        version: 1,
+      },
+    }),
+  );
   await page.route('**/api/v1/me', route =>
     route.fulfill({
       json: {
