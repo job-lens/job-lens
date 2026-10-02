@@ -1,0 +1,133 @@
+/*
+ * 小融的配色是插画本身的颜色，不走界面 token：深浅色模式下人物不变色，换了就不是同一个人。
+ * 蓝、橙、青取自 Everplain 角色那组高饱和色。
+ */
+.jl-buddy {
+  display: block;
+  overflow: visible;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.jlb-hair-back {
+  fill: #3e2f28;
+}
+.jlb-hair-shade {
+  fill: #3a2b24;
+  opacity: 0.7;
+}
+.jlb-blush {
+  fill: #f2b2a6;
+  opacity: 0.5;
+}
+.jlb-eyes {
+  fill: #2b221e;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: jlb-blink 5.6s infinite;
+}
+.jlb-happy path,
+.jlb-mouth {
+  fill: none;
+  stroke: #2b221e;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+}
+.jlb-mouth {
+  stroke-width: 2.4;
+}
+.jlb-happy path {
+  opacity: 0;
+}
+.jlb-band {
+  fill: none;
+  stroke: #cbbfae;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.jlb-cup-pad {
+  fill: #b8aa97;
+}
+
+.jlb-neck {
+  fill: #f2dccb;
+}
+.jlb-collar {
+  fill: none;
+  stroke: #f3ede4;
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+.jlb-layer {
+  translate: calc(var(--turn) * var(--dx) * 1px) calc(var(--nod) * var(--dy) * 1px);
+}
+.jlb-bob {
+  transform-box: fill-box;
+  transform-origin: 50% 85%;
+  animation: jlb-breathe 4.2s ease-in-out infinite;
+}
+.jlb-fringe {
+  transform-box: fill-box;
+}
+.jlb-fringe {
+  transform-origin: 50% 0%;
+  animation: jlb-sway 5s ease-in-out infinite;
+}
+@keyframes jlb-sway {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+@keyframes jlb-boing {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  40% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-2deg);
+  }
+}
+@keyframes jlb-breathe {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -1.5px;
+  }
+}
+
+.jl-buddy[data-mood='happy'] .jlb-eyes {
+  opacity: 0;
+  animation: none;
+}
+.jl-buddy[data-mood='happy'] .jlb-happy path {
+  opacity: 1;
+}
+.jl-buddy[data-playing='false'] *,
+.jl-buddy[data-playing='false'] {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .jl-buddy * {
+    animation: none !important;
+  }
+}
+@keyframes jlb-blink {
+  0%,
+  92%,
+  97%,
+  100% {
+    transform: scaleY(1);
+  }
+  94.5% {
+    transform: scaleY(0.1);
+  }
+}

@@ -14,7 +14,7 @@ it('keeps the homepage public while showing the training path and real login ent
   expect(await screen.findByRole('heading', { name: '让工作，有清楚的下一步。' })).toBeVisible();
   expect(screen.getByRole('link', { name: '登录并开始' })).toHaveAttribute('href', '/login');
   expect(screen.getByRole('region', { name: '训练流程' })).toBeVisible();
-  expect(screen.getByRole('img', { name: '三个相伴的小精灵' })).toBeVisible();
+  expect(screen.getByRole('img', { name: '陪你做事的小伙伴' })).toBeVisible();
   expect(requests).not.toHaveBeenCalled();
 });
 
