@@ -20,8 +20,9 @@ test.describe('real training review and rework', () => {
     }
     await login('learner');
     await page.getByRole('link', { name: '查看任务', exact: true }).click();
+    await expect(page).toHaveURL(/\/learner\/tasks\/[0-9a-f-]+$/);
     const taskUrl = page.url();
-    const taskId = taskUrl.split('/').at(-1)!;
+    const taskId = new URL(taskUrl).pathname.split('/').at(-1)!;
     await page.getByRole('button', { name: '开始训练' }).click();
     for (const instruction of [
       '先核对清单上的名称。',
