@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router';
-import { LoginPage, SessionControls, SessionGate } from '@/features/auth/public';
+import {
+  LoginPage,
+  RegisterPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  SessionControls,
+  SessionGate,
+} from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
 import { PlatformContext } from '@/shared/platform/context';
 import { webPlatform } from '@/shared/platform/web';
@@ -40,6 +47,21 @@ export function App() {
       {
         path: '/login',
         element: <LoginPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
         errorElement: <ErrorPanel message="页面未能加载" />,
       },
       {

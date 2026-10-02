@@ -21,7 +21,7 @@ def resolve_actor(session: Session, token: str, now: datetime) -> Actor:
     if record is None or record.user_id is None:
         raise unauthenticated()
     user = session.get(User, record.user_id)
-    if user is None or not user.active:
+    if user is None or not user.active or user.credential_version != record.credential_version:
         raise unauthenticated()
     window = SessionWindow(record.created_at, record.last_seen_at, record.revoked_at is not None)
     if not window.valid_at(now) or record.expires_at <= now:

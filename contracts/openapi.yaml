@@ -52,6 +52,77 @@ components:
     LoginRequest: {type: object, additionalProperties: false, required: [login_name, password], properties: {login_name: {type: string, minLength: 1, maxLength: 80}, password: {type: string, minLength: 1, maxLength: 256}}}
     User: {type: object, additionalProperties: false, required: [id, display_name, roles], properties: {id: *uuid, display_name: {type: string, minLength: 1, maxLength: 80}, roles: {type: array, minItems: 1, maxItems: 2, uniqueItems: true, items: {type: string, enum: [learner, counselor]}}}}
     LoginResult: {type: object, additionalProperties: false, required: [user, csrf_token], properties: {user: {$ref: '#/components/schemas/User'}, csrf_token: {type: string, minLength: 16, maxLength: 256}}}
+    EmailRequest:
+      properties:
+        email:
+          type: string
+          maxLength: 80
+          minLength: 3
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          title: Email
+      additionalProperties: false
+      type: object
+      required:
+      - email
+    RegistrationRequest:
+      properties:
+        email:
+          type: string
+          maxLength: 80
+          minLength: 3
+          pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+          title: Email
+        code:
+          type: string
+          maxLength: 6
+          minLength: 6
+          pattern: ^[0-9]{6}$
+          title: Code
+        password:
+          type: string
+          maxLength: 256
+          minLength: 12
+          title: Password
+        display_name:
+          type: string
+          maxLength: 80
+          minLength: 1
+          title: Display Name
+      additionalProperties: false
+      type: object
+      required:
+      - email
+      - code
+      - password
+      - display_name
+    PasswordResetRequest:
+      properties:
+        token:
+          type: string
+          maxLength: 43
+          minLength: 43
+          pattern: ^[A-Za-z0-9_-]{43}$
+          title: Token
+        password:
+          type: string
+          maxLength: 256
+          minLength: 12
+          title: Password
+      additionalProperties: false
+      type: object
+      required:
+      - token
+      - password
+    EmailAccepted:
+      properties:
+        message:
+          type: string
+          const: 请求已受理，请查看邮箱。
+          title: Message
+      additionalProperties: false
+      type: object
+      required:
+      - message
     PreferencesWrite: &prefs
       type: object
       additionalProperties: false
@@ -256,6 +327,350 @@ paths:
     get: {operationId: auth_csrf, summary: 获取预登录或当前会话CSRF凭据, x-phase: M2, security: [], responses: {'200': {description: "CSRF token; no-store", content: {application/json: {schema: {$ref: '#/components/schemas/CsrfToken'}}}}, default: *problem}}
   /auth/login:
     post: {operationId: auth_login, summary: 账号登录并轮换会话, x-phase: M2, security: [], parameters: [*csrf], requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LoginRequest'}}}}, responses: {<<: *errors, '200': {description: "User and rotated CSRF; session in HttpOnly cookie", content: {application/json: {schema: {$ref: '#/components/schemas/LoginResult'}}}}}}
+  /auth/registration-code:
+    post:
+      summary: 发送注册验证码
+      operationId: auth_registration_code
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 256
+          title: X-Csrf-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAccepted'
+        default:
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+        '422':
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+      security: []
+  /auth/password-reset-requests:
+    post:
+      summary: 请求一次性找回链接
+      operationId: auth_password_reset_request
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 256
+          title: X-Csrf-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAccepted'
+        default:
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+        '422':
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+      security: []
+  /auth/register:
+    post:
+      summary: 验证邮箱并注册学员账号
+      operationId: auth_register
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 256
+          title: X-Csrf-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationRequest'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResult'
+        default:
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+        '422':
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+      security: []
+  /auth/password-resets:
+    post:
+      summary: 设置新密码并撤销所有旧会话
+      operationId: auth_password_reset
+      parameters:
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 16
+          maxLength: 256
+          title: X-Csrf-Token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '204':
+          description: Successful Response
+        default:
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+        '422':
+          description: Structured failure
+          content:
+            application/problem+json:
+              schema:
+                additionalProperties: false
+                properties:
+                  type:
+                    title: Type
+                    type: string
+                  title:
+                    title: Title
+                    type: string
+                  status:
+                    title: Status
+                    type: integer
+                  code:
+                    title: Code
+                    type: string
+                  trace_id:
+                    title: Trace Id
+                    type: string
+                required:
+                - type
+                - title
+                - status
+                - code
+                - trace_id
+                title: Problem
+                type: object
+      security: []
   /auth/logout:
     post: {operationId: auth_logout, summary: 撤销当前会话, x-phase: M2, parameters: [*csrf], responses: {<<: *errors, '204': {description: "Session revoked and cookie cleared"}}}
   /me:

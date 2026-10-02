@@ -6,11 +6,8 @@ import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
 import { PreferencesProvider } from '@/shared/preferences/public';
 import { Companions } from '@/shared/ui/Companions';
 import styles from './Auth.module.css';
-
-async function prepareCsrf() {
-  const result = unwrap(await api.GET('/auth/csrf'));
-  setCsrfToken(result.csrf_token);
-}
+import { prepareCsrf } from './authApi';
+export { RegisterPage, ForgotPasswordPage, ResetPasswordPage } from './AccountPages';
 
 async function loadSession({ signal }: { signal: AbortSignal }) {
   const current = unwrap(await api.GET('/me', { signal }));
@@ -152,6 +149,10 @@ export function LoginPage() {
             {busy ? '正在登录…' : '登录'}
           </button>
         </form>
+        <div className={styles.accountLinks}>
+          <Link to="/register">注册账号</Link>
+          <Link to="/forgot-password">忘记密码</Link>
+        </div>
       </main>
     </div>
   );

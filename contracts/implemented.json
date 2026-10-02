@@ -9,5 +9,9 @@
   "identity_put_preferences": "identity",
   "identity_get_profile": "identity",
   "identity_put_profile": "identity",
-  "identity_capabilities": "identity"
+  "identity_capabilities": "identity",
+  "auth_registration_code": "identity",
+  "auth_password_reset_request": "identity",
+  "auth_register": "identity",
+  "auth_password_reset": "identity"
 }

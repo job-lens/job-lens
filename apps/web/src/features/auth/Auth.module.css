@@ -55,3 +55,35 @@
     min-height: calc(100svh - 80px);
   }
 }
+.codeRow {
+  display: flex;
+  gap: var(--qx-space-2);
+  align-items: center;
+}
+.codeRow input {
+  min-width: 0;
+  flex: 1;
+}
+.codeRow button {
+  flex: none;
+  margin: 0;
+}
+.hint {
+  margin: 0;
+}
+.accountLinks {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--qx-space-6);
+  width: min(100%, 352px);
+  margin-top: var(--qx-space-6);
+  font-size: var(--qx-text-control);
+}
+.accountLinks a,
+.accountLink a {
+  color: var(--qx-color-muted);
+}
+.accountLink {
+  margin: var(--qx-space-6) 0 0;
+  font-size: var(--qx-text-control);
+}

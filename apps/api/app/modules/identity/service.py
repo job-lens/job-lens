@@ -60,6 +60,7 @@ def session_record(s: Session, token: str | None, now: datetime) -> SessionRecor
 
 def issue_session(s: Session, user_id: UUID | None, now: datetime) -> SessionGrant:
     token, csrf = new_token(), new_token()
+    user = s.scalar(select(User).where(User.id == user_id).with_for_update()) if user_id else None
     s.add(
         SessionRecord(
             user_id=user_id,
@@ -68,6 +69,7 @@ def issue_session(s: Session, user_id: UUID | None, now: datetime) -> SessionGra
             csrf_hash=token_digest(csrf),
             last_seen_at=now,
             expires_at=now + timedelta(hours=12) if user_id else now + timedelta(minutes=15),
+            credential_version=user.credential_version if user else 1,
         )
     )
     s.flush()
@@ -113,8 +115,9 @@ def login(
 ) -> SessionGrant:
     old = check_write(s, token, origin, expected_origin, csrf, now)
     take_budget(s, "login-client:" + client_key, 30, timedelta(minutes=15), now)
-    take_budget(s, "login-name:" + login_name.strip(), 10, timedelta(minutes=15), now)
-    user = s.scalar(select(User).where(User.login_name == login_name.strip()))
+    canonical = login_name.strip().casefold() if "@" in login_name else login_name.strip()
+    take_budget(s, "login-name:" + canonical, 10, timedelta(minutes=15), now)
+    user = s.scalar(select(User).where(User.login_name == canonical).with_for_update())
     valid = verify_password(password, user.password_hash if user else _DUMMY_HASH)
     if not valid or user is None or not user.active:
         raise AppError(401, "INVALID_CREDENTIALS", "账号或密码不正确")

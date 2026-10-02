@@ -22,6 +22,8 @@ class User(Entity, Base):
     login_name: Mapped[str] = mapped_column(String(80), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    credential_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __table_args__ = (CheckConstraint("credential_version >= 1", name="credential_version"),)
 
 
 class UserRole(Base):
@@ -66,6 +68,29 @@ class SessionRecord(Entity, Base):
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    credential_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __table_args__ = (CheckConstraint("credential_version >= 1", name="credential_version"),)
+
+
+class EmailChallenge(Entity, Base):
+    __tablename__ = "email_challenges"
+    email: Mapped[str] = mapped_column(String(80))
+    purpose: Mapped[str] = mapped_column(String(16))
+    user_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    code_hash: Mapped[str | None] = mapped_column(String(255))
+    token_hash: Mapped[str | None] = mapped_column(String(64), unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    __table_args__ = (
+        UniqueConstraint("email", "purpose"),
+        CheckConstraint("purpose IN ('registration','reset')", name="purpose"),
+        CheckConstraint("attempts BETWEEN 0 AND 5", name="attempts"),
+        CheckConstraint(
+            "(purpose = 'registration' AND code_hash IS NOT NULL AND token_hash IS NULL) OR (purpose = 'reset' AND token_hash IS NOT NULL AND code_hash IS NULL)",
+            name="digest",
+        ),
+    )
 
 
 class ExternalIdentity(Entity, Base):
