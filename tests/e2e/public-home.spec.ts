@@ -24,3 +24,15 @@ for (const width of [1440, 390]) {
     await expect(page.getByRole('heading', { name: '登录' })).toBeVisible();
   });
 }
+
+test('reduced motion keeps the illustrated companion still', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: '开启角色动效' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  const image = page.getByRole('img', { name: '机器人陪你把任务拆成清楚的步骤' });
+  await expect(image).toBeVisible();
+  expect(await image.evaluate(element => getComputedStyle(element).animationName)).toBe('none');
+});
