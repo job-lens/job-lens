@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router';
-import { LoginPage, SessionGate } from '@/features/auth/public';
+import { LoginPage, SessionControls, SessionGate } from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
 import { PlatformContext } from '@/shared/platform/context';
 import { PreferencesProvider } from '@/shared/preferences/public';
@@ -25,6 +25,7 @@ function Shell() {
           <Link to="/learner">学员端</Link>
           <Link to="/counselor">辅导员端</Link>
         </nav>
+        <SessionControls />
       </header>
       <main id="main" className={styles.main} tabIndex={-1}>
         <PreferencesProvider>

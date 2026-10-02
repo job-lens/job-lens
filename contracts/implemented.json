@@ -1,1 +1,13 @@
-{"health_live": "platform", "health_ready": "platform", "identity_me": "identity"}
+{
+  "health_live": "platform",
+  "health_ready": "platform",
+  "identity_me": "identity",
+  "auth_csrf": "identity",
+  "auth_login": "identity",
+  "auth_logout": "identity",
+  "identity_get_preferences": "identity",
+  "identity_put_preferences": "identity",
+  "identity_get_profile": "identity",
+  "identity_put_profile": "identity",
+  "identity_capabilities": "identity"
+}

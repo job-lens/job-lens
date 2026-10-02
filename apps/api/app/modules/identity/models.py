@@ -74,3 +74,11 @@ class ExternalIdentity(Entity, Base):
     provider: Mapped[str] = mapped_column(String(40))
     subject: Mapped[str] = mapped_column(String(255))
     __table_args__ = (UniqueConstraint("provider", "subject"),)
+
+
+class AuthLimit(Base):
+    __tablename__ = "auth_limits"
+    key_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    window_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    __table_args__ = (CheckConstraint("attempts >= 0", name="attempts"),)

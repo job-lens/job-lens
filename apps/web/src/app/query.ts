@@ -1,7 +1,27 @@
-import { QueryClient } from '@tanstack/react-query';
-import { ApiError } from '@/shared/api/client';
+import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { ApiError, setCsrfToken } from '@/shared/api/client';
 export function createQueryClient() {
-  return new QueryClient({
+  function expire(error: unknown) {
+    if (!(error instanceof ApiError) || error.status !== 401) return;
+    setCsrfToken();
+    const privateQueries = {
+      predicate: (query: { queryKey: readonly unknown[] }) => query.queryKey[0] !== 'session',
+    };
+    void client.cancelQueries(privateQueries);
+    client.removeQueries(privateQueries);
+    client
+      .getQueryCache()
+      .find({ queryKey: ['session'], exact: true })
+      ?.setState({
+        data: undefined,
+        error,
+        status: 'error',
+        fetchStatus: 'idle',
+      });
+  }
+  const client = new QueryClient({
+    queryCache: new QueryCache({ onError: expire }),
+    mutationCache: new MutationCache({ onError: expire }),
     defaultOptions: {
       queries: {
         staleTime: 15_000,
@@ -12,4 +32,5 @@ export function createQueryClient() {
       mutations: { retry: false },
     },
   });
+  return client;
 }

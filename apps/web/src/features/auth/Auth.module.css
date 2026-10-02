@@ -1,0 +1,143 @@
+.page {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 2rem 1rem;
+  color: #343a37;
+}
+.welcome {
+  text-align: center;
+}
+.headline {
+  font-family: Georgia, 'Songti SC', 'Noto Serif SC', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.35;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.scene {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+}
+.welcome > p:last-child {
+  margin: 0;
+  color: #727a74;
+  line-height: 1.8;
+}
+.formPanel {
+  padding: 2.5rem;
+  background: #fafbf9;
+  border: 1px solid #e5e9e3;
+  border-radius: 28px;
+  box-shadow: 0 6px 24px #343a3705;
+}
+.formPanel h1 {
+  font-family: Georgia, 'Songti SC', 'Noto Serif SC', serif;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+.intro {
+  line-height: 1.7;
+  color: #727a74;
+  margin: 0 0 2rem;
+}
+.formPanel form {
+  display: flex;
+  flex-direction: column;
+}
+.formPanel label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+.formPanel input {
+  width: 100%;
+  border: 1px solid #dbe1d9;
+  border-radius: 999px;
+  min-height: 48px;
+  padding: 0.7rem 1.1rem;
+  font: inherit;
+  background: white;
+  color: inherit;
+  margin-bottom: 1.25rem;
+  box-sizing: border-box;
+}
+.primary {
+  text-align: center;
+  border: 0;
+  border-radius: 999px;
+  min-height: 48px;
+  padding: 0.8rem 1.5rem;
+  font: inherit;
+  background: #56695d;
+  color: white;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.primary:hover {
+  background: #45584c;
+}
+.primary:disabled,
+.session button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.error {
+  line-height: 1.6;
+  color: #9a4738;
+  margin: 0 0 1rem;
+}
+.home {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #56695d;
+  text-underline-offset: 4px;
+}
+.session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.session a {
+  color: #56695d;
+}
+.session button {
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  background: #fafbf9;
+  color: #56695d;
+  border: 1px solid #dbe1d9;
+  font: inherit;
+  cursor: pointer;
+}
+.page :focus-visible,
+.session :focus-visible {
+  outline: 3px solid #7b9888;
+  outline-offset: 3px;
+}
+@media (max-width: 48rem) {
+  .page {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0;
+  }
+  .headline {
+    font-size: 1.8rem;
+  }
+  .headline br {
+    display: none;
+  }
+  .scene {
+    max-width: 230px;
+    margin-top: -0.5rem;
+  }
+  .welcome > p:last-child {
+    display: none;
+  }
+  .formPanel {
+    padding: 1.5rem;
+  }
+}
