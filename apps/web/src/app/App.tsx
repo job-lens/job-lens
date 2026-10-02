@@ -38,7 +38,7 @@ export function App() {
   const [queryClient] = useState(createQueryClient);
   const [router] = useState(() =>
     createBrowserRouter([
-      { path: '/', element: <LandingPage /> },
+      { path: '/', element: <LandingPage />, errorElement: <ErrorPanel message="页面未能加载" /> },
       {
         element: <Shell />,
         errorElement: <ErrorPanel message="页面未能加载" />,

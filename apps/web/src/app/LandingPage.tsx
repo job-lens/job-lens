@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import styles from './LandingPage.module.css';
 
 const journey = [
-  ['了解你的需要', '记录沟通方式、感官偏好与工作目标，让支持从你的实际情况开始。'],
-  ['一起制定计划', '辅导员结合资料确定训练方向，把任务拆成清晰的操作步骤。'],
-  ['按自己的节奏练习', '一次专注一个步骤，查看指引，完成后提交；需要时可以暂停。'],
-  ['收到反馈，再做调整', '辅导员审核提交并给出具体反馈，学员根据建议继续练习。'],
+  ['了解你的需要', '告诉辅导员你的沟通方式、感官偏好和工作目标。'],
+  ['一起制定计划', '确定训练方向，把任务拆成具体的操作步骤。'],
+  ['按自己的节奏练习', '看指引，做完当前步骤。需要时可以暂停。'],
+  ['收到反馈，再做调整', '提交后收到具体建议，调整方法，再练一次。'],
 ];
 
 export function LandingPage() {
+  const [motion, setMotion] = useState(
+    () => !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
   return (
     <div className={styles.page}>
       <a className="skip-link" href="#main">
@@ -27,49 +31,49 @@ export function LandingPage() {
       <main id="main" tabIndex={-1}>
         <section className={styles.hero}>
           <div className={styles.intro}>
-            <h1>把工作任务，变成能完成的每一步。</h1>
-            <p>
-              融职境为需要就业支持的学员与辅导员提供共同的训练空间。从了解个人需要开始，让计划、操作和反馈连接起来。
-            </p>
+            <h1 aria-label="把工作任务，变成能完成的每一步。">
+              把工作任务，
+              <br />
+              变成能完成的每一步。
+            </h1>
+            <p>和辅导员一起，把工作任务拆开。看清指引，按自己的节奏练习，再根据反馈继续。</p>
             <Link className={styles.primary} to="/login">
               登录并开始 <span aria-hidden="true">↗</span>
             </Link>
           </div>
-          <aside className={styles.preview} aria-label="分步任务示例">
-            <div className={styles.previewTop}>
-              <span>任务示例</span>
-              <span>第 2 步 / 共 3 步</span>
-            </div>
-            <h2>整理一份工作清单</h2>
-            <ol className={styles.steps}>
-              <li>
-                <span aria-hidden="true">✓</span>
-                <div>
-                  准备材料<small>先把需要的信息放在一起</small>
-                </div>
-              </li>
-              <li className={styles.current}>
-                <span aria-hidden="true">2</span>
-                <div>
-                  核对清单<small>逐项检查名称和数量</small>
-                </div>
-              </li>
-              <li>
-                <span aria-hidden="true">3</span>
-                <div>
-                  整理并提交<small>完成后等待辅导员反馈</small>
-                </div>
-              </li>
-            </ol>
-            <p className={styles.previewNote}>把注意力放在眼前这一步。</p>
-          </aside>
+          <figure className={styles.scene} data-motion={motion ? 'on' : 'off'}>
+            <img
+              className={styles.illustration}
+              src="/illustrations/step-companion.svg"
+              width="680"
+              height="540"
+              alt="机器人陪你把任务拆成清楚的步骤"
+            />
+            <figcaption>一次专注一件事，每一步都有指引。</figcaption>
+            <button
+              className={styles.motion}
+              type="button"
+              aria-pressed={motion}
+              onClick={() => setMotion(!motion)}
+            >
+              {motion ? '关闭角色动效' : '开启角色动效'}
+            </button>
+          </figure>
         </section>
         <section id="journey" className={styles.journey}>
           <h2>从了解自己，到完成任务</h2>
           <ol className={styles.journeyList}>
             {journey.map(([title, body], i) => (
               <li key={title}>
-                <span className={styles.number}>{i + 1}</span>
+                <img
+                  className={styles.journeyImage}
+                  src={`/illustrations/journey-${['profile', 'plan', 'practice', 'feedback'][i]}.svg`}
+                  width="170"
+                  height="130"
+                  alt=""
+                  loading="lazy"
+                />
+                <span className={styles.number}>第 {i + 1} 步</span>
                 <h3>{title}</h3>
                 <p>{body}</p>
               </li>
