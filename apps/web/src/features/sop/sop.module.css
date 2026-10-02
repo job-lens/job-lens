@@ -121,3 +121,10 @@
   min-height: 32px;
   padding: 0.25rem 0.55rem;
 }
+
+.fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}

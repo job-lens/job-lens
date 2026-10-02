@@ -44,3 +44,13 @@ def scope_predicate(actor: Actor) -> ColumnElement[bool]:
 
 def authorized_case_ids(actor: Actor) -> Select[tuple[UUID]]:
     return select(Case.id).where(scope_predicate(actor))
+
+
+def match_confirmed(session: Session, actor: Actor, case_id: UUID) -> bool:
+    from app.modules.cases.models import SupportMatch
+
+    read_access(session, actor, case_id)
+    return (
+        session.scalar(select(SupportMatch.state).where(SupportMatch.case_id == case_id))
+        == "confirmed"
+    )

@@ -17,14 +17,26 @@ export function RevisionEditor({
   const createDraft = useCreateRevision(planId, caseId);
 
   if (revision.isPending) return <LoadingState />;
-  if (revision.isError) {
+  if (!revision.data) {
     return <ErrorPanel message="SOP 版本暂不可用" retry={() => void revision.refetch()} />;
   }
   if (!revision.data) return null;
 
   const rev = revision.data;
   if (rev.state === 'draft') {
-    return <DraftForm revision={rev} caseId={caseId} />;
+    return (
+      <DraftForm
+        key={rev.id}
+        revision={rev}
+        caseId={caseId}
+        onReload={async () => {
+          const result = await revision.refetch();
+          if (result.error) throw result.error;
+          if (!result.data) throw new Error('暂不可用');
+          return result.data;
+        }}
+      />
+    );
   }
 
   // 已发布：只读摘要 + 基于此版新建草稿。

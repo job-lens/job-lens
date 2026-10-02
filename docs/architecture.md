@@ -114,7 +114,7 @@ flowchart LR
 | identity | 13 | 13 |
 | infrastructure | 6 | 0 |
 | platform | 2 | 2 |
-| sop | 7 | 0 |
+| sop | 7 | 7 |
 | support | 12 | 0 |
 | training | 10 | 0 |
 

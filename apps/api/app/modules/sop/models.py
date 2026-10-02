@@ -26,7 +26,8 @@ class SopPlan(Entity, Base):
     case_id: Mapped[UUID] = mapped_column(ForeignKey("cases.id"), index=True)
     title: Mapped[str] = mapped_column(String(120))
     author_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    __table_args__ = (UniqueConstraint("id", "case_id"),)
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    __table_args__ = (UniqueConstraint("id", "case_id"), CheckConstraint("version >= 1", name="version"))
 
 
 class SopRevision(Entity, Base):

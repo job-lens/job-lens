@@ -21,5 +21,12 @@
   "cases_materials": "cases",
   "cases_match_get": "cases",
   "cases_match_put": "cases",
-  "cases_match_confirm": "cases"
+  "cases_match_confirm": "cases",
+  "sop_plans_list": "sop",
+  "sop_plans_create": "sop",
+  "sop_plans_get": "sop",
+  "sop_revisions_create": "sop",
+  "sop_revisions_get": "sop",
+  "sop_revisions_put": "sop",
+  "sop_publish": "sop"
 }

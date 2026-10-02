@@ -13,7 +13,7 @@ from app.core.config import Settings
 # the compose stack enforces that by running migrate as a prerequisite one-shot service. An
 # expand/contract rollout would advance the database while old containers still serve, turning
 # them all unready; switch this to a lowest-supported revision when that rollout is introduced.
-SCHEMA_REVISION = "0004_email_account"
+SCHEMA_REVISION = "0005_sop_plan_version"
 
 
 class Base(DeclarativeBase):
