@@ -11,7 +11,7 @@ cp .env.example .env
 docker compose up -d --build --wait --wait-timeout 180
 ```
 
-打开 **http://localhost:8080** 查看真实 API 与数据库连接状态。启动包含 Web 构建、数据库迁移、API、独立 worker 和 Caddy 网关。
+打开 **http://localhost:8080** 查看官网，**http://localhost:8080/status** 查看真实 API 与数据库连接状态。启动包含 Web 构建、数据库迁移、API、独立 worker 和 Caddy 网关。
 
 ```bash
 python tools/smoke.py
