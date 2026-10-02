@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { api, ApiError, setCsrfToken, unwrap, unwrapVoid } from '@/shared/api/client';
 import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
+import { PreferencesProvider } from '@/shared/preferences/public';
 import styles from './Auth.module.css';
 
 async function prepareCsrf() {
@@ -34,7 +35,11 @@ export function SessionGate({ role }: { role?: 'learner' | 'counselor' }) {
   if (user.isError)
     return <ErrorPanel message="身份服务暂不可用" retry={() => void user.refetch()} />;
   if (role && !user.data.roles.includes(role)) return <ErrorPanel message="无权访问此区域" />;
-  return <Outlet />;
+  return (
+    <PreferencesProvider>
+      <Outlet />
+    </PreferencesProvider>
+  );
 }
 function WelcomeScene() {
   return (

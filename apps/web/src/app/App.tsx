@@ -4,7 +4,6 @@ import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router'
 import { LoginPage, SessionControls, SessionGate } from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
 import { PlatformContext } from '@/shared/platform/context';
-import { PreferencesProvider } from '@/shared/preferences/public';
 import { webPlatform } from '@/shared/platform/web';
 import { createQueryClient } from './query';
 import { featureRoutes } from './routes.generated';
@@ -28,9 +27,7 @@ function Shell() {
         <SessionControls />
       </header>
       <main id="main" className={styles.main} tabIndex={-1}>
-        <PreferencesProvider>
-          <Outlet />
-        </PreferencesProvider>
+        <Outlet />
       </main>
     </div>
   );
