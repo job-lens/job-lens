@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 540" fill="none">
+  <defs>
+    <filter id="paper-shadow" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#242a30" flood-opacity=".08"/></filter>
+  </defs>
+  <ellipse cx="355" cy="460" rx="269" ry="23" fill="#dfE5e3"/>
+  <path d="M159 327c0-37 27-66 67-66h168" stroke="#c7d7d3" stroke-width="3" stroke-dasharray="7 10"/>
+  <path d="m383 251 13 10-13 10" stroke="#c7d7d3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(286 77) rotate(6 130 165)" filter="url(#paper-shadow)">
+    <rect width="264" height="334" rx="29" fill="#fff"/>
+    <rect x="25" y="27" width="44" height="44" rx="15" fill="#dde9e5"/>
+    <path d="m36 49 7 7 15-17" stroke="#5b8074" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="84" y="33" width="118" height="9" rx="4.5" fill="#353b38"/>
+    <rect x="84" y="53" width="83" height="7" rx="3.5" fill="#d4dad6"/>
+    <path d="M26 94h212" stroke="#edf0ee"/>
+    <rect x="22" y="112" width="220" height="58" rx="17" fill="#f5f7f6"/>
+    <circle cx="47" cy="141" r="12" fill="#d6e7df"/>
+    <path d="m42 141 4 4 7-8" stroke="#668878" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="72" y="128" width="122" height="7" rx="3.5" fill="#939f98"/>
+    <rect x="72" y="146" width="87" height="6" rx="3" fill="#d0d8d3"/>
+    <rect x="22" y="180" width="220" height="58" rx="17" fill="#e7eff2"/>
+    <circle cx="47" cy="209" r="12" fill="#7d9ca9"/>
+    <circle cx="47" cy="209" r="3" fill="#fff"/>
+    <rect x="72" y="197" width="138" height="7" rx="3.5" fill="#637e88"/>
+    <rect x="72" y="215" width="97" height="6" rx="3" fill="#bdccd2"/>
+    <rect x="22" y="248" width="220" height="58" rx="17" fill="#f5f7f6"/>
+    <circle cx="47" cy="277" r="12" stroke="#d9e0db" stroke-width="2"/>
+    <rect x="72" y="265" width="98" height="7" rx="3.5" fill="#b8c3bb"/>
+    <rect x="72" y="283" width="133" height="6" rx="3" fill="#dbe1dd"/>
+  </g>
+  <g transform="translate(92 224)">
+    <path d="M79 192v24m69-24v24" stroke="#81a69b" stroke-width="20" stroke-linecap="round"/>
+    <path d="M67 219h22m48 0h22" stroke="#73958a" stroke-width="18" stroke-linecap="round"/>
+    <path d="M30 104c-23 15-27 41-11 55" stroke="#9cbfb3" stroke-width="21" stroke-linecap="round"/>
+    <path d="M192 90c16-22 18-32 15-50" stroke="#9cbfb3" stroke-width="20" stroke-linecap="round"/>
+    <ellipse cx="207" cy="34" rx="14" ry="17" fill="#abcbbf"/>
+    <path d="M113 17V-5" stroke="#85aa9d" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="113" cy="-13" r="11" fill="#d0bca3"/>
+    <rect x="34" y="18" width="158" height="176" rx="53" fill="#adcdbf"/>
+    <path d="M53 72c0-22 18-39 40-39h43c22 0 40 17 40 39v25c0 18-15 32-34 32H88c-20 0-35-14-35-32Z" fill="#eaf3ec"/>
+    <rect x="82" y="69" width="10" height="22" rx="5" fill="#354e45"/>
+    <rect x="136" y="69" width="10" height="22" rx="5" fill="#354e45"/>
+    <path d="M106 94c4 5 12 5 16 0" stroke="#6c9082" stroke-width="3" stroke-linecap="round"/>
+    <rect x="81" y="143" width="64" height="25" rx="12.5" fill="#d6e8dc"/>
+    <circle cx="97" cy="155.5" r="4" fill="#80a798"/>
+    <path d="M110 155.5h20" stroke="#abc6b7" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(512 341) rotate(-9)" filter="url(#paper-shadow)">
+    <rect width="98" height="100" rx="24" fill="#f3e7cd"/>
+    <path d="m28 33 22-10 22 10v30L50 76 28 63Z" stroke="#b59d70" stroke-width="3" stroke-linejoin="round"/>
+    <path d="m28 33 22 13 22-13M50 46v30" stroke="#b59d70" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(173 95) rotate(-10)">
+    <rect width="86" height="80" rx="24" fill="#e1e7f0"/>
+    <path d="M26 24h34v32H26Z" stroke="#8b9bb6" stroke-width="3" stroke-linejoin="round"/>
+    <path d="m34 42 6 6 12-13" stroke="#8b9bb6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

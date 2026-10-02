@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('real Web -> gateway -> API -> migrated PostgreSQL', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/status');
   await expect(page.getByRole('status')).toHaveText('API 与数据库已连接');
 });
 test('a direct workspace URL preserves the SPA and fails closed without a session', async ({
