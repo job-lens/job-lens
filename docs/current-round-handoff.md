@@ -15,7 +15,7 @@
 
 - 工作区：`/Users/huyan/Documents/Codex/2026-10-02/task-29/work`
 - 当前分支：`feat/training-workflow`；本轮训练 PR 接在 `feat/approved-home` 之上。
-- 草稿 PR：[#44 账号](https://github.com/job-lens/job-lens/pull/44)、[#45 资料与匹配](https://github.com/job-lens/job-lens/pull/45)、[#46 SOP](https://github.com/job-lens/job-lens/pull/46)、[#47 用户确认主页](https://github.com/job-lens/job-lens/pull/47)。本轮训练 PR 编号在创建后补充。
+- 草稿 PR：[#44 账号](https://github.com/job-lens/job-lens/pull/44)、[#45 资料与匹配](https://github.com/job-lens/job-lens/pull/45)、[#46 SOP](https://github.com/job-lens/job-lens/pull/46)、[#47 用户确认主页](https://github.com/job-lens/job-lens/pull/47)、[#48 本轮训练闭环](https://github.com/job-lens/job-lens/pull/48)。
 - 本地入口：`http://127.0.0.1:5188/`，代理仅连接本任务 API `127.0.0.1:8188`。
 - 预览数据库：本任务 PostgreSQL `55439` 的 `job_lens_identity_test`；回归测试改用独立 `job_lens_round_test`，不能清空预览库。
 - 体验账号：`mock_learner` / `mock_counselor`，测试密码 `JobLens-Demo-2026!`。这些公开合成凭据不能用于普通数据库或生产环境。初始数据由 `tools/training_fixture.py` 建立，实际浏览器验收后任务状态可能前进；脚本不会覆盖账号或用户修改。
@@ -27,7 +27,7 @@
 - 后端相关 PostgreSQL 用例覆盖完整提交/返工/再次通过、观测去重、求助闭环、标注随反馈原子发布，以及私有上传/隔离/下载与越权。会话并发回归经历失败到通过；相关身份用例 15 项通过。
 - 后端 Ruff、68 个源文件 mypy、契约、生成产物、前端模块边界检查通过。
 - PR #45、#46、#47 最新的 backend / frontend / containers / source 四项云端检查均通过。
-- 浏览器使用真实测试账号，已观察到学员第三步返工保留前两步、第二次提交、辅导员接单/回复/解决和审核通过。截图位于 `.local/acceptance/`。
+- 浏览器使用真实测试账号，已观察到学员第三步返工保留前两步、第二次提交、辅导员接单/回复/解决和审核通过，学员再次登录后看到完成状态及两次提交历史。截图位于 `.local/acceptance/`。
 
 ## 明确未完成、不得当作上线完成项
 
