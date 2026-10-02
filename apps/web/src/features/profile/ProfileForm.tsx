@@ -163,7 +163,7 @@ export function ProfilePage() {
   return (
     <section className={styles.page}>
       <header>
-        <h1 className="qx-section-title">让支持更适合你</h1>
+        <h1 className="qx-section-title">个人资料</h1>
         <p>记录你希望辅导员了解的需要，之后可以随时修改。</p>
       </header>
       <Fields initial={profile.data} onSaved={saved} onReload={reload} />
