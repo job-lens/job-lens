@@ -1,0 +1,53 @@
+.page {
+  max-width: 42rem;
+  margin: var(--qx-space-8) auto;
+}
+.page header p {
+  margin: var(--qx-space-3) 0 var(--qx-space-8);
+  color: var(--qx-color-muted);
+}
+.form {
+  display: grid;
+  gap: var(--qx-space-6);
+}
+.fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--qx-space-6);
+  min-width: 0;
+}
+.fields > label {
+  display: grid;
+  gap: var(--qx-space-3);
+}
+.fields input,
+.fields textarea,
+.fields select {
+  width: 100%;
+}
+.form > button {
+  justify-self: start;
+}
+.fields .toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-6);
+}
+.toggle > span {
+  display: grid;
+  gap: var(--qx-space-2);
+}
+.toggle input {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  accent-color: var(--qx-color-accent);
+}
+@media (max-width: 520px) {
+  .page {
+    margin-block: var(--qx-space-6);
+  }
+}

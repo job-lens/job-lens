@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import cast
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -41,3 +42,28 @@ def load_user(session: Session, actor: Actor) -> UserView:
     if display_name is None:
         raise not_found()
     return UserView(actor.user_id, display_name, tuple(sorted(actor.roles)))
+
+
+def profile_snapshot(session: Session, user_id: UUID) -> dict[str, object]:
+    from app.modules.identity.models import Preferences
+
+    profile = session.get(Profile, user_id)
+    preferences = session.get(Preferences, user_id)
+    if profile is None or preferences is None:
+        raise not_found()
+    return {
+        "user_id": user_id,
+        "display_name": profile.display_name,
+        "sensory_preferences": profile.sensory_preferences,
+        "communication_preference": profile.communication_preference,
+        "work_notes": profile.work_notes,
+        "version": profile.version,
+        "preferences": {
+            "font_scale": preferences.font_scale,
+            "volume": preferences.volume,
+            "quiet_mode": preferences.quiet_mode,
+            "speech_enabled": preferences.speech_enabled,
+            "vibration_enabled": preferences.vibration_enabled,
+            "version": preferences.version,
+        },
+    }

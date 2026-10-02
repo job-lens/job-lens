@@ -36,6 +36,20 @@ export function MatchEditor({ caseId }: { caseId: string }) {
   const requiredMissing = !direction.trim() || !focus.trim() || !basis.trim();
   const busy = save.isPending || confirm.isPending;
   const error = save.error ?? confirm.error;
+  const body = { direction, focus, cycle_weeks: cycleWeeks, basis };
+  const dirty =
+    direction !== current.direction ||
+    focus !== current.focus ||
+    basis !== current.basis ||
+    cycleWeeks !== current.cycle_weeks;
+  async function confirmSaved() {
+    try {
+      const latest = dirty ? await save.mutateAsync({ version: current.version, body }) : current;
+      await confirm.mutateAsync({ version: latest.version });
+    } catch {
+      // The mutation error is shown below; do not confirm after a failed save.
+    }
+  }
 
   return (
     <section aria-labelledby="match-title" className={styles.card}>
@@ -48,7 +62,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           id="match-direction"
           value={direction}
           maxLength={80}
-          disabled={confirmed}
+          disabled={confirmed || busy}
           onChange={e => setDirection(e.target.value)}
         />
       </div>
@@ -59,7 +73,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           value={focus}
           maxLength={500}
           rows={3}
-          disabled={confirmed}
+          disabled={confirmed || busy}
           onChange={e => setFocus(e.target.value)}
         />
       </div>
@@ -71,7 +85,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           min={1}
           max={52}
           value={cycleWeeks}
-          disabled={confirmed}
+          disabled={confirmed || busy}
           onChange={e => setCycleWeeks(Number(e.target.value))}
         />
       </div>
@@ -82,7 +96,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
           value={basis}
           maxLength={1000}
           rows={3}
-          disabled={confirmed}
+          disabled={confirmed || busy}
           onChange={e => setBasis(e.target.value)}
         />
       </div>
@@ -103,7 +117,7 @@ export function MatchEditor({ caseId }: { caseId: string }) {
         <button
           type="button"
           disabled={confirmed || requiredMissing || busy}
-          onClick={() => confirm.mutate({ version: current.version })}
+          onClick={() => void confirmSaved()}
         >
           确认匹配
         </button>

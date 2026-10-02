@@ -13,5 +13,13 @@
   "auth_registration_code": "identity",
   "auth_password_reset_request": "identity",
   "auth_register": "identity",
-  "auth_password_reset": "identity"
+  "auth_password_reset": "identity",
+  "cases_dashboard": "cases",
+  "cases_list": "cases",
+  "cases_get": "cases",
+  "cases_profile": "cases",
+  "cases_materials": "cases",
+  "cases_match_get": "cases",
+  "cases_match_put": "cases",
+  "cases_match_confirm": "cases"
 }
