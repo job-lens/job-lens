@@ -8,9 +8,7 @@ for (const width of [1440, 390]) {
     });
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/');
-    await expect(
-      page.getByRole('heading', { name: '把工作任务，变成能完成的每一步。' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: '慢慢来，一起完成。' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
       width,
     );
@@ -25,14 +23,10 @@ for (const width of [1440, 390]) {
   });
 }
 
-test('reduced motion keeps the illustrated companion still', async ({ page }) => {
+test('the companions stay still with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.getByRole('button', { name: '开启角色动效' })).toHaveAttribute(
-    'aria-pressed',
-    'false',
-  );
-  const image = page.getByRole('img', { name: '机器人陪你把任务拆成清楚的步骤' });
+  const image = page.getByRole('img', { name: '三个安静相伴的小机器人' });
   await expect(image).toBeVisible();
   expect(await image.evaluate(element => getComputedStyle(element).animationName)).toBe('none');
 });

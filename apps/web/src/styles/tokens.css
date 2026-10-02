@@ -1,0 +1,266 @@
+/*
+ * 语义令牌层。新代码只引用 `--qx-*`；文件末尾那组短名是给尚未迁移的老模块的别名。
+ *
+ * 2026-10 起的方向：人文复古的排版，加现代产品的大圆角。参照的是 Claude 的衬线标题
+ * 与松行距、Muse / ChatGPT 的胶囊输入框和大圆角卡片。配色不在这次调整范围里，颜色
+ * 一段原样保留，不要顺手换成奶油暖底。
+ *
+ * 一、字阶每一档连着自己的行高、字距、字重一起给。用法是 `font-family` + `font-size`
+ *     + `line-height` 三行一起写，行高不推给组件各自发明。
+ * 二、字阶地板是 13px。11px 加宽字距的大写眉标会被读成"AI 生成的说明小字"，这类
+ *     领读词改用 meta 档、正常字距；真没信息量的小字直接删，不要缩小了留着。
+ * 三、圆角按物件分档而不是按尺寸猜：胶囊给按钮和单行输入，大圆角给卡片和面板。
+ *     同一物件在任何页面都用同一档。
+ *
+ * 中文行高不低于 1.45：中文字面几乎占满 em box，行高压到 1.2 相邻行的墨迹会真的贴上。
+ */
+:root {
+  /* 浏览器在首帧及系统外观变化时直接选择颜色，原生控件也使用同一主题。 */
+  color-scheme: light dark;
+  /* ---- 表面：从最底的画布到浮起的纸面 ---- */
+  --qx-color-canvas: light-dark(#f5f5f5, #1c1e1d);
+  --qx-color-surface: light-dark(#ffffff, #242625);
+  --qx-color-surface-raised: light-dark(#ffffff, #2b2d2c);
+  --qx-color-surface-muted: light-dark(#f7f7f7, #202221);
+  --qx-color-surface-strong: light-dark(#ededed, #303331);
+
+  /* 纸面配色：暖白底配低饱和沙色与灰绿，避免与中性工作台底色混用。 */
+  --qx-paper-surface: light-dark(#f8f7f2, #242625);
+  --qx-paper-sidebar: color-mix(in srgb, var(--qx-paper-surface) 97%, var(--qx-paper-ink));
+  --qx-paper-selected: light-dark(#e9e8e3, #353834);
+  --qx-paper-rule: color-mix(in srgb, #c3ad94 32%, var(--qx-paper-surface));
+  --qx-paper-ink: light-dark(#302f2c, #e6e7e3);
+  --qx-paper-muted: light-dark(#74736b, #a4aaa2);
+
+  /* ---- 墨色：ink 是标题与强调，ink-soft 是正文，muted 是元信息，faint 是几乎不看的定位符 ---- */
+  --qx-color-ink: light-dark(#111111, #e6e7e3);
+  --qx-color-ink-soft: light-dark(#303030, #c9ccc6);
+  --qx-color-muted: light-dark(#6c6c6c, #a4aaa2);
+  --qx-color-faint: light-dark(#969696, #92998f);
+
+  --qx-color-rule: light-dark(#e3e3e3, #383d38);
+  --qx-color-rule-strong: light-dark(#cccccc, #50574f);
+
+  /* ---- 强调色就是墨黑：层级靠字号、留白和分隔线拉开，不靠彩色。on-accent 是压在强调色上的字。 ---- */
+  --qx-color-accent: light-dark(#111111, #e0e4db);
+  --qx-color-accent-hover: light-dark(#303030, #c9d0c4);
+  --qx-color-accent-soft: light-dark(#ececec, #303630);
+  --qx-color-accent-muted: light-dark(#f4f4f4, #262b26);
+  --qx-color-on-accent: light-dark(#ffffff, #20241f);
+
+  /*
+   * 状态色只有 danger 是彩的——它必须在余光里就拦住人。notice 是"读一下就好"的提示，
+   * 走中性灰加一道左线；给它一个语义位，组件才不会各自发明一种棕黄。
+   */
+  --qx-color-danger: light-dark(#98434b, #e2a3a6);
+  --qx-color-danger-line: light-dark(#d8b3b7, #704b4f);
+  --qx-color-danger-soft: light-dark(#f8edef, #382729);
+  --qx-color-notice: light-dark(#303030, #c9ccc6);
+  --qx-color-notice-line: light-dark(#b8b8b8, #50574f);
+  --qx-color-notice-soft: light-dark(#f2f2f2, #2a2e29);
+
+  /*
+   * 有色相的状态色。取值沿用各页原来写死的那组颜色，收拢之后界面不变色。
+   * info 是链接与"正在进行"，warning 是需要留意但不致命（待确认、费用接近上限），
+   * success 是完成，highlight 是阅读里的标注与选中原文。淡底一律现场混：
+   * `color-mix(in srgb, var(--qx-color-info) 12%, transparent)`，不再单开 soft 档。
+   * 它们和 danger 一样只表达状态，不拿来当按钮主色。
+   */
+  --qx-color-info: light-dark(#315f91, #90aac6);
+  --qx-color-warning: light-dark(#a56b2a, #bfa07d);
+  --qx-color-success: light-dark(#5b9866, #7fa386);
+  --qx-color-highlight: light-dark(#6b568f, #a79db8);
+
+  /*
+   * 类别色：只用来让同一组里的几类东西互相分开——研究地图的节点类型、研究维度 D1–D7、
+   * 资料分类、图谱图例。八个互不相同，别拿来表达状态（那是上面 info/warning/success 的事），
+   * 也别当按钮色。取值来自各页原先的分类色。类别卡片的淡底和边框现场混：
+   * 淡底 `color-mix(in srgb, var(--qx-color-data-blue) 7%, var(--qx-color-surface))`。
+   */
+  --qx-color-data-blue: light-dark(#43639a, #95a5c0);
+  --qx-color-data-green: light-dark(#44745f, #9db9ad);
+  --qx-color-data-teal: light-dark(#367083, #94b6c2);
+  --qx-color-data-rose: light-dark(#985067, #bc9aa5);
+  --qx-color-data-amber: light-dark(#8a6b2f, #c6b390);
+  --qx-color-data-violet: light-dark(#695b91, #a59eb7);
+  --qx-color-data-rust: light-dark(#925c49, #bda299);
+  --qx-color-data-olive: light-dark(#718a72, #a7afa9);
+
+  /*
+   * 界面字体保持无衬线；衬线承担"人文"那一半：页面题目、展示句、Agent 正文和原文阅读。
+   * 西文衬线放在中文宋体前面，否则英文会落到宋体自带的拉丁字形上，显得廉价。
+   */
+  --qx-font-ui:
+    Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --qx-font-reading:
+    'Iowan Old Style', Charter, 'Source Serif 4', Georgia, 'Songti SC', 'Noto Serif CJK SC', serif;
+  --qx-font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ---- 字阶，比例约 1.25，地板 13px ---- */
+
+  /* 展示句：空状态和首页的那一句问候（"今天想整理什么？"），整页只出现一次。 */
+  --qx-text-display--font-family: var(--qx-font-reading);
+  --qx-text-display: 2.25rem;
+  --qx-text-display--line-height: 1.25;
+  --qx-text-display--letter-spacing: -0.02em;
+  --qx-text-display--font-weight: 500;
+
+  /* 页面标题：库、研究这类中心工具的正题，衬线。 */
+  --qx-text-section--font-family: var(--qx-font-reading);
+  --qx-text-section: 1.75rem;
+  --qx-text-section--line-height: 1.3;
+  --qx-text-section--letter-spacing: -0.015em;
+  --qx-text-section--font-weight: 500;
+
+  /* 工作区主标题：衬线；同一行的操作按钮用 control 档，别跟着标题放大。 */
+  --qx-text-workspace-title: 1.625rem;
+  --qx-text-workspace-title--line-height: 1.35;
+  --qx-text-workspace-title--font-weight: 500;
+  --qx-text-control: 0.875rem;
+  --qx-text-control--line-height: 1.5;
+
+  /* 对象标题：一份材料、一张卡片、一条抽屉的名字，衬线。 */
+  --qx-text-title: 1.1875rem;
+  --qx-text-title--line-height: 1.45;
+  --qx-text-title--letter-spacing: -0.01em;
+  --qx-text-title--font-weight: 500;
+
+  /* 小标题：分区、菜单分组的名字，UI 字体。 */
+  --qx-text-heading: 1rem;
+  --qx-text-heading--line-height: 1.5;
+  --qx-text-heading--font-weight: 600;
+
+  /* 阅读：原文和 Agent 回答正文，衬线、行距最松。 */
+  --qx-text-reading: 1.0625rem;
+  --qx-text-reading--line-height: 1.85;
+
+  /* 界面正文：按钮、输入框、列表主行。16px 起，和 ChatGPT / Muse 的输入框同档。 */
+  --qx-text-body: 1rem;
+  --qx-text-body--line-height: 1.6;
+
+  /* 元信息：时间、大小、状态。也是领读词的去处。 */
+  --qx-text-meta: 0.8125rem;
+  --qx-text-meta--line-height: 1.5;
+
+  /*
+   * 眉标：保留名字只为老代码不断，取值并入 meta——不加宽字距、不全大写。
+   * 新代码别再用它；领读词要么用 heading，要么删掉。
+   */
+  --qx-text-eyebrow: var(--qx-text-meta);
+  --qx-text-eyebrow--line-height: var(--qx-text-meta--line-height);
+  --qx-text-eyebrow--letter-spacing: 0;
+  --qx-text-eyebrow--font-weight: 500;
+
+  /* 定位符：引用坐标 [12] 这类，和 meta 同号，只是用等宽数字。 */
+  --qx-text-locator: 0.8125rem;
+  --qx-text-locator--line-height: 1.45;
+
+  --qx-space-1: 4px;
+  --qx-space-2: 8px;
+  --qx-space-3: 12px;
+  --qx-space-4: 16px;
+  --qx-space-5: 20px;
+  --qx-space-6: 24px;
+  --qx-space-8: 32px;
+  --qx-space-10: 40px;
+  --qx-space-12: 48px;
+  --qx-space-16: 64px;
+
+  /*
+   * 圆角按物件分档。容易认错的两对：
+   * - item 与 card：侧栏/菜单里的一行是 item（14），可以单独拿起来的一块内容是 card（20）。
+   * - field 与 pill：单行输入、按钮、标签页切换都是 pill；只有多行文本框是 field（24），
+   *   多行框做成胶囊，三行以后两端会切掉文字。
+   */
+  /* mark 只给行内高亮、滚动条、进度条这类细小元素，可点的东西不用它。 */
+  --qx-radius-mark: 4px;
+  --qx-radius-tag: 10px;
+  --qx-radius-item: 14px;
+  --qx-radius-card: 20px;
+  --qx-radius-field: 24px;
+  --qx-radius-panel: 28px;
+  --qx-radius-modal: 32px;
+  --qx-radius-pill: 999px;
+
+  /* 旧三档 + feature 的映射，老代码跟着变大，不用逐处改。 */
+  --qx-radius-compact: var(--qx-radius-tag);
+  --qx-radius-control: var(--qx-radius-item);
+  --qx-radius-surface: var(--qx-radius-card);
+  --qx-radius-feature: var(--qx-radius-panel);
+
+  /*
+   * 控件高度。control 是工具栏里的普通按钮和单行输入；action 是一页里的主操作
+   * （"继续""新建研究"）；composer 是 Agent 输入框的最小高度，它会随内容长高。
+   */
+  --qx-control-height: 40px;
+  --qx-action-height: 48px;
+  --qx-composer-min-height: 56px;
+  --qx-avatar-size: 40px;
+  --qx-icon-control-size: 36px;
+
+  /* 阅读宽度按字数定不按像素：中文一行 40 字上下最好跟读。 */
+  --qx-reading-measure: 72ch;
+  /* 应用版面与移动抽屉共用的几何和遮罩，不改变既有配色。 */
+  --qx-chat-avatar-size: 32px;
+  --qx-page-max-width: 1120px;
+  --qx-mobile-header-height: 56px;
+  --qx-color-overlay: color-mix(in srgb, var(--qx-color-ink) 30%, transparent);
+  --qx-outline-width: 260px;
+  --qx-outline-width-collapsed: 72px;
+
+  /*
+   * 阴影：大模糊、低浓度，加一道 1px 的发丝环代替硬边框——ChatGPT 输入框那种浮法。
+   * ring 单独给出，是因为卡片在默认态只要环、不要投影。
+   */
+  --qx-shadow-ring: 0 0 0 1px color-mix(in srgb, var(--qx-color-ink) 7%, transparent);
+  --qx-shadow-card: var(--qx-shadow-ring), 0 2px 8px rgb(17 17 17 / 4%);
+  --qx-shadow-composer: var(--qx-shadow-ring), 0 8px 32px rgb(17 17 17 / 7%);
+  --qx-shadow-panel: var(--qx-shadow-ring), 0 24px 64px rgb(17 17 17 / 10%);
+  --qx-shadow-menu: var(--qx-shadow-ring), 0 12px 32px rgb(17 17 17 / 10%);
+  --qx-shadow-float: 0 20px 48px rgb(17 17 17 / 18%);
+
+  --qx-motion-fast: 140ms;
+  --qx-motion-base: 240ms;
+  --qx-motion-slow: 420ms;
+  --qx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --qx-ease-standard: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---- 兼容别名：老模块继续用短名，新代码不要引用这一段 ---- */
+  --bg: var(--qx-color-canvas);
+  --surface: var(--qx-color-surface);
+  --surface-2: var(--qx-color-surface-muted);
+  --surface-3: var(--qx-color-surface-strong);
+  --ink-strong: var(--qx-color-ink);
+  --ink: var(--qx-color-ink-soft);
+  --ink-soft: var(--qx-color-muted);
+  --quiet: var(--qx-color-faint);
+  --rule: var(--qx-color-rule);
+  --rule-strong: var(--qx-color-rule-strong);
+  --accent: var(--qx-color-accent);
+  --accent-soft: var(--qx-color-accent-soft);
+  --accent-dark: var(--qx-color-accent-hover);
+  --signal: var(--qx-color-notice);
+  --signal-soft: var(--qx-color-notice-soft);
+  --warning: var(--qx-color-notice);
+  --warning-soft: var(--qx-color-notice-soft);
+  --danger: var(--qx-color-danger);
+  --danger-soft: var(--qx-color-danger-soft);
+  --paper: var(--bg);
+  --serif: var(--qx-font-reading);
+  --sans: var(--qx-font-ui);
+  --radius: var(--qx-radius-surface);
+  --radius-control: var(--qx-radius-control);
+  --radius-large: var(--qx-radius-surface);
+  --shadow-sm: var(--qx-shadow-card);
+  --motion-fast: var(--qx-motion-fast);
+  --motion-base: var(--qx-motion-base);
+  --motion-slow: var(--qx-motion-slow);
+  --ease: var(--qx-ease);
+  --ease-standard: var(--qx-ease-standard);
+  color: var(--ink);
+  background: var(--bg);
+  font-family: var(--sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}

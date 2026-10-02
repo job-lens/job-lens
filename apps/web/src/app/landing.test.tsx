@@ -1,41 +1,29 @@
 import { render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 
-beforeEach(() =>
-  vi.stubGlobal(
-    'matchMedia',
-    vi.fn(() => ({ matches: false })),
-  ),
-);
 afterEach(() => {
-  vi.unstubAllGlobals();
   window.history.replaceState(null, '', '/');
 });
 
-it('lets an anonymous visitor understand the training flow and reach login', async () => {
+it('keeps the homepage public while showing the training path and real login entry', async () => {
   window.history.replaceState(null, '', '/');
   const requests = vi.spyOn(globalThis, 'fetch');
   render(<App />);
-  expect(
-    await screen.findByRole('heading', { name: '把工作任务，变成能完成的每一步。' }),
-  ).toBeVisible();
+  expect(await screen.findByRole('heading', { name: '慢慢来，一起完成。' })).toBeVisible();
   expect(screen.getByRole('link', { name: '登录并开始' })).toHaveAttribute('href', '/login');
-  expect(screen.getByRole('heading', { name: '从了解自己，到完成任务' })).toBeVisible();
-  expect(screen.queryByText('融职境工程入口')).not.toBeInTheDocument();
+  expect(screen.getByRole('region', { name: '训练流程' })).toBeVisible();
+  expect(screen.getByRole('img', { name: '三个安静相伴的小机器人' })).toBeVisible();
   expect(requests).not.toHaveBeenCalled();
 });
 
-it('pairs the training story with an independent robot illustration and optional motion', async () => {
-  const { default: userEvent } = await import('@testing-library/user-event');
-  const user = userEvent.setup();
+it('gives anonymous login its own immersive page outside the workspace navigation', async () => {
+  window.history.replaceState(null, '', '/login');
+  const requests = vi.spyOn(globalThis, 'fetch');
   render(<App />);
-  expect(screen.getByRole('img', { name: '机器人陪你把任务拆成清楚的步骤' })).toBeVisible();
-  const motion = screen.getByRole('button', { name: '关闭角色动效' });
-  expect(motion).toHaveAttribute('aria-pressed', 'true');
-  await user.click(motion);
-  expect(screen.getByRole('button', { name: '开启角色动效' })).toHaveAttribute(
-    'aria-pressed',
-    'false',
-  );
+  expect(await screen.findByRole('heading', { name: '登录' })).toBeVisible();
+  expect(screen.queryByRole('navigation', { name: '主导航' })).not.toBeInTheDocument();
+  expect(screen.getByLabelText('账号')).toHaveAttribute('autocomplete', 'username');
+  expect(screen.getByLabelText('密码')).toHaveAttribute('autocomplete', 'current-password');
+  expect(requests).not.toHaveBeenCalled();
 });

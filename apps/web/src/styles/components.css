@@ -1,0 +1,672 @@
+/*
+ * 全局组件层：按钮、输入、卡片、列表行、标签、菜单、对话气泡、提示。
+ *
+ * 只引用 tokens.css 的 `--qx-*`，这里不出现任何色值、字号或圆角数字——要改样子先改
+ * token，组件跟着变。放在 `components` 层里，页面自己的样式（未分层）永远能盖过它，
+ * 所以迁移时可以一页一页换，不用一次全改完。
+ *
+ * 命名：块用 `qx-btn`，变体用 `qx-btn--primary`，状态走原生属性（:disabled、
+ * aria-current、aria-pressed、aria-selected），不另起 `is-active` 一类的类名。
+ */
+@layer components {
+  /* ---- 按钮 ----
+   * primary 一页最多一个，是这页要你做的那件事；secondary 是并列的其他选择；
+   * ghost 用在工具栏和卡片角落，平时不抢眼。
+   */
+  .qx-btn {
+    display: inline-flex;
+    min-height: var(--qx-control-height);
+    align-items: center;
+    justify-content: center;
+    gap: var(--qx-space-2);
+    padding: 0 var(--qx-space-4);
+    border: 0;
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+    font-family: var(--qx-font-ui);
+    font-size: var(--qx-text-control);
+    line-height: var(--qx-text-control--line-height);
+    font-weight: 550;
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .qx-btn:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--qx-color-surface-strong) 88%, var(--qx-color-ink));
+  }
+  .qx-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .qx-btn > svg {
+    flex: none;
+    width: 1.15em;
+    height: 1.15em;
+  }
+
+  .qx-btn--primary {
+    color: var(--qx-color-on-accent);
+    background: var(--qx-color-accent);
+  }
+  .qx-btn--primary:hover:not(:disabled) {
+    background: var(--qx-color-accent-hover);
+  }
+
+  .qx-btn--secondary {
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-ring);
+  }
+  .qx-btn--secondary:hover:not(:disabled) {
+    background: var(--qx-color-surface-muted);
+  }
+
+  .qx-btn--ghost {
+    color: var(--qx-color-ink-soft);
+    background: transparent;
+  }
+  .qx-btn--ghost:hover:not(:disabled) {
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+  }
+
+  .qx-btn--danger {
+    color: var(--qx-color-danger);
+    background: var(--qx-color-danger-soft);
+  }
+  .qx-btn--danger:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--qx-color-danger-soft) 80%, var(--qx-color-danger));
+  }
+
+  /* 主操作尺寸：登录"继续"、空状态里的"新建研究"。宽度常常撑满容器。 */
+  .qx-btn--lg {
+    min-height: var(--qx-action-height);
+    padding: 0 var(--qx-space-6);
+    font-size: var(--qx-text-body);
+  }
+  .qx-btn--block {
+    width: 100%;
+  }
+
+  /* 只有图标的按钮必须带 aria-label。正圆，不是圆角方块。 */
+  .qx-btn--icon {
+    width: var(--qx-icon-control-size);
+    min-height: var(--qx-icon-control-size);
+    padding: 0;
+  }
+  .qx-btn--icon.qx-btn--lg {
+    width: var(--qx-control-height);
+    min-height: var(--qx-control-height);
+  }
+
+  /* ---- 单行输入：胶囊，灰底无边框，聚焦时浮起一道环（Muse 登录框那种）。 ---- */
+  .qx-input,
+  .qx-textarea {
+    width: 100%;
+    border: 0;
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+    font-family: var(--qx-font-ui);
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+    outline: none;
+  }
+  .qx-input {
+    min-height: var(--qx-action-height);
+    padding: 0 var(--qx-space-5);
+    border-radius: var(--qx-radius-pill);
+  }
+  .qx-input::placeholder,
+  .qx-textarea::placeholder {
+    color: var(--qx-color-faint);
+  }
+  .qx-input:focus-visible,
+  .qx-textarea:focus-visible {
+    outline: none;
+    background: var(--qx-color-surface);
+    box-shadow: 0 0 0 2px var(--qx-color-ink);
+  }
+
+  /* 多行输入：大圆角而不是胶囊，写到第三行两端才不会把字切掉。 */
+  .qx-textarea {
+    display: block;
+    min-height: 120px;
+    padding: var(--qx-space-4) var(--qx-space-5);
+    border-radius: var(--qx-radius-field);
+    resize: vertical;
+  }
+
+  /* 带图标的搜索框：外层是胶囊，里面的 input 透明。 */
+  .qx-search {
+    display: flex;
+    min-height: var(--qx-control-height);
+    align-items: center;
+    gap: var(--qx-space-2);
+    padding: 0 var(--qx-space-4);
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-muted);
+    background: var(--qx-color-surface-strong);
+  }
+  .qx-search:focus-within {
+    background: var(--qx-color-surface);
+    box-shadow: 0 0 0 2px var(--qx-color-ink);
+  }
+  .qx-search > input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    color: var(--qx-color-ink);
+    background: transparent;
+    font: inherit;
+    font-size: var(--qx-text-control);
+    outline: none;
+  }
+
+  .qx-field {
+    display: grid;
+    gap: var(--qx-space-2);
+  }
+  .qx-field > label {
+    padding-left: var(--qx-space-5);
+    color: var(--qx-color-ink-soft);
+    font-size: var(--qx-text-meta);
+    font-weight: 550;
+  }
+  .qx-field > small {
+    padding-left: var(--qx-space-5);
+    color: var(--qx-color-muted);
+    font-size: var(--qx-text-meta);
+  }
+
+  /* ---- Agent 输入框：浮在页面上的白色胶囊，加号在左、发送在右。 ---- */
+  .qx-composer {
+    display: flex;
+    min-height: var(--qx-composer-min-height);
+    align-items: center;
+    gap: var(--qx-space-2);
+    padding: var(--qx-space-2);
+    border-radius: var(--qx-radius-pill);
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-composer);
+  }
+  .qx-composer > input,
+  .qx-composer > textarea {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    color: var(--qx-color-ink);
+    background: transparent;
+    font-family: var(--qx-font-ui);
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+    resize: none;
+    outline: none;
+  }
+  .qx-composer > input::placeholder,
+  .qx-composer > textarea::placeholder {
+    color: var(--qx-color-faint);
+  }
+
+  /* ---- 分段切换：聊天 / 工作 那种。选中项是浮起的白胶囊。 ---- */
+  .qx-segmented {
+    display: inline-flex;
+    gap: var(--qx-space-1);
+    padding: var(--qx-space-1);
+    border-radius: var(--qx-radius-pill);
+    background: var(--qx-color-surface-strong);
+  }
+  .qx-segmented > button {
+    min-height: calc(var(--qx-control-height) - var(--qx-space-2));
+    padding: 0 var(--qx-space-5);
+    border: 0;
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-muted);
+    background: transparent;
+    font-size: var(--qx-text-control);
+    font-weight: 550;
+    cursor: pointer;
+  }
+  .qx-segmented > button:hover {
+    color: var(--qx-color-ink);
+  }
+  .qx-segmented > button[aria-pressed='true'],
+  .qx-segmented > button[aria-selected='true'] {
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-card);
+  }
+
+  /* ---- 卡片：一份可以单独拿起来的内容。默认只有发丝环，可点的卡片悬停时才浮起。 ---- */
+  .qx-card {
+    display: block;
+    padding: var(--qx-space-5);
+    border-radius: var(--qx-radius-card);
+    color: var(--qx-color-ink-soft);
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-card);
+    text-decoration: none;
+  }
+  .qx-card--muted {
+    background: var(--qx-color-surface-strong);
+    box-shadow: none;
+  }
+  .qx-card--interactive {
+    cursor: pointer;
+    transition:
+      box-shadow var(--qx-motion-base) var(--qx-ease),
+      transform var(--qx-motion-base) var(--qx-ease);
+  }
+  .qx-card--interactive:hover {
+    box-shadow: var(--qx-shadow-menu);
+    transform: translateY(-2px);
+  }
+  .qx-card__title {
+    margin: 0;
+    color: var(--qx-color-ink);
+    font-family: var(--qx-font-reading);
+    font-size: var(--qx-text-title);
+    line-height: var(--qx-text-title--line-height);
+    letter-spacing: var(--qx-text-title--letter-spacing);
+    font-weight: var(--qx-text-title--font-weight);
+  }
+  .qx-card__body {
+    margin: var(--qx-space-2) 0 0;
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+  }
+  .qx-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--qx-space-2);
+    margin-top: var(--qx-space-4);
+    color: var(--qx-color-muted);
+    font-size: var(--qx-text-meta);
+  }
+
+  /* 面板：侧栏抽屉、设置页里的一整块。比卡片大一档圆角、投影更深。 */
+  .qx-panel {
+    padding: var(--qx-space-6);
+    border-radius: var(--qx-radius-panel);
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-panel);
+  }
+  .qx-modal {
+    padding: var(--qx-space-8);
+    border-radius: var(--qx-radius-modal);
+    background: var(--qx-color-surface-raised);
+    box-shadow: var(--qx-shadow-panel);
+  }
+
+  /* ---- 列表行：侧栏、会话列表、菜单。选中态用 aria-current。 ---- */
+  .qx-item {
+    display: flex;
+    width: 100%;
+    min-height: var(--qx-control-height);
+    align-items: center;
+    gap: var(--qx-space-3);
+    padding: 0 var(--qx-space-3);
+    border: 0;
+    border-radius: var(--qx-radius-item);
+    color: var(--qx-color-ink-soft);
+    background: transparent;
+    font-family: var(--qx-font-ui);
+    font-size: var(--qx-text-body);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .qx-item:hover {
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+  }
+  .qx-item[aria-current='page'],
+  .qx-item[aria-current='true'],
+  .qx-item[aria-selected='true'] {
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+    font-weight: 550;
+  }
+  .qx-item > svg {
+    flex: none;
+    width: 1.2em;
+    height: 1.2em;
+    color: var(--qx-color-muted);
+  }
+  .qx-item__trail {
+    margin-left: auto;
+    color: var(--qx-color-faint);
+    font-size: var(--qx-text-meta);
+  }
+
+  /* 列表分组名：普通字距、meta 号，不是加宽大写的眉标。 */
+  .qx-group-label {
+    margin: var(--qx-space-5) 0 var(--qx-space-1);
+    padding: 0 var(--qx-space-3);
+    color: var(--qx-color-muted);
+    font-size: var(--qx-text-meta);
+    font-weight: 500;
+  }
+
+  /* ---- 菜单 ---- */
+  .qx-menu {
+    display: grid;
+    gap: 2px;
+    min-width: 200px;
+    padding: var(--qx-space-2);
+    border-radius: var(--qx-radius-card);
+    background: var(--qx-color-surface-raised);
+    box-shadow: var(--qx-shadow-menu);
+  }
+  .qx-menu > .qx-item {
+    min-height: calc(var(--qx-control-height) - 4px);
+    border-radius: var(--qx-radius-tag);
+    font-size: var(--qx-text-control);
+  }
+  .qx-menu__divider {
+    height: 1px;
+    margin: var(--qx-space-1) var(--qx-space-2);
+    background: var(--qx-color-rule);
+  }
+
+  /* ---- 标签：资料类型、主题。可点的用 button，选中用 aria-pressed。 ---- */
+  .qx-tag {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    gap: var(--qx-space-1);
+    padding: 0 var(--qx-space-3);
+    border: 0;
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-ink-soft);
+    background: var(--qx-color-surface-strong);
+    font-size: var(--qx-text-meta);
+    line-height: 1;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  button.qx-tag {
+    cursor: pointer;
+  }
+  .qx-tag[aria-pressed='true'] {
+    color: var(--qx-color-on-accent);
+    background: var(--qx-color-accent);
+  }
+  .qx-tag--outline {
+    background: transparent;
+    box-shadow: var(--qx-shadow-ring);
+  }
+
+  /* 引用编号 [12]：对话里点了跳原文。 */
+  .qx-cite {
+    display: inline-flex;
+    min-width: 1.6em;
+    height: 1.4em;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.35em;
+    border: 0;
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-ink-soft);
+    background: var(--qx-color-surface-strong);
+    font-family: var(--qx-font-ui);
+    font-size: var(--qx-text-meta);
+    font-variant-numeric: tabular-nums;
+    vertical-align: 0.1em;
+    cursor: pointer;
+  }
+  .qx-cite:hover {
+    color: var(--qx-color-on-accent);
+    background: var(--qx-color-accent);
+  }
+
+  /* ---- 头像 ---- */
+  .qx-avatar {
+    display: inline-grid;
+    width: var(--qx-avatar-size);
+    height: var(--qx-avatar-size);
+    flex: none;
+    place-items: center;
+    overflow: hidden;
+    border-radius: var(--qx-radius-pill);
+    color: var(--qx-color-on-accent);
+    background: var(--qx-color-accent);
+    font-size: var(--qx-text-meta);
+    font-weight: 600;
+  }
+
+  /* ---- 对话：用户一侧是灰胶囊气泡；Agent 不套气泡，直接是衬线正文（Claude 的读法）。 ---- */
+  .qx-bubble {
+    max-width: min(80%, 36rem);
+    margin-left: auto;
+    padding: var(--qx-space-3) var(--qx-space-5);
+    border-radius: var(--qx-radius-field);
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+  }
+  .qx-prose {
+    max-width: var(--qx-reading-measure);
+    color: var(--qx-color-ink);
+    font-family: var(--qx-font-reading);
+    font-size: var(--qx-text-reading);
+    line-height: var(--qx-text-reading--line-height);
+  }
+  .qx-prose > * + * {
+    margin-top: 0.9em;
+  }
+  .qx-prose > :first-child {
+    margin-top: 0;
+  }
+  .qx-prose > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---- 提示：notice 读一下就好，danger 要在余光里拦住人。 ---- */
+  .qx-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--qx-space-3);
+    padding: var(--qx-space-4) var(--qx-space-5);
+    border-radius: var(--qx-radius-card);
+    color: var(--qx-color-notice);
+    background: var(--qx-color-notice-soft);
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+  }
+  .qx-notice--danger {
+    color: var(--qx-color-danger);
+    background: var(--qx-color-danger-soft);
+  }
+  .qx-notice > svg {
+    flex: none;
+    width: 1.25em;
+    height: 1.25em;
+    margin-top: 0.15em;
+  }
+
+  /* ---- 开关 ---- */
+  .qx-switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex: none;
+    border: 0;
+    border-radius: var(--qx-radius-pill);
+    background: var(--qx-color-rule-strong);
+    cursor: pointer;
+  }
+  .qx-switch::after {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--qx-radius-pill);
+    background: var(--qx-color-surface);
+    box-shadow: var(--qx-shadow-card);
+    content: '';
+    transition: transform var(--qx-motion-base) var(--qx-ease);
+  }
+  .qx-switch[aria-checked='true'] {
+    background: var(--qx-color-accent);
+  }
+  .qx-switch[aria-checked='true']::after {
+    transform: translateX(18px);
+  }
+
+  /* ---- 排版助手：只有这几种标题，页面不要另起字号。 ---- */
+  .qx-display {
+    margin: 0;
+    color: var(--qx-color-ink);
+    font-family: var(--qx-text-display--font-family);
+    font-size: var(--qx-text-display);
+    line-height: var(--qx-text-display--line-height);
+    letter-spacing: var(--qx-text-display--letter-spacing);
+    font-weight: var(--qx-text-display--font-weight);
+  }
+  .qx-section-title {
+    margin: 0;
+    color: var(--qx-color-ink);
+    font-family: var(--qx-text-section--font-family);
+    font-size: var(--qx-text-section);
+    line-height: var(--qx-text-section--line-height);
+    letter-spacing: var(--qx-text-section--letter-spacing);
+    font-weight: var(--qx-text-section--font-weight);
+  }
+  .qx-heading {
+    margin: 0;
+    color: var(--qx-color-ink);
+    font-size: var(--qx-text-heading);
+    line-height: var(--qx-text-heading--line-height);
+    font-weight: var(--qx-text-heading--font-weight);
+  }
+  .qx-meta {
+    color: var(--qx-color-muted);
+    font-size: var(--qx-text-meta);
+    line-height: var(--qx-text-meta--line-height);
+  }
+}
+
+@layer components {
+  /* 对话复合组件：角色列独立，回答保持阅读排版。所有业务状态仍由页面控制。 */
+  .qx-chat-answer {
+    display: grid;
+    grid-template-columns: var(--qx-chat-avatar-size) minmax(0, 1fr);
+    column-gap: var(--qx-space-4);
+    row-gap: var(--qx-space-3);
+  }
+  .qx-chat-answer > * {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .qx-chat-answer > .qx-chat-avatar {
+    grid-column: 1;
+    grid-row: 1 / span 20;
+    padding-top: var(--qx-space-1);
+  }
+  .qx-chat-avatar {
+    width: var(--qx-chat-avatar-size);
+  }
+  .qx-chat-avatar > svg {
+    width: var(--qx-chat-avatar-size);
+    height: var(--qx-chat-avatar-size);
+  }
+  .qx-chat-title {
+    margin: 0;
+    overflow: hidden;
+    color: var(--qx-color-ink);
+    font-family: var(--qx-font-reading);
+    font-size: var(--qx-text-heading);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .qx-chat-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--qx-space-2);
+  }
+  .qx-chat-suggestions .qx-btn {
+    white-space: normal;
+    min-height: var(--qx-control-height);
+    padding-block: var(--qx-space-2);
+    text-align: left;
+  }
+}
+@layer components {
+  .qx-source-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--qx-space-2);
+  }
+  .qx-source-list .qx-tag {
+    cursor: pointer;
+    min-width: 0;
+    max-width: 100%;
+    padding: var(--qx-space-2) var(--qx-space-3);
+    background: var(--qx-color-surface-muted);
+  }
+  .qx-source-list .qx-tag:hover {
+    background: var(--qx-color-surface-strong);
+  }
+  .qx-source-list .qx-tag > b {
+    flex: none;
+    font-weight: 500;
+  }
+  .qx-source-list .qx-tag > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .qx-source-list .qx-tag small {
+    margin-left: var(--qx-space-2);
+    color: var(--qx-color-muted);
+    font-size: var(--qx-text-meta);
+  }
+}
+@layer components {
+  /* 真实数据列表共用表面；水平溢出由页面容器承接，不压缩操作目标。 */
+  .qx-data-table {
+    border-collapse: separate;
+    border-spacing: 0 var(--qx-space-1);
+    color: var(--qx-color-ink-soft);
+    font-size: var(--qx-text-meta);
+  }
+  .qx-data-table th {
+    padding: var(--qx-space-3);
+    color: var(--qx-color-muted);
+    text-align: left;
+    font-weight: 500;
+  }
+  .qx-data-table td {
+    padding: var(--qx-space-4) var(--qx-space-3);
+    background: var(--qx-color-surface);
+    white-space: nowrap;
+  }
+  .qx-data-table td:first-child {
+    border-radius: var(--qx-radius-item) 0 0 var(--qx-radius-item);
+  }
+  .qx-data-table td:last-child {
+    border-radius: 0 var(--qx-radius-item) var(--qx-radius-item) 0;
+  }
+  .qx-data-table tr:hover td {
+    background: var(--qx-color-surface-muted);
+  }
+  .qx-data-table a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .qx-data-table a:hover {
+    text-decoration: underline;
+    text-underline-offset: var(--qx-space-1);
+  }
+}
+@layer components {
+  .qx-btn--ghost[aria-current='page'] {
+    color: var(--qx-color-ink);
+    background: var(--qx-color-surface-strong);
+  }
+}
