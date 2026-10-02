@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, confirmHeaders, unwrap, updateHeaders } from '@/shared/api/client';
 import type { components } from '@/shared/api/schema';
 
@@ -6,9 +6,14 @@ type MatchWrite = components['schemas']['MatchWrite'];
 
 /** 辅导员已授权个案列表。首页与个案列表共用，靠同一 queryKey 共享缓存。 */
 export function useCases() {
-  return useQuery({
-    queryKey: ['cases'],
-    queryFn: async ({ signal }) => unwrap(await api.GET('/cases', { signal })),
+  return useInfiniteQuery({
+    queryKey: ['cases', 'list'],
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ signal, pageParam }) =>
+      unwrap(
+        await api.GET('/cases', { params: { query: { limit: 20, cursor: pageParam } }, signal }),
+      ),
+    getNextPageParam: last => (last.has_more ? (last.next_cursor ?? undefined) : undefined),
   });
 }
 

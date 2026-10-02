@@ -4,6 +4,7 @@ import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router';
 import { api, ApiError, setCsrfToken, unwrap, unwrapVoid } from '@/shared/api/client';
 import { ErrorPanel, LoadingState } from '@/shared/ui/AsyncState';
 import { PreferencesProvider } from '@/shared/preferences/public';
+import { Icon } from '@/shared/ui/Icon';
 import { Companions } from '@/shared/ui/Companions';
 import styles from './Auth.module.css';
 import { prepareCsrf } from './authApi';
@@ -13,6 +14,10 @@ async function loadSession({ signal }: { signal: AbortSignal }) {
   const current = unwrap(await api.GET('/me', { signal }));
   await prepareCsrf();
   return current;
+}
+
+export function useSession() {
+  return useQuery({ queryKey: ['session'], queryFn: loadSession, enabled: false });
 }
 
 export function SessionGate({ role }: { role?: 'learner' | 'counselor' }) {
@@ -150,15 +155,19 @@ export function LoginPage() {
           </button>
         </form>
         <div className={styles.accountLinks}>
-          <Link to="/register">注册账号</Link>
-          <Link to="/forgot-password">忘记密码</Link>
+          <Link className="qx-btn qx-btn--secondary" to="/register">
+            注册账号
+          </Link>
+          <Link className="qx-btn qx-btn--ghost" to="/forgot-password">
+            忘记密码
+          </Link>
         </div>
       </main>
     </div>
   );
 }
 
-export function SessionControls() {
+export function SessionControls({ compact = false }: { compact?: boolean }) {
   const client = useQueryClient();
   const user = useQuery({ queryKey: ['session'], queryFn: loadSession, enabled: false });
   const navigate = useNavigate();
@@ -188,14 +197,21 @@ export function SessionControls() {
   if (!user.data) return null;
   return (
     <div className={styles.session}>
-      <Link to="/profile">我的资料</Link>
+      {!compact && (
+        <Link className="qx-btn qx-btn--secondary" to="/settings?tab=profile">
+          我的资料
+        </Link>
+      )}
       <button
         className="qx-btn qx-btn--secondary"
         type="button"
         onClick={() => void logout()}
+        aria-label={busy ? '正在退出…' : '退出登录'}
+        title="退出登录"
         disabled={busy}
       >
-        {busy ? '正在退出…' : '退出登录'}
+        {compact && <Icon name="external" />}
+        <span>{busy ? '正在退出…' : '退出登录'}</span>
       </button>
       {error && <span role="alert">{error}</span>}
     </div>

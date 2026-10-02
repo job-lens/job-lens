@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import {
   LoginPage,
   RegisterPage,
   ForgotPasswordPage,
   ResetPasswordPage,
-  SessionControls,
-  WorkspaceNavigation,
   SessionGate,
 } from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
@@ -17,27 +15,8 @@ import { createQueryClient } from './query';
 import { featureRoutes } from './routes.generated';
 import { LandingPage } from './LandingPage';
 import { StatusPage } from './StatusPage';
-import styles from './App.module.css';
+import { WorkspaceShell } from './WorkspaceShell';
 
-function Shell() {
-  return (
-    <div className={styles.shell}>
-      <a href="#main" className="skip-link">
-        跳到主要内容
-      </a>
-      <header className={styles.header}>
-        <Link to="/" className={styles.brand}>
-          融职境
-        </Link>
-        <WorkspaceNavigation />
-        <SessionControls />
-      </header>
-      <main id="main" className={styles.main} tabIndex={-1}>
-        <Outlet />
-      </main>
-    </div>
-  );
-}
 export function App() {
   const [queryClient] = useState(createQueryClient);
   const [router] = useState(() =>
@@ -64,7 +43,7 @@ export function App() {
         errorElement: <ErrorPanel message="页面未能加载" />,
       },
       {
-        element: <Shell />,
+        element: <WorkspaceShell />,
         errorElement: <ErrorPanel message="页面未能加载" />,
         children: [
           { path: '/status', element: <StatusPage /> },

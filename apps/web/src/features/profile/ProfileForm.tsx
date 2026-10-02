@@ -139,7 +139,8 @@ function Fields({
     </form>
   );
 }
-export function ProfilePage() {
+export function ProfilePage({ embedded = false }: { embedded?: boolean }) {
+  const Heading = embedded ? 'h2' : 'h1';
   const client = useQueryClient();
   const profile = useQuery({
     queryKey: ['profile'],
@@ -163,7 +164,7 @@ export function ProfilePage() {
   return (
     <section className={styles.page}>
       <header>
-        <h1 className="qx-section-title">个人资料</h1>
+        <Heading className="qx-section-title">个人资料</Heading>
         <p>记录你希望辅导员了解的需要，之后可以随时修改。</p>
       </header>
       <Fields initial={profile.data} onSaved={saved} onReload={reload} />

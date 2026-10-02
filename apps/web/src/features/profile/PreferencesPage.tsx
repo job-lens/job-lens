@@ -136,7 +136,8 @@ function SettingsForm({
     </form>
   );
 }
-export function PreferencesPage() {
+export function PreferencesPage({ embedded = false }: { embedded?: boolean }) {
+  const Heading = embedded ? 'h2' : 'h1';
   const client = useQueryClient();
   const query = useQuery({
     queryKey: ['preferences'],
@@ -153,7 +154,7 @@ export function PreferencesPage() {
   return (
     <section className={styles.page}>
       <header>
-        <h1 className="qx-section-title">舒服一点的界面</h1>
+        <Heading className="qx-section-title">阅读与提醒</Heading>
         <p>选择文字、声音和提示方式。安静模式会优先关闭声音与震动。</p>
       </header>
       <SettingsForm

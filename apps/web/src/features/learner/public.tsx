@@ -122,11 +122,17 @@ export function LearnerPage() {
         <ErrorPanel message="后续任务未能加载" retry={() => void tasks.fetchNextPage()} />
       )}
       <div className={styles.actions}>
-        <Link to="/preferences">调整阅读与提醒</Link>
+        <Link className="qx-btn qx-btn--secondary" to="/settings?tab=preferences">
+          调整阅读与提醒
+        </Link>
         {cases.data.pages
           .flatMap(page => page.items)
           .map(kase => (
-            <Link key={kase.id} to={`/learner/support/${kase.id}`}>
+            <Link
+              className="qx-btn qx-btn--secondary"
+              key={kase.id}
+              to={`/learner/support/${kase.id}`}
+            >
               联系辅导员
             </Link>
           ))}
@@ -192,7 +198,9 @@ function CaseRecords({ caseId }: { caseId: string }) {
                 ? ` · 观测时长 ${Math.round(record.observed_elapsed_ms / 60000)} 分钟`
                 : ''}
             </p>
-            <Link to={`/learner/tasks/${record.task_id}`}>查看步骤与反馈</Link>
+            <Link className="qx-btn qx-btn--secondary" to={`/learner/tasks/${record.task_id}`}>
+              查看步骤与反馈
+            </Link>
           </li>
         ))}
       </ul>

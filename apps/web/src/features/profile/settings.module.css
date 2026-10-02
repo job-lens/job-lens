@@ -1,0 +1,117 @@
+.page {
+  display: grid;
+  gap: var(--qx-space-8);
+}
+.heading h1 {
+  margin-bottom: var(--qx-space-2);
+}
+.heading p {
+  margin: 0;
+  color: var(--qx-color-muted);
+}
+.layout {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  gap: var(--qx-space-6);
+  align-items: start;
+}
+.sections {
+  display: grid;
+  gap: var(--qx-space-2);
+}
+.sections .sectionButton {
+  display: flex;
+  text-align: left;
+  align-items: center;
+  gap: var(--qx-space-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--qx-radius-item);
+  padding: var(--qx-space-4);
+}
+.sectionButton span {
+  display: grid;
+  gap: var(--qx-space-1);
+}
+.sectionButton strong {
+  font-size: var(--qx-text-control);
+  font-weight: 550;
+}
+.sectionButton small {
+  font-size: var(--qx-text-meta);
+  color: var(--qx-color-muted);
+}
+.sections .sectionButton[aria-current='page'] {
+  background: var(--qx-color-surface);
+  box-shadow: var(--qx-shadow-card);
+}
+.panel {
+  background: var(--qx-color-surface);
+  border-radius: var(--qx-radius-panel);
+  box-shadow: var(--qx-shadow-card);
+  padding: var(--qx-space-8);
+  min-width: 0;
+}
+.panel > div > section {
+  margin: 0;
+  max-width: none;
+}
+.panel h1 {
+  font-size: var(--qx-text-title);
+}
+.security {
+  display: grid;
+  gap: var(--qx-space-8);
+}
+.security h2,
+.security h3 {
+  margin: 0 0 var(--qx-space-2);
+}
+.security p {
+  color: var(--qx-color-muted);
+  margin: 0;
+  font-size: var(--qx-text-control);
+}
+.securityRow {
+  display: flex;
+  gap: var(--qx-space-6);
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--qx-space-6);
+  border-top: 1px solid var(--qx-color-rule);
+}
+.securityRow > div {
+  flex: 1;
+}
+.securityRow > svg {
+  flex: none;
+}
+@media (max-width: 1000px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sections {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .sectionButton small {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .sections .sectionButton {
+    padding: var(--qx-space-3) var(--qx-space-2);
+    justify-content: center;
+  }
+  .sectionButton svg {
+    display: none;
+  }
+  .panel {
+    padding: var(--qx-space-5);
+  }
+  .securityRow {
+    flex-wrap: wrap;
+  }
+  .securityRow > div {
+    flex-basis: 100%;
+  }
+}

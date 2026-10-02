@@ -17,7 +17,7 @@ depends_on = ["cases", "training"]
 [frontend.auth]
 depends_on = []
 [frontend.profile]
-depends_on = []
+depends_on = ["auth"]
 [frontend.learner]
 depends_on = []
 [frontend.counselor]
@@ -30,6 +30,10 @@ depends_on = []
 depends_on = []
 [frontend.notifications]
 depends_on = []
+[[routes]]
+path = "/settings"
+feature = "profile"
+export = "SettingsPage"
 [[routes]]
 path = "/profile"
 feature = "profile"

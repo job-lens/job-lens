@@ -3,7 +3,9 @@
     "depends_on": []
   },
   "profile": {
-    "depends_on": []
+    "depends_on": [
+      "auth"
+    ]
   },
   "learner": {
     "depends_on": []
