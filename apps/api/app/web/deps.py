@@ -24,9 +24,8 @@ def authenticated(
         raise unauthenticated()
     database: Database = request.app.state.database
     with database.transaction() as session:
-        now = utcnow()
-        actor = resolve_actor(session, token, now)
-        touch_session(session, token, now)
+        touch_session(session, token, utcnow())
+        actor = resolve_actor(session, token, utcnow())
         yield session, actor
 
 
