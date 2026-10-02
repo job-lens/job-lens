@@ -68,13 +68,25 @@ jobs:
   containers:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      E2E_PASSWORD: browser-training-password
+      E2E_FIXTURE_MODE: docker
     steps:
       - uses: actions/checkout@v4
         with: {persist-credentials: false}
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: {node-version-file: .node-version, cache: pnpm}
-      - run: cp .env.example .env && docker compose config --quiet
+      - name: Configure disposable browser test database
+        run: |
+          cp .env.example .env
+          cat >> .env <<'EOF'
+          POSTGRES_DB=job_lens_e2e_test
+          JOB_LENS_DATABASE_URL=postgresql+psycopg://job_lens:local_only@db:5432/job_lens_e2e_test
+          JOB_LENS_ENVIRONMENT=test
+          JOB_LENS_PUBLIC_ORIGIN=http://localhost:8080
+          EOF
+          docker compose config --quiet
       - run: docker compose up -d --build --wait --wait-timeout 180
       - run: python tools/smoke.py && docker compose exec -T api python tools/worker_smoke.py
       - name: Verify database backup in an isolated restore target
@@ -82,8 +94,9 @@ jobs:
           python tools/database_backup.py backup backups/ci.dump
           python tools/database_backup.py verify backups/ci.dump
       - run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium
+      - run: docker compose exec -T -e E2E_PASSWORD api python tools/identity_fixture.py seed
       - run: pnpm test:e2e
-        env: {E2E_BASE_URL: 'http://127.0.0.1:8080'}
+        env: {E2E_BASE_URL: 'http://localhost:8080'}
       - name: Collect container logs
         if: always()
         run: mkdir -p test-results && docker compose logs --no-color > test-results/compose.log
