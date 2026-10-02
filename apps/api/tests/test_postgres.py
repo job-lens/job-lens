@@ -443,7 +443,8 @@ def test_expired_idempotency_records_are_purged(db):
 
 
 def test_periodic_job_enters_once_per_slot(db):
-    now = utcnow()
+    # Start inside a known hour; +5 minutes must not cross the tested slot boundary.
+    now = utcnow().replace(minute=0, second=0, microsecond=0)
     with db.transaction() as s:
         first = schedule(s, "system.ping", 3600, now)
         assert schedule(s, "system.ping", 3600, now + timedelta(minutes=5)) == first

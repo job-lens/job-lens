@@ -6,6 +6,16 @@ import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, expect, it } from 'vitest';
 import { LoginPage, SessionControls, SessionGate } from './public';
 const server = setupServer(
+  http.get('*/api/v1/me/preferences', () =>
+    HttpResponse.json({
+      font_scale: 1,
+      volume: 0.5,
+      quiet_mode: true,
+      speech_enabled: false,
+      vibration_enabled: false,
+      version: 1,
+    }),
+  ),
   http.get('*/api/v1/auth/csrf', () =>
     HttpResponse.json({ csrf_token: 'initial-csrf-token-1234' }),
   ),
