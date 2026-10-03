@@ -67,6 +67,10 @@ def upload(
         raise AppError(422, "TASK_REQUIRED", "训练证据需要对应任务")
     if body.purpose in {"profile_material", "sop_media"} and body.task_id:
         raise AppError(422, "INVALID_FILE_CONTEXT", "此类文件不关联任务")
+    if not request.app.state.settings.scan_enabled:
+        # Authentication/authorization remain mandatory. Do not create a private
+        # blob, asset, job, or successful idempotency result while scanning is off.
+        raise AppError(503, "SCAN_UNAVAILABLE", "文件检测暂不可用，上传暂不可用")
     filename = (body.file.filename or "文件").replace("\\", "/").rsplit("/", 1)[-1]
     if (
         not filename.strip()

@@ -29,7 +29,7 @@ while read -r name id; do
 done < image-ids.txt
 [[ $(wc -l < image-ids.txt) == 3 ]] || exit 1
 # Check actual production Settings and mail configuration, without sending mail.
-# Scanner availability is tested via PING; no user file is transmitted.
+# When uploads are enabled, test scanner availability via PING, without a user file.
 "${compose[@]}" run --rm --no-deps -T api python - <<'PYCODE'
 import socket
 from app.core.config import Settings
@@ -37,14 +37,18 @@ from app.infrastructure.email import require_delivery
 try:
     cfg = Settings()
     require_delivery(cfg)
-    with socket.create_connection((cfg.scan_host, cfg.scan_port), timeout=5) as sock:
-        sock.sendall(b"zPING\0")
-        if sock.recv(64).rstrip(b"\0\n") != b"PONG":
-            raise ValueError("Unexpected scanner response")
+    if cfg.scan_enabled:
+        with socket.create_connection((cfg.scan_host, cfg.scan_port), timeout=5) as sock:
+            sock.sendall(b"zPING\0")
+            if sock.recv(64).rstrip(b"\0\n") != b"PONG":
+                raise ValueError("Unexpected scanner response")
+        print("Scanner PING passed; file scan acceptance remains separate")
+    else:
+        print("Scanning explicitly disabled: uploads unavailable (503); account services can start")
 except Exception as exc:
     print("Production dependency preflight failed:", type(exc).__name__)
     raise SystemExit(1)
-print("Production settings, mail configuration and scanner PING passed; delivery/storage acceptance remains separate")
+print("Production settings and mail configuration passed; delivery/storage acceptance remains separate")
 PYCODE
 # Validate configuration without producing certificates or contacting mail.
 "${compose[@]}" run --rm --no-deps gateway caddy validate --config /etc/caddy/Caddyfile >/dev/null

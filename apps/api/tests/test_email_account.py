@@ -109,6 +109,35 @@ def test_registration_is_real_atomic_learner_only_and_single_use(db, client, inb
     assert privileged.status_code == 422
 
 
+def test_production_local_accounts_work_with_scanning_explicitly_disabled(db, inbox, tmp_path):
+    settings = Settings(
+        database_url=str(db.engine.url),
+        public_origin="https://testserver",
+        trusted_hosts=["testserver"],
+        environment="production",
+        storage_kind="local",
+        storage_root=tmp_path,
+        scan_enabled=False,
+        mail_api_key="test-only-key",
+        mail_from="Job Lens <test@example.invalid>",
+        _env_file=None,
+    )
+    # Delivery remains the explicit inbox test double; this never contacts real email.
+    with TestClient(create_app(settings, db), base_url="https://testserver") as client:
+        assert client.get("/api/v1/health/ready").status_code == 200
+        register(client, inbox)
+        assert client.get("/api/v1/me").status_code == 200
+        client.cookies.clear()
+        response = client.post(
+            "/api/v1/auth/login",
+            headers=csrf(client),
+            json={"login_name": "student@example.invalid", "password": "training-password"},
+        )
+        assert response.status_code == 200
+        assert client.get("/api/v1/me").status_code == 200
+    assert list(tmp_path.iterdir()) == []
+
+
 def test_code_attempts_expiry_resend_and_csrf(db, client, inbox):
     headers = csrf(client)
     path = "/api/v1/auth/registration-code"
