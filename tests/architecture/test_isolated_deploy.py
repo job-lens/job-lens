@@ -1,3 +1,7 @@
+import json
+import os
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -48,6 +52,52 @@ class DeploymentIsolation(unittest.TestCase):
         self.assertIn('.event == "push"', text)
         self.assertIn("StrictHostKeyChecking=yes", text)
         self.assertNotIn("ssh-keyscan", text)
+
+    def test_deploy_revision_gate(self):
+        # Execute the actual workflow shell with stubbed Git/GitHub reads.
+        doc = yaml.safe_load((ROOT / ".github/workflows/deploy.yml").read_text())
+        step = next(s for s in doc["jobs"]["deploy"]["steps"] if s.get("id") == "release")
+        script = step["run"]
+        self.assertNotIn("gh release", script)
+        sha = "a" * 40
+        base_run = dict(name="Architecture CI", head_sha=sha, head_branch="main",
+                        event="push", status="completed", conclusion="success",
+                        run_started_at="2026-01-01T00:00:00Z")
+        cases = [
+            (sha, [base_run], "0", True),
+            ("main", [base_run], "0", False),
+            (sha, [base_run], "1", False),
+            (sha, [{**base_run, "head_branch": "feature"}], "0", False),
+            (sha, [{**base_run, "conclusion": "failure"}], "0", False),
+            (sha, [{**base_run, "status": "in_progress"}], "0", False),
+            (sha, [], "0", False),
+            (sha, [base_run, {**base_run, "run_started_at": "2026-01-02T00:00:00Z",
+                              "conclusion": "failure"}], "0", False),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)
+            (path / "git").write_text('#!/bin/bash\ncase "$1" in\nrev-parse) printf "%s\\n" "$EXPECTED_SHA";;\nmerge-base) exit "$ANCESTOR_EXIT";;\ncheckout) touch "$CHECKOUT_MARKER";;\n*) exit 99;;\nesac\n')
+            (path / "gh").write_text('#!/bin/bash\ncat "$RUNS_JSON"\n')
+            for name in ("git", "gh"):
+                (path / name).chmod(0o755)
+            for revision, runs, ancestor_exit, expected in cases:
+                with self.subTest(revision=revision, runs=runs, ancestor_exit=ancestor_exit):
+                    marker = path / "checkout"
+                    marker.unlink(missing_ok=True)
+                    output = path / "output"
+                    output.unlink(missing_ok=True)
+                    (path / "runs.json").write_text(json.dumps({"workflow_runs": runs}))
+                    env = {**os.environ, "PATH": f"{tmp}:{os.environ['PATH']}",
+                           "DEPLOY_REVISION": revision, "EXPECTED_SHA": sha,
+                           "ANCESTOR_EXIT": ancestor_exit, "CHECKOUT_MARKER": str(marker),
+                           "RUNS_JSON": str(path / "runs.json"), "GITHUB_OUTPUT": str(output),
+                           "GITHUB_REPOSITORY": "job-lens/job-lens"}
+                    result = subprocess.run(["bash", "-c", script], env=env,
+                                            capture_output=True, text=True, check=False)
+                    self.assertEqual(result.returncode == 0, expected, result.stderr)
+                    self.assertEqual(marker.exists(), expected)
+                    if expected:
+                        self.assertEqual(output.read_text(), f"sha={sha}\n")
 
 
 if __name__ == "__main__":
