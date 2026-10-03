@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import cast
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.core.errors import not_found, unauthenticated
@@ -21,18 +21,26 @@ def resolve_actor(session: Session, token: str, now: datetime) -> Actor:
     )
     if record is None or record.user_id is None:
         raise unauthenticated()
-    user = session.get(User, record.user_id)
+    # State, credential generation and roles must come from one SQL snapshot. Otherwise
+    # approval between separate reads could lend new roles to a pre-approval cookie.
+    rows = session.execute(
+        select(User, UserRole.role)
+        .outerjoin(UserRole, UserRole.user_id == User.id)
+        .where(User.id == record.user_id)
+        .execution_options(populate_existing=True)
+    ).all()
+    user = rows[0][0] if rows else None
     if user is None or not user.active or user.credential_version != record.credential_version:
         raise unauthenticated()
     window = SessionWindow(record.created_at, record.last_seen_at, record.revoked_at is not None)
     if not window.valid_at(now) or record.expires_at <= now:
         raise unauthenticated()
-    granted = session.scalars(select(UserRole.role).where(UserRole.user_id == record.user_id))
+    granted = (row[1] for row in rows)
     # A role row outside the contract's enum is ignored rather than trusted.
     roles = frozenset(cast(Role, role) for role in granted if role in _ROLES)
     if not roles:
         raise unauthenticated()
-    return Actor(record.user_id, roles)
+    return Actor(record.user_id, roles, user.credential_version)
 
 
 def load_user(session: Session, actor: Actor) -> UserView:
@@ -67,3 +75,46 @@ def profile_snapshot(session: Session, user_id: UUID) -> dict[str, object]:
             "version": preferences.version,
         },
     }
+
+
+def is_administrator(session: Session, actor: Actor, *, lock: bool = False) -> bool:
+    from app.modules.identity.models import AdministratorGrant
+
+    query = select(User).where(User.id == actor.user_id).execution_options(populate_existing=True)
+    user = session.scalar(query.with_for_update() if lock else query)
+    grant = session.get(AdministratorGrant, actor.user_id, populate_existing=True)
+    return bool(
+        user
+        and user.active
+        and actor.credential_version == user.credential_version
+        and grant
+        and grant.revoked_at is None
+    )
+
+
+def require_administrator(session: Session, actor: Actor) -> None:
+    from app.core.errors import forbidden
+
+    # Low-volume administrative transactions share operator lock ordering. This avoids
+    # two administrators reviewing each other locking actor/target in opposite order.
+    session.execute(text("SELECT pg_advisory_xact_lock(72631841)"))
+    if not is_administrator(session, actor, lock=True):
+        raise forbidden()
+
+
+def certified_counselor(session: Session, user_id: UUID) -> bool:
+    from app.modules.identity.models import CounselorCertification
+
+    user = session.scalar(
+        select(User)
+        .where(User.id == user_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if user is None:
+        raise not_found()
+    certification = session.get(CounselorCertification, user_id, populate_existing=True)
+    role = session.get(UserRole, (user_id, "counselor"))
+    return bool(
+        user and user.active and certification and certification.state == "approved" and role
+    )

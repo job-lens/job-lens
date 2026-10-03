@@ -22,6 +22,7 @@ class User(Entity, Base):
     login_name: Mapped[str] = mapped_column(String(80), unique=True)
     password_hash: Mapped[str] = mapped_column(String(255))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    management_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     credential_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
     __table_args__ = (CheckConstraint("credential_version >= 1", name="credential_version"),)
 
@@ -107,3 +108,41 @@ class AuthLimit(Base):
     window_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     __table_args__ = (CheckConstraint("attempts >= 0", name="attempts"),)
+
+
+class AdministratorGrant(Base):
+    """Explicit operator-managed capability; registration can never create this row."""
+
+    __tablename__ = "administrator_grants"
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class CounselorCertification(Base):
+    __tablename__ = "counselor_certifications"
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    state: Mapped[str] = mapped_column(String(20), default="not_submitted")
+    statement: Mapped[str] = mapped_column(String(2000), default="")
+    reason: Mapped[str] = mapped_column(String(1000), default="")
+    reviewer_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    __table_args__ = (
+        CheckConstraint(
+            "state IN ('not_submitted','pending','approved','rejected','revoked')", name="state"
+        ),
+        CheckConstraint("version >= 1", name="version"),
+        CheckConstraint("reviewer_id IS NULL OR reviewer_id != user_id", name="no_self_review"),
+    )
+
+
+class ManagementEvent(Entity, Base):
+    """Append-only application audit, excluding application statements and private profiles."""
+
+    __tablename__ = "management_events"
+    actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id"))
+    target_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    action: Mapped[str] = mapped_column(String(80))
+    reason: Mapped[str] = mapped_column(String(1000))
+    trace_id: Mapped[str] = mapped_column(String(128))

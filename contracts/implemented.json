@@ -56,5 +56,15 @@
   "files_upload": "infrastructure",
   "files_get": "infrastructure",
   "files_delete": "infrastructure",
-  "files_content": "infrastructure"
+  "files_content": "infrastructure",
+  "identity_administration": "identity",
+  "identity_get_certification": "identity",
+  "identity_submit_certification": "identity",
+  "identity_admin_users": "identity",
+  "identity_admin_status": "identity",
+  "identity_admin_certifications": "identity",
+  "identity_admin_review": "identity",
+  "cases_admin_list": "cases",
+  "cases_admin_assign": "cases",
+  "identity_admin_audit": "identity"
 }

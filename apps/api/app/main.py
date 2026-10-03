@@ -19,6 +19,7 @@ from app.web import (
     cases,
     files,
     identity,
+    management,
     notifications,
     platform,
     registration,
@@ -34,6 +35,7 @@ _REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
 ROUTERS = (
     platform.router,
     identity.router,
+    management.router,
     registration.router,
     cases.router,
     sop.router,

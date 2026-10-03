@@ -11,3 +11,4 @@ type Role = Literal["learner", "counselor"]
 class Actor:
     user_id: UUID
     roles: frozenset[Role]
+    credential_version: int | None = None
