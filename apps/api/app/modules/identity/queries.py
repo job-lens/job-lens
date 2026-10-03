@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.errors import not_found, unauthenticated
 from app.core.security import SessionWindow, token_digest
 from app.core.types import Actor, Role
-from app.modules.identity.models import Profile, SessionRecord, UserRole
+from app.modules.identity.models import Profile, SessionRecord, User, UserRole
 from app.modules.identity.public import UserView
 
 _ROLES = frozenset({"learner", "counselor"})
@@ -19,6 +19,9 @@ def resolve_actor(session: Session, token: str, now: datetime) -> Actor:
         select(SessionRecord).where(SessionRecord.token_hash == token_digest(token))
     )
     if record is None or record.user_id is None:
+        raise unauthenticated()
+    user = session.get(User, record.user_id)
+    if user is None or not user.active:
         raise unauthenticated()
     window = SessionWindow(record.created_at, record.last_seen_at, record.revoked_at is not None)
     if not window.valid_at(now) or record.expires_at <= now:

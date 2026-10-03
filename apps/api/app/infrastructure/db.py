@@ -13,7 +13,7 @@ from app.core.config import Settings
 # the compose stack enforces that by running migrate as a prerequisite one-shot service. An
 # expand/contract rollout would advance the database while old containers still serve, turning
 # them all unready; switch this to a lowest-supported revision when that rollout is introduced.
-SCHEMA_REVISION = "0002_integrity"
+SCHEMA_REVISION = "0003_identity_limiter"
 
 
 class Base(DeclarativeBase):

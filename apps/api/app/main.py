@@ -31,6 +31,7 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         db = database or Database.from_settings(config)
         application.state.database = db
+        application.state.settings = config
         try:
             yield
         finally:
@@ -96,6 +97,11 @@ def create_app(settings: Settings | None = None, database: Database | None = Non
 
     @api.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+        missing = {str(e["loc"][-1]).lower() for e in exc.errors() if e["type"] == "missing"}
+        if "if-match" in missing:
+            return problem_response(request, 428, "PRECONDITION_REQUIRED", "请读取最新版本后重试")
+        if "x-csrf-token" in missing:
+            return problem_response(request, 403, "CSRF_REJECTED", "请求校验失败")
         return problem_response(request, 422, "VALIDATION_ERROR", "请求格式不正确")
 
     @api.exception_handler(HTTPException)

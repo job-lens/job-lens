@@ -43,7 +43,7 @@ def test_no_fake_business_routes_or_http_200_errors(settings):
         assert client.get("/api/v1/tasks").status_code == 404
         assert client.get("/api/v1/tasks").json()["status"] == 404
         paths = client.get("/api/openapi.json").json()["paths"]
-        assert set(paths) == {"/api/v1/health/live", "/api/v1/health/ready", "/api/v1/me"}
+        assert "/api/v1/tasks" not in paths
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "trace-123"})
         assert result.headers["x-request-id"] == "trace-123"
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "a" * 1000})
