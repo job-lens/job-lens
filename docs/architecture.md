@@ -110,8 +110,8 @@ flowchart LR
 
 | 模块 | 契约操作 | 已接入 HTTP |
 | --- | ---: | ---: |
-| cases | 8 | 8 |
-| identity | 13 | 13 |
+| cases | 10 | 10 |
+| identity | 21 | 21 |
 | infrastructure | 6 | 6 |
 | platform | 2 | 2 |
 | sop | 7 | 7 |
