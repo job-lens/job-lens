@@ -2,13 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, confirmHeaders, createHeaders, unwrap } from '@/shared/api/client';
 
 /** 辅导员可见求助列表，可按状态过滤。 */
-export function useAssistanceRequests(state?: 'queued' | 'accepted' | 'resolved' | 'cancelled') {
+export function useAssistanceRequests(
+  state?: 'queued' | 'accepted' | 'resolved' | 'cancelled',
+  caseId?: string,
+) {
   return useQuery({
-    queryKey: ['assistance-requests', state ?? 'all'],
+    queryKey: ['assistance-requests', state ?? 'all', caseId ?? 'all'],
     queryFn: async ({ signal }) =>
       unwrap(
         await api.GET('/assistance-requests', {
-          params: { query: state ? { state } : {} },
+          params: { query: { state, case_id: caseId, limit: 100 } },
           signal,
         }),
       ),
@@ -45,7 +48,13 @@ export function useAssistanceMessages(requestId: string) {
 export function useAssistanceAction(requestId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ action, version }: { action: 'accept' | 'resolve'; version: number }) =>
+    mutationFn: async ({
+      action,
+      version,
+    }: {
+      action: 'accept' | 'resolve' | 'cancel';
+      version: number;
+    }) =>
       unwrap(
         await api.POST('/assistance-requests/{request_id}/actions', {
           params: {
@@ -73,5 +82,24 @@ export function useSendMessage(requestId: string) {
         }),
       ),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['assistance-messages', requestId] }),
+  });
+}
+
+export function useCreateAssistance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      body: import('@/shared/api/schema').components['schemas']['AssistanceCreate'],
+    ) =>
+      unwrap(
+        await api.POST('/assistance-requests', {
+          params: { header: createHeaders(crypto.randomUUID()) },
+          body,
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['assistance-requests'] });
+      void qc.invalidateQueries({ queryKey: ['dashboard'] });
+    },
   });
 }

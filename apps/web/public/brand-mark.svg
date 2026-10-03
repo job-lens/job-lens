@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <style>
+    .guide {
+      fill: #506b78;
+    }
+    .learner {
+      fill: #6d8172;
+    }
+    @media (prefers-color-scheme: dark) {
+      .guide {
+        fill: #aec3ca;
+      }
+      .learner {
+        fill: #adbfaf;
+      }
+    }
+  </style>
+  <g class="guide">
+    <circle cx="24" cy="15.5" r="5.5" />
+    <path
+      d="M23 24c5 0 9 7 13 9 2 1 2 3 0 4-3 2-7-4-10-4-4 0-6 3-5 7 2 7 7 11 12 14 2 1 1 3-1 2-13-3-22-11-22-20 0-6 7-12 13-12Z"
+    />
+  </g>
+  <g class="learner">
+    <circle cx="44" cy="20" r="4.5" />
+    <path
+      d="M45 29c7 0 11 4 11 9 0 8-9 13-19 16-2 1-4-1-2-3 7-5 11-9 11-12 0-4-5-3-7-2-2 1-2-2 0-4 2-2 4-4 6-4Z"
+    />
+  </g>
+</svg>

@@ -168,7 +168,12 @@ function renderTask() {
 }
 
 it('shows task progress and prompt-override control', async () => {
-  server.use(http.get('*/api/v1/tasks/task-1', () => HttpResponse.json(task)));
+  server.use(
+    http.get('*/api/v1/tasks/task-1/submissions', () =>
+      HttpResponse.json({ items: [], next_cursor: null, has_more: false }),
+    ),
+    http.get('*/api/v1/tasks/task-1', () => HttpResponse.json(task)),
+  );
   renderTask();
   expect(await screen.findByRole('heading', { name: '任务详情' })).toBeInTheDocument();
   expect(screen.getByText('认识收银机')).toBeInTheDocument();

@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { createBrowserRouter, Link, Outlet, RouterProvider } from 'react-router';
-import { LoginPage, SessionControls, SessionGate } from '@/features/auth/public';
+import { createBrowserRouter, RouterProvider } from 'react-router';
+import {
+  LoginPage,
+  RegisterPage,
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  SessionGate,
+} from '@/features/auth/public';
 import { ErrorPanel } from '@/shared/ui/AsyncState';
 import { PlatformContext } from '@/shared/platform/context';
 import { webPlatform } from '@/shared/platform/web';
@@ -9,29 +15,8 @@ import { createQueryClient } from './query';
 import { featureRoutes } from './routes.generated';
 import { LandingPage } from './LandingPage';
 import { StatusPage } from './StatusPage';
-import styles from './App.module.css';
+import { WorkspaceShell } from './WorkspaceShell';
 
-function Shell() {
-  return (
-    <div className={styles.shell}>
-      <a href="#main" className="skip-link">
-        跳到主要内容
-      </a>
-      <header className={styles.header}>
-        <strong>融职境</strong>
-        <nav aria-label="主导航">
-          <Link to="/">首页</Link>
-          <Link to="/learner">学员端</Link>
-          <Link to="/counselor">辅导员端</Link>
-        </nav>
-        <SessionControls />
-      </header>
-      <main id="main" className={styles.main} tabIndex={-1}>
-        <Outlet />
-      </main>
-    </div>
-  );
-}
 export function App() {
   const [queryClient] = useState(createQueryClient);
   const [router] = useState(() =>
@@ -43,7 +28,22 @@ export function App() {
         errorElement: <ErrorPanel message="页面未能加载" />,
       },
       {
-        element: <Shell />,
+        path: '/register',
+        element: <RegisterPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPasswordPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPasswordPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
+        element: <WorkspaceShell />,
         errorElement: <ErrorPanel message="页面未能加载" />,
         children: [
           { path: '/status', element: <StatusPage /> },

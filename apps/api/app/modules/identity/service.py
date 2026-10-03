@@ -23,6 +23,7 @@ from app.core.security import (
     verify_password,
 )
 from app.core.types import Actor
+from app.infrastructure.db import utcnow
 from app.infrastructure.models import AuditEvent
 from app.modules.identity.models import AuthLimit, Preferences, Profile, SessionRecord, User
 from app.modules.identity.public import UserView
@@ -47,6 +48,9 @@ def session_record(s: Session, token: str | None, now: datetime) -> SessionRecor
         .with_for_update()
         .execution_options(populate_existing=True)
     )
+    # A concurrent request may update last_seen while this request waits for the
+    # row lock. Validate at acquisition time, retaining the strict future guard.
+    now = max(now, utcnow())
     if (
         record is None
         or record.expires_at <= now
@@ -60,6 +64,7 @@ def session_record(s: Session, token: str | None, now: datetime) -> SessionRecor
 
 def issue_session(s: Session, user_id: UUID | None, now: datetime) -> SessionGrant:
     token, csrf = new_token(), new_token()
+    user = s.scalar(select(User).where(User.id == user_id).with_for_update()) if user_id else None
     s.add(
         SessionRecord(
             user_id=user_id,
@@ -68,6 +73,7 @@ def issue_session(s: Session, user_id: UUID | None, now: datetime) -> SessionGra
             csrf_hash=token_digest(csrf),
             last_seen_at=now,
             expires_at=now + timedelta(hours=12) if user_id else now + timedelta(minutes=15),
+            credential_version=user.credential_version if user else 1,
         )
     )
     s.flush()
@@ -78,7 +84,7 @@ def csrf_grant(s: Session, token: str | None, now: datetime) -> SessionGrant:
     try:
         record = session_record(s, token, now)
         if record.user_id is not None:
-            resolve_actor(s, token or "", now)
+            resolve_actor(s, token or "", max(now, utcnow()))
     except AppError:
         return issue_session(s, None, now)
     csrf = new_token()
@@ -113,8 +119,9 @@ def login(
 ) -> SessionGrant:
     old = check_write(s, token, origin, expected_origin, csrf, now)
     take_budget(s, "login-client:" + client_key, 30, timedelta(minutes=15), now)
-    take_budget(s, "login-name:" + login_name.strip(), 10, timedelta(minutes=15), now)
-    user = s.scalar(select(User).where(User.login_name == login_name.strip()))
+    canonical = login_name.strip().casefold() if "@" in login_name else login_name.strip()
+    take_budget(s, "login-name:" + canonical, 10, timedelta(minutes=15), now)
+    user = s.scalar(select(User).where(User.login_name == canonical).with_for_update())
     valid = verify_password(password, user.password_hash if user else _DUMMY_HASH)
     if not valid or user is None or not user.active:
         raise AppError(401, "INVALID_CREDENTIALS", "账号或密码不正确")
@@ -212,7 +219,7 @@ def save_personal(
 
 def touch_session(s: Session, token: str, now: datetime) -> None:
     record = session_record(s, token, now)
-    record.last_seen_at = now
+    record.last_seen_at = max(now, utcnow(), record.last_seen_at)
 
 
 def take_budget(s: Session, key: str, maximum: int, window: timedelta, now: datetime) -> None:

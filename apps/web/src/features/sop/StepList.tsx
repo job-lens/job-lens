@@ -1,4 +1,5 @@
 import type { components } from '@/shared/api/schema';
+import { AssetInput } from '@/shared/ui/AssetInput';
 import styles from './sop.module.css';
 
 type SopStep = components['schemas']['SopStep'];
@@ -9,7 +10,7 @@ function newStep(position: number): SopStep {
     id: crypto.randomUUID(),
     position,
     instruction: '',
-    media_ids: [], // 媒体上传属后续里程碑，首版新增步骤不带媒体
+    media_ids: [],
     estimated_seconds: 720,
     evidence_required: false,
   };
@@ -28,10 +29,12 @@ export function StepList({
   steps,
   onChange,
   disabled = false,
+  caseId,
 }: {
   steps: SopStep[];
   onChange: (steps: SopStep[]) => void;
   disabled?: boolean;
+  caseId?: string;
 }) {
   function add() {
     onChange(renumber([...steps, newStep(steps.length + 1)]));
@@ -105,6 +108,18 @@ export function StepList({
             />
           </div>
 
+          {caseId && (
+            <details>
+              <summary>步骤材料（可选）</summary>
+              <AssetInput
+                caseId={caseId}
+                purpose="sop_media"
+                value={step.media_ids}
+                onChange={ids => update(step.id, { media_ids: ids })}
+                disabled={disabled}
+              />
+            </details>
+          )}
           <label className={styles.check}>
             <input
               type="checkbox"

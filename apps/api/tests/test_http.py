@@ -38,12 +38,14 @@ def test_health_checks(settings, available, error, status):
             assert result.json()["trace_id"] == result.headers["x-request-id"]
 
 
-def test_no_fake_business_routes_or_http_200_errors(settings):
+def test_business_routes_require_auth_and_errors_keep_http_status(settings):
     with TestClient(create_app(settings, DatabaseProbe())) as client:
-        assert client.get("/api/v1/tasks").status_code == 404
-        assert client.get("/api/v1/tasks").json()["status"] == 404
+        result = client.get("/api/v1/tasks")
+        assert result.status_code == 401
+        assert result.json()["status"] == 401
+        assert result.json()["code"] == "UNAUTHENTICATED"
         paths = client.get("/api/openapi.json").json()["paths"]
-        assert "/api/v1/tasks" not in paths
+        assert "/api/v1/tasks" in paths
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "trace-123"})
         assert result.headers["x-request-id"] == "trace-123"
         result = client.get("/api/v1/health/live", headers={"X-Request-ID": "a" * 1000})

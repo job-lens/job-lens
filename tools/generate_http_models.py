@@ -1,0 +1,168 @@
+"""Generate typed wire models from the existing product contract, never from ORM.
+
+Keeps nullable scalar spelling and optional-field metadata faithful to OpenAPI;
+validation constraints still run through Pydantic, with business allOf rules in
+module rules/services. Does not change the contract or introduce runtime YAML IO.
+"""
+
+import argparse
+from pathlib import Path
+
+import yaml
+from app.web import schemas as existing
+from pydantic import BaseModel
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def render():
+    schemas = yaml.safe_load((ROOT / "contracts/openapi.yaml").read_text())["components"]["schemas"]
+    known = {
+        n
+        for n in schemas
+        if isinstance(getattr(existing, n, None), type)
+        and issubclass(getattr(existing, n), BaseModel)
+    }
+    done, imports, blocks = set(known), set(), []
+    visiting = set()
+
+    def reference(name):
+        if name in known:
+            imports.add(name)
+        emit(name)
+        return name
+
+    def annotation(schema):
+        if "$ref" in schema:
+            return reference(schema["$ref"].split("/")[-1])
+        if "anyOf" in schema:
+            return " | ".join(annotation(item) for item in schema["anyOf"])
+        if "const" in schema:
+            return f"Literal[{schema['const']!r}]"
+        if "enum" in schema:
+            return "Literal[" + ", ".join(repr(x) for x in schema["enum"]) + "]"
+        kind = schema["type"]
+        if isinstance(kind, list):
+            non_null = {**schema, "type": next(t for t in kind if t != "null")}
+            return f"Annotated[{annotation(non_null)} | None, WithJsonSchema({schema!r})]"
+        if kind == "null":
+            return "None"
+        if kind == "array":
+            item = annotated(schema["items"])
+            return f"list[{item}]"
+        if kind == "string":
+            if schema.get("format") == "binary":
+                return "UploadFile"
+            return {"uuid": "UUID", "date": "date", "date-time": "datetime"}.get(
+                schema.get("format"), "str"
+            )
+        return {"integer": "int", "number": "float", "boolean": "bool"}[kind]
+
+    def limits(schema):
+        mapping = {
+            "minLength": "min_length",
+            "maxLength": "max_length",
+            "minItems": "min_length",
+            "maxItems": "max_length",
+            "minimum": "ge",
+            "maximum": "le",
+            "exclusiveMinimum": "gt",
+            "exclusiveMaximum": "lt",
+            "pattern": "pattern",
+        }
+        return ", ".join(
+            f"{target}={schema[key]!r}" for key, target in mapping.items() if key in schema
+        )
+
+    def annotated(schema):
+        base = annotation(schema)
+        if schema.get("format") == "binary":
+            return f"Annotated[{base}, WithJsonSchema({schema!r})]"
+        metadata = limits(schema)
+        return f"Annotated[{base}, Field({metadata})]" if metadata else base
+
+    def emit(name):
+        if name in done:
+            return
+        if name in visiting:
+            raise ValueError("recursive schema requires an explicit model")
+        visiting.add(name)
+        schema = schemas[name]
+        if "oneOf" in schema:
+            variants = " | ".join(annotation(item) for item in schema["oneOf"])
+            block = f"type {name} = Annotated[{variants}, Field(discriminator={schema['discriminator']['propertyName']!r})]"
+        else:
+            lines = [
+                f"class {name}(BaseModel):",
+                '    model_config = ConfigDict(extra="forbid", from_attributes=True'
+                + (
+                    f', json_schema_extra={ {key: schema[key] for key in ("allOf", "anyOf") if key in schema}!r}'
+                    if "allOf" in schema or "anyOf" in schema
+                    else ""
+                )
+                + ")",
+            ]
+            required = set(schema.get("required", []))
+            for prop, value in schema.get("properties", {}).items():
+                field_type = annotated(value)
+                default = ""
+                if prop not in required:
+                    # The default represents omission, while explicit JSON null
+                    # remains invalid for a non-nullable request property.
+                    default = " = Field(default=None, json_schema_extra=omit_default)"
+                    nullable = (
+                        isinstance(value.get("type"), list)
+                        and "null" in value["type"]
+                        or any(item.get("type") == "null" for item in value.get("anyOf", []))
+                    )
+                    if not nullable:
+                        field_type = f"Annotated[{field_type} | None, BeforeValidator(reject_null), WithJsonSchema({value!r})]"
+                lines.append(f"    {prop}: {field_type}{default}")
+            block = "\n".join(lines)
+        blocks.append(block)
+        visiting.remove(name)
+        done.add(name)
+
+    for name in schemas:
+        emit(name)
+    header = """# Generated by tools/generate_http_models.py from contracts/openapi.yaml.
+# Do not edit: domain decisions stay in module rules/services.
+from datetime import date, datetime
+from typing import Annotated, Any, Literal
+from uuid import UUID
+
+from fastapi import UploadFile
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, WithJsonSchema
+"""
+    if imports:
+        header += "\nfrom app.web.schemas import " + ", ".join(sorted(imports)) + "\n"
+    header += """
+
+def omit_default(schema: dict[str, Any]) -> None:
+    schema.pop("default", None)
+
+
+def reject_null(value: Any) -> Any:
+    if value is None:
+        raise ValueError("explicit null is not allowed")
+    return value
+"""
+    return header + "\n\n" + "\n\n\n".join(blocks) + "\n"
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+    target = ROOT / "apps/api/app/web/business_schemas.py"
+    content = render()
+    if args.check:
+        if target.read_text() != content:
+            raise SystemExit("HTTP model generation drift")
+    else:
+        target.write_text(content)
+    print("Typed HTTP contract models: PASS")
+
+
+if __name__ == "__main__":
+    main()

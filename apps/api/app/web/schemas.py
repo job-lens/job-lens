@@ -101,3 +101,30 @@ class Capabilities(BaseModel):
     sop_conversion: bool
     realtime_ar: bool
     precise_location: bool
+
+
+class EmailRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    email: Annotated[str, Field(min_length=3, max_length=80, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def canonical_email(cls, value: Any) -> Any:
+        return value.strip().casefold() if isinstance(value, str) else value
+
+
+class RegistrationRequest(EmailRequest):
+    code: Annotated[str, Field(min_length=6, max_length=6, pattern=r"^[0-9]{6}$")]
+    password: Annotated[str, Field(min_length=12, max_length=256)]
+    display_name: Annotated[str, Field(min_length=1, max_length=80)]
+
+
+class PasswordResetRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    token: Annotated[str, Field(min_length=43, max_length=43, pattern=r"^[A-Za-z0-9_-]{43}$")]
+    password: Annotated[str, Field(min_length=12, max_length=256)]
+
+
+class EmailAccepted(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    message: Literal["请求已受理，请查看邮箱。"]

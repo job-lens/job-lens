@@ -97,4 +97,6 @@ def test_declared_dependency_that_is_imported_is_not_reported():
 
 def test_used_dependencies_reads_the_real_tree():
     used = used_dependencies()
-    assert used.get("training") == {"cases"}, used
+    # Training now creates tasks from the SOP public, published snapshot.
+    # The dependency was already declared; keep the exact expected edge set.
+    assert used.get("training") == {"cases", "sop"}, used

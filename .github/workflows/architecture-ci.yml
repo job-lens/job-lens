@@ -95,6 +95,8 @@ jobs:
           python tools/database_backup.py verify backups/ci.dump
       - run: pnpm install --frozen-lockfile && pnpm exec playwright install --with-deps chromium
       - run: docker compose exec -T -e E2E_PASSWORD api python - seed < tools/identity_fixture.py
+      - name: Seed synthetic training scenarios
+        run: docker compose exec -T -e JOB_LENS_FIXTURE_PASSWORD="$E2E_PASSWORD" api python - < tools/training_fixture.py
       - run: pnpm test:e2e
         env: {E2E_BASE_URL: 'http://localhost:8080'}
       - name: Collect container logs

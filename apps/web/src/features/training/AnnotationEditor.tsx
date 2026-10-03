@@ -13,17 +13,20 @@ export function AnnotationEditor({
   submissionId,
   assetId,
   onCreated,
+  kind = 'guidance',
 }: {
   taskId: string;
   submissionId: string | null;
   assetId: string;
   onCreated?: (annotationId: string) => void;
+  kind?: 'question' | 'guidance';
 }) {
   const create = useCreateAnnotation(taskId);
   const [markers, setMarkers] = useState<DraftMarker[]>([]);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
   function place(e: MouseEvent<HTMLDivElement>) {
+    if (create.isPending || markers.length >= 50) return;
     const el = surfaceRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -44,7 +47,7 @@ export function AnnotationEditor({
       {
         asset_id: assetId,
         submission_id: submissionId,
-        kind: 'guidance',
+        kind,
         markers: markers
           .filter(m => m.text.trim() !== '')
           .map(m => ({
@@ -101,12 +104,27 @@ export function AnnotationEditor({
                 placeholder="标注说明（1–200 字）"
                 onChange={e => setText(i, e.target.value)}
               />
+              <button
+                type="button"
+                disabled={create.isPending}
+                aria-label={`移除标注 ${i + 1}`}
+                onClick={() => setMarkers(prev => prev.filter((_, index) => index !== i))}
+              >
+                移除
+              </button>
             </li>
           ))}
         </ol>
       )}
 
       <div className={styles.actions}>
+        <button
+          type="button"
+          disabled={create.isPending || markers.length >= 50}
+          onClick={() => setMarkers(prev => [...prev, { x: 0.5, y: 0.5, text: '' }])}
+        >
+          添加中心标注
+        </button>
         <button type="button" disabled={create.isPending || !ready} onClick={save}>
           保存指引标注
         </button>

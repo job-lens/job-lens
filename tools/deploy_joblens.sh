@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Invoked only after an approved release bundle has been securely transferred.
+# Does not bootstrap credentials, DNS, firewall, a scanner, or a shared proxy.
+set -euo pipefail
+readonly root=/opt/job-lens
+readonly config=/etc/job-lens/joblens.env
+sha=${1:?Usage: deploy_joblens.sh EXACT_SHA}
+[[ "$sha" =~ ^[0-9a-f]{40}$ ]] || exit 2
+[[ -d "$root/releases/$sha" && -f "$config" && ! -L "$config" ]] || {
+  echo 'JobLens release or separately provisioned configuration is missing' >&2; exit 1;
+}
+[[ $(stat -c %a "$config") == 600 ]] || { echo 'Configuration must have mode 0600' >&2; exit 1; }
+cd "$root/releases/$sha"
+exec 9>"$root/deploy.lock"
+flock -n 9 || { echo 'Another JobLens deployment is active' >&2; exit 1; }
+# Explicit file/project prevents a neighboring or inherited Compose override.
+unset COMPOSE_FILE COMPOSE_PROJECT_NAME COMPOSE_PROFILES
+export JOBLENS_API_IMAGE="joblens-api:$sha" JOBLENS_WEB_IMAGE="joblens-web:$sha"
+export JOBLENS_POSTGRES_IMAGE="joblens-postgres:$sha"
+compose=(docker compose --project-name joblens-release --env-file "$config" -f "$PWD/compose.production.yaml")
+"${compose[@]}" config --quiet
+sha256sum --check SHA256SUMS --status
+# Do not extract/build code on the shared production machine.
+for image in api web postgres; do gzip -dc "$image.tar.gz" | docker load >/dev/null; done
+# The loaded images must match the exact CI-recorded identities.
+while read -r name id; do
+  [[ "$name" =~ ^joblens-(api|web|postgres):$sha$ && "$id" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 1
+  [[ $(docker image inspect "$name" --format '{{.Id}}') == "$id" ]] || exit 1
+done < image-ids.txt
+[[ $(wc -l < image-ids.txt) == 3 ]] || exit 1
+# Check actual production Settings and mail configuration, without sending mail.
+# Scanner availability is tested via PING; no user file is transmitted.
+"${compose[@]}" run --rm --no-deps -T api python - <<'PYCODE'
+import socket
+from app.core.config import Settings
+from app.infrastructure.email import require_delivery
+try:
+    cfg = Settings()
+    require_delivery(cfg)
+    with socket.create_connection((cfg.scan_host, cfg.scan_port), timeout=5) as sock:
+        sock.sendall(b"zPING\0")
+        if sock.recv(64).rstrip(b"\0\n") != b"PONG":
+            raise ValueError("Unexpected scanner response")
+except Exception as exc:
+    print("Production dependency preflight failed:", type(exc).__name__)
+    raise SystemExit(1)
+print("Production settings, mail configuration and scanner PING passed; delivery/storage acceptance remains separate")
+PYCODE
+# Validate configuration without producing certificates or contacting mail.
+"${compose[@]}" run --rm --no-deps gateway caddy validate --config /etc/caddy/Caddyfile >/dev/null
+"${compose[@]}" up -d --no-build --pull never --wait --wait-timeout 180
+curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8126/api/v1/health/ready >/dev/null
+curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/api/v1/health/ready >/dev/null
+printf '%s\n' "$sha" > "$root/deployed-sha.tmp"
+mv "$root/deployed-sha.tmp" "$root/deployed-sha"
+echo "JobLens HTTP deployment verified at $sha; mail/upload acceptance is separate"
+# Keep previous releases and all volumes; never run prune/down -v or Windup commands.

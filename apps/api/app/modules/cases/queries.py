@@ -1,20 +1,23 @@
 from uuid import UUID
 
-from sqlalchemy import exists, or_, select
+from sqlalchemy import Select, exists, or_, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.core.errors import not_found
+from app.core.errors import conflict, not_found
 from app.core.types import Actor
 from app.modules.cases.models import Case, CaseGrant
 from app.modules.cases.public import CaseAccess
 
 
-def read_access(session: Session, actor: Actor, case_id: UUID) -> CaseAccess:
+def read_access(session: Session, actor: Actor, case_id: UUID, *, lock: bool = False) -> CaseAccess:
     # The database predicate is shared by detail and list queries.
-    record = session.scalar(select(Case).where(Case.id == case_id, scope_predicate(actor)))
+    query = select(Case).where(Case.id == case_id, scope_predicate(actor)).execution_options(populate_existing=True)
+    record = session.scalar(query.with_for_update() if lock else query)
     if record is None:
         raise not_found()
+    if lock and record.lifecycle == "closed":
+        raise conflict("CASE_CLOSED")
     counselors = session.scalars(
         select(CaseGrant.counselor_id).where(
             CaseGrant.case_id == case_id,
@@ -39,3 +42,17 @@ def scope_predicate(actor: Actor) -> ColumnElement[bool]:
         & ("counselor" in actor.roles),
     )
     return predicate
+
+
+def authorized_case_ids(actor: Actor) -> Select[tuple[UUID]]:
+    return select(Case.id).where(scope_predicate(actor))
+
+
+def match_confirmed(session: Session, actor: Actor, case_id: UUID) -> bool:
+    from app.modules.cases.models import SupportMatch
+
+    read_access(session, actor, case_id)
+    return (
+        session.scalar(select(SupportMatch.state).where(SupportMatch.case_id == case_id))
+        == "confirmed"
+    )

@@ -1,4 +1,5 @@
 import type { components } from '@/shared/api/schema';
+import { AnnotationView } from '@/shared/ui/AnnotationView';
 import { OUTCOME_LABELS, TAG_LABELS } from './labels';
 import styles from './training.module.css';
 
@@ -18,6 +19,9 @@ export function FeedbackView({ submission }: { submission: Submission }) {
       <section className={styles.card}>
         <h3>审核结论（已提交）</h3>
         <p className={styles.readonly}>{fb.message}</p>
+        {fb.annotation_ids.map(id => (
+          <AnnotationView key={id} id={id} />
+        ))}
         {fb.tags.length > 0 && (
           <p className={styles.note}>标签：{fb.tags.map(t => TAG_LABELS[t]).join('、')}</p>
         )}

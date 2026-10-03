@@ -1,100 +1,56 @@
+/*
+ * 头像框 128px。.stage 比框往上、往两侧多出一截，用遮罩只裁掉框外的下半圆：
+ * 框中线以上整片可见（头发能冒出框），中线以下只留圆内（后发被框沿截住）。
+ * 改框尺寸时 --r 和 .stage 的外扩量一起改，遮罩圆心是按这两个数算的。
+ */
 .group {
   position: relative;
   flex: none;
 }
-.crowd {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--qx-space-1);
+.frame {
+  --r: 64px;
+  --out-x: 36px;
+  --out-y: 48px;
+  position: relative;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 28%, #f4f7fc 0%, #dfe6f1 100%);
+  box-shadow:
+    0 0 0 6px var(--qx-color-surface),
+    var(--qx-shadow-float);
 }
-.spirit {
-  width: 68px;
-  height: 68px;
-  overflow: visible;
+.stage {
+  position: absolute;
+  inset: calc(-1 * var(--out-y)) calc(-1 * var(--out-x)) 0;
+  -webkit-mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(var(--out-y) + var(--r)) no-repeat,
+    radial-gradient(
+      circle var(--r) at calc(var(--out-x) + var(--r)) calc(var(--out-y) + var(--r)),
+      #000 99%,
+      transparent 100%
+    );
+  mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(var(--out-y) + var(--r)) no-repeat,
+    radial-gradient(
+      circle var(--r) at calc(var(--out-x) + var(--r)) calc(var(--out-y) + var(--r)),
+      #000 99%,
+      transparent 100%
+    );
 }
-.spirit[data-variant='1'] {
-  width: 84px;
-  height: 84px;
-}
-.fill {
-  fill: color-mix(in srgb, var(--qx-color-data-olive) 45%, var(--qx-color-surface));
-}
-.spirit[data-variant='1'] .fill {
-  fill: color-mix(in srgb, var(--qx-color-data-amber) 34%, var(--qx-color-surface));
-}
-.spirit[data-variant='2'] .fill {
-  fill: color-mix(in srgb, var(--qx-color-data-violet) 34%, var(--qx-color-surface));
-}
-.face {
-  fill: none;
-  stroke: var(--qx-color-ink);
-  stroke-width: 3.5;
-  stroke-linecap: round;
-  transition: transform var(--qx-motion-base) var(--qx-ease);
-}
-.smile {
-  stroke-width: 2;
-}
-.body {
-  transform-origin: 50px 84px;
-  animation: settle 7s ease-in-out var(--spirit-delay) infinite;
-}
-.eyes {
-  transform-origin: 48px 50px;
-  animation: blink 8s linear var(--spirit-delay) infinite;
-}
-.group:hover .face {
-  transform: translateY(-2px);
+.stage > svg {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  translate: -50% 0;
 }
 .control {
   position: absolute;
-  right: calc(-1 * var(--qx-space-8));
-  bottom: var(--qx-space-2);
-}
-.group[data-private='true'] .face {
-  transform: translate(-7px, 0);
-}
-.group[data-private='true'] .eyes {
-  transform: scaleY(0.12);
-  animation: none;
-}
-.group[data-motion='off'] * {
-  animation: none !important;
-  transition: none !important;
-}
-@keyframes settle {
-  0%,
-  100% {
-    transform: rotate(-2deg);
-  }
-  50% {
-    transform: rotate(2deg) translateY(-3px);
-  }
-}
-@keyframes blink {
-  0%,
-  43%,
-  46%,
-  100% {
-    transform: scaleY(1);
-  }
-  44%,
-  45% {
-    transform: scaleY(0.08);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .body,
-  .eyes {
-    animation: none;
-  }
-  .face {
-    transition: none;
-  }
+  right: calc(-1 * var(--qx-space-10));
+  bottom: 0;
 }
 @media (max-width: 520px) {
   .control {
-    right: calc(-1 * var(--qx-space-3));
+    right: calc(-1 * var(--qx-space-8));
   }
 }

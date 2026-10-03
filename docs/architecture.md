@@ -110,12 +110,12 @@ flowchart LR
 
 | 模块 | 契约操作 | 已接入 HTTP |
 | --- | ---: | ---: |
-| cases | 8 | 0 |
-| identity | 9 | 9 |
-| infrastructure | 6 | 0 |
+| cases | 10 | 10 |
+| identity | 21 | 21 |
+| infrastructure | 6 | 6 |
 | platform | 2 | 2 |
-| sop | 7 | 0 |
-| support | 12 | 0 |
-| training | 10 | 0 |
+| sop | 7 | 7 |
+| support | 12 | 12 |
+| training | 10 | 10 |
 
 接口契约覆盖业务范围；健康检查接入 HTTP，业务路由在对应模块后续实现时登记。

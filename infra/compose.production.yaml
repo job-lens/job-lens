@@ -1,0 +1,84 @@
+# Standalone project: never combine with a Windup compose file.
+name: joblens-release
+x-app: &app
+  image: ${JOBLENS_API_IMAGE:?Set the built JobLens API image digest}
+  env_file: /etc/job-lens/joblens.env
+  environment:
+    JOB_LENS_ENVIRONMENT: production
+    JOB_LENS_DATABASE_URL: ${JOB_LENS_DATABASE_URL:?Set a JobLens-only database URL}
+    JOB_LENS_PUBLIC_ORIGIN: https://j.qunxue.xyz
+    JOB_LENS_TRUSTED_HOSTS: '["j.qunxue.xyz","127.0.0.1","api"]'
+    JOB_LENS_STORAGE_KIND: s3
+    JOB_LENS_S3_BUCKET: ${JOB_LENS_S3_BUCKET:?Set a JobLens-only private bucket}
+    JOB_LENS_SCAN_HOST: ${JOB_LENS_SCAN_HOST:?Set an authorized real ClamAV endpoint}
+  init: true
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  read_only: true
+  tmpfs: [/tmp:size=64m,mode=1777]
+  pids_limit: 128
+  mem_limit: 384m
+  cpus: 0.50
+  logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
+services:
+  db:
+    image: ${JOBLENS_POSTGRES_IMAGE:?Set a postgres 17 image digest}
+    environment:
+      POSTGRES_USER: job_lens
+      POSTGRES_DB: job_lens
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a JobLens-only password}
+    volumes: [database:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U job_lens -d job_lens']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 0.50
+    pids_limit: 128
+    logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
+  migrate:
+    <<: *app
+    command: [alembic, -c, apps/api/alembic.ini, upgrade, head]
+    depends_on:
+      db: {condition: service_healthy}
+    restart: 'no'
+  api:
+    <<: *app
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=3)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+  worker:
+    <<: *app
+    command: [python, -m, app.worker]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped
+  gateway:
+    image: ${JOBLENS_WEB_IMAGE:?Set the built JobLens web image digest}
+    environment: {SITE_ADDRESS: ':80'}
+    ports: ['127.0.0.1:8126:80', '443:443']
+    volumes: [caddy-data:/data, caddy-config:/config, ./Caddyfile.production:/etc/caddy/Caddyfile:ro]
+    depends_on:
+      api: {condition: service_healthy}
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    pids_limit: 64
+    logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
+volumes:
+  database:
+  caddy-data:
+  caddy-config:
+
+networks:
+  default:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1450"
