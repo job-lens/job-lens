@@ -10,6 +10,9 @@
   justify-content: space-between;
 }
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-2);
   text-decoration: none;
   font-weight: 600;
 }

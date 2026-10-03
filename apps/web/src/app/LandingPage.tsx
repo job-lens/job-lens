@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { WorkIllustration as PaperIllustration } from '@/shared/ui/WorkIllustration';
 import { Buddy } from '@/shared/ui/Buddy';
 import { Companions } from '@/shared/ui/Companions';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import styles from './LandingPage.module.css';
 
 const demoSteps = [
@@ -135,21 +136,6 @@ const questions = [
     '融职境用于工作训练与协作，不提供诊断或治疗。涉及健康或治疗的问题，请咨询具备相应资质的专业人员。',
   ],
 ];
-
-function BrandMark() {
-  return (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <path
-        d="M4 17V8h5v9m6 0V4h5v13M4 21h16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 /*
  * 首页的产品窗口：只是示意，不连接口、不出现「提交」按钮。

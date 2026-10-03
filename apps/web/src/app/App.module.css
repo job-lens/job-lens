@@ -39,16 +39,10 @@
   min-width: 0;
 }
 .brandMark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 36px;
   height: 36px;
   flex: none;
-  background: var(--qx-color-accent);
-  color: var(--qx-color-on-accent);
-  border-radius: var(--qx-radius-item);
-  font-weight: 600;
-  font-size: var(--qx-text-heading);
 }
 .wordmark {
   display: grid;

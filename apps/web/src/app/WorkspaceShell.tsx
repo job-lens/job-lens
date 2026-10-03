@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 import { SessionControls, useSession } from '@/features/auth/public';
 import { Icon, type IconName } from '@/shared/ui/Icon';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import styles from './App.module.css';
 
 type Destination = { href: string; label: string; icon: IconName; active: boolean };
@@ -160,9 +161,7 @@ export function WorkspaceShell() {
             className={styles.brand}
             aria-label="融职境工作台"
           >
-            <span className={styles.brandMark} aria-hidden="true">
-              融
-            </span>
+            <BrandMark size={36} className={styles.brandMark} />
             <span className={styles.wordmark}>
               融职境<small>Job Lens</small>
             </span>

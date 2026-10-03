@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Companions } from '@/shared/ui/Companions';
+import { BrandMark } from '@/shared/ui/BrandMark';
 import styles from './Auth.module.css';
 export function AccountFrame({
   title,
@@ -18,6 +19,7 @@ export function AccountFrame({
       </a>
       <header className={styles.header}>
         <Link to="/" className={styles.brand}>
+          <BrandMark />
           融职境
         </Link>
         <Link to="/" className="qx-btn qx-btn--ghost">
