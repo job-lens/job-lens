@@ -38,11 +38,15 @@ export function App() {
     createBrowserRouter([
       { path: '/', element: <LandingPage />, errorElement: <ErrorPanel message="页面未能加载" /> },
       {
+        path: '/login',
+        element: <LoginPage />,
+        errorElement: <ErrorPanel message="页面未能加载" />,
+      },
+      {
         element: <Shell />,
         errorElement: <ErrorPanel message="页面未能加载" />,
         children: [
           { path: '/status', element: <StatusPage /> },
-          { path: '/login', element: <LoginPage /> },
           ...featureRoutes.map(({ role, ...route }) => ({
             element: <SessionGate role={role} />,
             children: [route],

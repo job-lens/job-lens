@@ -1,55 +1,52 @@
-* {
-  box-sizing: border-box;
+@layer base, components;
+@layer base {
+  body {
+    color: var(--qx-color-ink-soft);
+    font-size: var(--qx-text-body);
+    line-height: var(--qx-text-body--line-height);
+  }
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  h1,
+  h2 {
+    color: var(--qx-color-ink);
+    font-family: var(--qx-font-reading);
+    font-size: var(--qx-text-section);
+    line-height: var(--qx-text-section--line-height);
+    font-weight: var(--qx-text-section--font-weight);
+  }
+  h3 {
+    font-size: var(--qx-text-heading);
+    line-height: var(--qx-text-heading--line-height);
+  }
+  a {
+    text-underline-offset: var(--qx-space-1);
+  }
 }
-body {
-  margin: 0;
-  background: var(--canvas);
-  color: var(--text);
-  font-size: calc(1rem * var(--font-scale));
-  line-height: 1.6;
-}
-a {
-  color: var(--accent);
-  text-underline-offset: 0.2em;
-}
-button,
-input,
-select {
-  font: inherit;
-}
-button,
-nav a {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0.55rem 0.85rem;
-}
-button {
-  cursor: pointer;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-}
-h1,
-h2,
-p {
-  overflow-wrap: anywhere;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 .skip-link {
   position: absolute;
-  left: 1rem;
+  left: var(--qx-space-4);
   top: -8rem;
-  background: var(--surface);
-  padding: 1rem;
+  background: var(--qx-color-surface);
+  padding: var(--qx-space-4);
   z-index: 10;
 }
 .skip-link:focus {
-  top: 1rem;
+  top: var(--qx-space-4);
 }
 @media (prefers-reduced-motion: reduce) {
   *,
