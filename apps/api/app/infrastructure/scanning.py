@@ -11,6 +11,13 @@ class Scanner(Protocol):
     def scan(self, source: BinaryIO) -> ScanResult: ...
 
 
+class UnavailableScanner:
+    """Explicitly unavailable: never inspect, transmit, or approve a queued file."""
+
+    def scan(self, source: BinaryIO) -> ScanResult:
+        raise AppError(503, "SCAN_UNAVAILABLE", "文件检测暂不可用，上传暂不可用")
+
+
 class ClamAVScanner:
     def __init__(self, host: str, port: int = 3310, timeout: float = 15) -> None:
         self.host, self.port, self.timeout = host, port, timeout

@@ -8,9 +8,11 @@ x-app: &app
     JOB_LENS_DATABASE_URL: ${JOB_LENS_DATABASE_URL:?Set a JobLens-only database URL}
     JOB_LENS_PUBLIC_ORIGIN: https://j.qunxue.xyz
     JOB_LENS_TRUSTED_HOSTS: '["j.qunxue.xyz","127.0.0.1","api"]'
-    JOB_LENS_STORAGE_KIND: s3
-    JOB_LENS_S3_BUCKET: ${JOB_LENS_S3_BUCKET:?Set a JobLens-only private bucket}
-    JOB_LENS_SCAN_HOST: ${JOB_LENS_SCAN_HOST:?Set an authorized real ClamAV endpoint}
+    JOB_LENS_STORAGE_KIND: ${JOB_LENS_STORAGE_KIND:-s3}
+    JOB_LENS_STORAGE_ROOT: /srv/.data/private
+    JOB_LENS_S3_BUCKET: ${JOB_LENS_S3_BUCKET:-}
+    JOB_LENS_SCAN_ENABLED: ${JOB_LENS_SCAN_ENABLED:-true}
+    JOB_LENS_SCAN_HOST: ${JOB_LENS_SCAN_HOST:-clamav}
   init: true
   security_opt: [no-new-privileges:true]
   cap_drop: [ALL]
@@ -46,6 +48,7 @@ services:
     restart: 'no'
   api:
     <<: *app
+    volumes: [private-files:/srv/.data/private]
     depends_on:
       migrate: {condition: service_completed_successfully}
     healthcheck:
@@ -56,6 +59,7 @@ services:
     restart: unless-stopped
   worker:
     <<: *app
+    volumes: [private-files:/srv/.data/private]
     command: [python, -m, app.worker]
     depends_on:
       migrate: {condition: service_completed_successfully}
@@ -74,6 +78,7 @@ services:
     logging: {driver: json-file, options: {max-size: 5m, max-file: '2'}}
 volumes:
   database:
+  private-files:
   caddy-data:
   caddy-config:
 

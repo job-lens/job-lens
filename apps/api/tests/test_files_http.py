@@ -1,12 +1,14 @@
 from io import BytesIO
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 import test_cases_http as fixtures
 from app.core.errors import AppError
+from app.infrastructure.assets import require_files
 from app.infrastructure.file_jobs import FileJobs
-from app.infrastructure.models import AuditEvent, Job
+from app.infrastructure.models import AuditEvent, FileAsset, Job
 from app.infrastructure.storage import LocalBlobStore
+from app.worker import build_handlers
 from PIL import Image
 from sqlalchemy import select
 from test_cases_http import login
@@ -109,3 +111,61 @@ def test_reject_disguised_file_empty_foreign_scope_and_wrong_role(client, scenar
     assert upload(str(uuid4()), "profile_material", picture()).status_code == 404
     assert upload(scenario["case"], "sop_media", picture()).status_code == 403
     assert not list((tmp_path / "quarantine").iterdir())
+
+
+def test_disabled_scan_rejects_upload_before_storage_or_enqueue(db, client, scenario, tmp_path):
+    client.app.state.settings.storage_root = tmp_path
+    client.app.state.settings.scan_enabled = False
+    headers = login(client, "learner")
+    assert client.get("/api/v1/health/ready").status_code == 200
+    result = client.post(
+        "/api/v1/files",
+        headers={**headers, "Idempotency-Key": str(uuid4())},
+        data={"case_id": scenario["case"], "purpose": "profile_material"},
+        files={"file": ("资料.png", picture(), "image/png")},
+    )
+    assert result.status_code == 503, result.text
+    assert result.json()["code"] == "SCAN_UNAVAILABLE"
+    assert "上传暂不可用" in result.json()["title"]
+    assert list(tmp_path.iterdir()) == []
+    with db.transaction() as s:
+        assert not list(s.scalars(select(FileAsset)))
+        assert not list(s.scalars(select(Job).where(Job.kind == "files.scan")))
+
+
+def test_disabled_scan_preserves_existing_file_gates_and_ready_authorization(
+    db, client, scenario, tmp_path
+):
+    config = client.app.state.settings
+    config.storage_root = tmp_path
+    headers = login(client, "learner")
+    assets = []
+    for _ in range(2):
+        result = client.post(
+            "/api/v1/files",
+            headers={**headers, "Idempotency-Key": str(uuid4())},
+            data={"case_id": scenario["case"], "purpose": "profile_material"},
+            files={"file": ("资料.png", picture(), "image/png")},
+        )
+        assert result.status_code == 202
+        assets.append(result.json()["id"])
+    # Only the explicit unit-test scanner creates an existing ready asset.
+    FileJobs(db, LocalBlobStore(tmp_path), CleanScanner()).scan({"asset_id": assets[1]})
+    config.scan_enabled = False
+    with pytest.raises(AppError) as error:
+        build_handlers(db, config)["files.scan"]({"asset_id": assets[0]})
+    assert error.value.code == "SCAN_UNAVAILABLE"
+    pending, ready = ["/api/v1/files/" + value for value in assets]
+    assert client.get(pending).json()["state"] == "quarantined"
+    assert client.get(pending + "/content").json()["code"] == "FILE_NOT_READY"
+    with db.transaction() as s, pytest.raises(AppError) as error:
+        require_files(s, [UUID(assets[0])], UUID(scenario["case"]), "profile_material")
+    assert error.value.code == "FILE_NOT_READY"
+    assert client.get(ready + "/content").content == picture()
+    login(client, "counselor")
+    assert client.get(pending + "/content").status_code == 404
+    assert client.get(ready + "/content").status_code == 200
+    login(client, "outsider")
+    assert client.get(ready + "/content").status_code == 404
+    client.cookies.clear()
+    assert client.get(ready + "/content").status_code == 401

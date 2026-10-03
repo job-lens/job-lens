@@ -13,7 +13,7 @@ from app.infrastructure.db import Database, utcnow
 from app.infrastructure.file_jobs import FileJobs
 from app.infrastructure.idempotency import purge_expired
 from app.infrastructure.jobs import claim, enqueue, finish, renew
-from app.infrastructure.scanning import ClamAVScanner
+from app.infrastructure.scanning import ClamAVScanner, UnavailableScanner
 from app.infrastructure.storage import LocalBlobStore, S3BlobStore
 
 logger = logging.getLogger("job_lens.worker")
@@ -45,7 +45,12 @@ def build_handlers(database: Database, settings: Settings | None = None) -> dict
             if settings.storage_kind == "local"
             else S3BlobStore(settings)
         )
-        files = FileJobs(database, store, ClamAVScanner(settings.scan_host, settings.scan_port))
+        scanner = (
+            ClamAVScanner(settings.scan_host, settings.scan_port)
+            if settings.scan_enabled
+            else UnavailableScanner()
+        )
+        files = FileJobs(database, store, scanner)
         handlers.update({"files.scan": files.scan, "files.delete": files.delete})
     return handlers
 

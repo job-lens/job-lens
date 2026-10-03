@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     s3_region: str = "us-east-1"
     mail_api_key: SecretStr | None = None
     mail_from: str | None = None
+    scan_enabled: bool = True
     scan_host: str = "clamav"
     scan_port: int = Field(default=3310, ge=1, le=65535)
     job_poll_seconds: float = Field(default=2, ge=0.1, le=60)
@@ -39,6 +40,8 @@ class Settings(BaseSettings):
         if self.storage_kind == "s3" and not self.s3_bucket:
             raise ValueError("s3_bucket is required for s3 storage")
         if self.environment == "production":
-            if parsed.scheme != "https" or self.storage_kind != "s3":
-                raise ValueError("production requires HTTPS and private S3 storage")
+            if parsed.scheme != "https":
+                raise ValueError("production requires HTTPS")
+            if self.storage_kind == "local" and not self.storage_root.is_absolute():
+                raise ValueError("production local storage requires an absolute private root")
         return self
