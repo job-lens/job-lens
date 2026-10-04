@@ -1,0 +1,85 @@
+name: Android Test Download
+on:
+  pull_request:
+    paths: ['native/joblens/**', '.github/workflows/android-download.yml', 'tools/publish_android_download.sh']
+  push:
+    branches: [main]
+    paths: ['native/joblens/**', '.github/workflows/android-download.yml', 'tools/publish_android_download.sh']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - run: python3 tools/tests/test_android_download.py
+      - uses: actions/setup-java@v6
+        with: {distribution: temurin, java-version: '21', cache: gradle, cache-dependency-path: 'native/joblens/android/**/*.gradle.kts'}
+      - name: Build and verify native test candidate
+        working-directory: native/joblens/android
+        run: |
+          set -euo pipefail
+          bash gradlew --no-daemon :core:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
+          mkdir -p "$GITHUB_WORKSPACE/android-download"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/android-download/joblens-android-test.apk"
+          cd "$GITHUB_WORKSPACE/android-download"
+          sha256sum joblens-android-test.apk > SHA256SUMS
+      - name: Enable ephemeral runner emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify the exact APK on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: bash native/joblens/android/verification/run_ci_device.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-device-evidence
+          path: native/joblens/android/verification/ci-results/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        with: {name: android-download, path: android-download/, retention-days: 14}
+  publish:
+    needs: build
+    if: github.repository == 'job-lens/job-lens' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency: {group: joblens-production, cancel-in-progress: false}
+    environment: {name: Production, url: 'https://j.qunxue.xyz'}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/download-artifact@v4
+        with: {name: android-download, path: android-download}
+      - run: sudo apt-get update -qq && sudo apt-get install -y sshpass
+      - name: Publish APK without rebuilding or restarting the website
+        env:
+          DEPLOY_HOST: ${{ secrets.JOBLENS_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.JOBLENS_DEPLOY_USER }}
+          SSHPASS: ${{ secrets.JOBLENS_DEPLOY_PASSWORD }}
+          KNOWN_HOSTS: ${{ secrets.JOBLENS_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          : "${DEPLOY_HOST:?}" "${DEPLOY_USER:?}" "${SSHPASS:?}" "${KNOWN_HOSTS:?}"
+          (cd android-download && sha256sum --check SHA256SUMS)
+          sha=$(sha256sum android-download/joblens-android-test.apk | cut -d' ' -f1)
+          umask 077
+          printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/joblens-known-hosts"
+          options=(-o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/joblens-known-hosts" -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=15)
+          sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" 'test -d /opt/job-lens && mkdir -p /opt/job-lens/android-incoming'
+          sshpass -e scp "${options[@]}" android-download/joblens-android-test.apk "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/android-incoming/$sha.apk"
+          sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- $sha $GITHUB_SHA" < tools/publish_android_download.sh
+          curl --fail --silent --show-error --max-time 90 https://j.qunxue.xyz/downloads/joblens-android-test.apk -o downloaded.apk
+          printf '%s  downloaded.apk\n' "$sha" | sha256sum --check --status
+          printf 'Android test download: https://j.qunxue.xyz/downloads/joblens-android-test.apk\nSHA256: %s\n' "$sha" >> "$GITHUB_STEP_SUMMARY"

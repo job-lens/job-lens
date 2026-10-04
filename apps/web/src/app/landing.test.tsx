@@ -15,6 +15,10 @@ it('keeps the homepage public while showing the training path and real login ent
   expect(screen.getByRole('link', { name: '登录并开始' })).toHaveAttribute('href', '/login');
   expect(screen.getByRole('region', { name: '训练流程' })).toBeVisible();
   expect(screen.getByRole('img', { name: '陪你做事的小伙伴' })).toBeVisible();
+  expect(screen.getByRole('link', { name: '安卓下载（测试版）' })).toHaveAttribute(
+    'href',
+    '/downloads/joblens-android-test.apk',
+  );
   expect(requests).not.toHaveBeenCalled();
 });
 

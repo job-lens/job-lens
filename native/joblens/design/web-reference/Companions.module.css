@@ -1,0 +1,56 @@
+/*
+ * 头像框 128px。.stage 比框往上、往两侧多出一截，用遮罩只裁掉框外的下半圆：
+ * 框中线以上整片可见（头发能冒出框），中线以下只留圆内（后发被框沿截住）。
+ * 改框尺寸时 --r 和 .stage 的外扩量一起改，遮罩圆心是按这两个数算的。
+ */
+.group {
+  position: relative;
+  flex: none;
+}
+.frame {
+  --r: 64px;
+  --out-x: 36px;
+  --out-y: 48px;
+  position: relative;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 28%, #f4f7fc 0%, #dfe6f1 100%);
+  box-shadow:
+    0 0 0 6px var(--qx-color-surface),
+    var(--qx-shadow-float);
+}
+.stage {
+  position: absolute;
+  inset: calc(-1 * var(--out-y)) calc(-1 * var(--out-x)) 0;
+  -webkit-mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(var(--out-y) + var(--r)) no-repeat,
+    radial-gradient(
+      circle var(--r) at calc(var(--out-x) + var(--r)) calc(var(--out-y) + var(--r)),
+      #000 99%,
+      transparent 100%
+    );
+  mask:
+    linear-gradient(#000 0 0) 0 0 / 100% calc(var(--out-y) + var(--r)) no-repeat,
+    radial-gradient(
+      circle var(--r) at calc(var(--out-x) + var(--r)) calc(var(--out-y) + var(--r)),
+      #000 99%,
+      transparent 100%
+    );
+}
+.stage > svg {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  translate: -50% 0;
+}
+.control {
+  position: absolute;
+  right: calc(-1 * var(--qx-space-10));
+  bottom: 0;
+}
+@media (max-width: 520px) {
+  .control {
+    right: calc(-1 * var(--qx-space-8));
+  }
+}

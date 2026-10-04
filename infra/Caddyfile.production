@@ -19,6 +19,10 @@
       flush_interval -1
     }
   }
+  handle /downloads/* {
+    root * /srv
+    file_server
+  }
   handle {
     root * /srv
     try_files {path} /index.html
