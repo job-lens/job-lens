@@ -15,10 +15,21 @@ it('keeps the homepage public while showing the training path and real login ent
   expect(screen.getByRole('link', { name: '登录并开始' })).toHaveAttribute('href', '/login');
   expect(screen.getByRole('region', { name: '训练流程' })).toBeVisible();
   expect(screen.getByRole('img', { name: '陪你做事的小伙伴' })).toBeVisible();
-  expect(screen.getByRole('link', { name: '安卓下载（测试版）' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: '安卓测试版 · Cloudflare 主下载' })).toHaveAttribute(
     'href',
-    '/downloads/joblens-android-test.apk',
+    'https://huyan-android-downloads.pages.dev/downloads/joblens-0.1.1-test-e01de0b6.apk',
   );
+  expect(screen.getByRole('link', { name: 'GitHub 备用下载' })).toHaveAttribute(
+    'href',
+    'https://github.com/job-lens/job-lens/releases/download/android-v0.1.1-test-e01de0b6/joblens-0.1.1-test-e01de0b6.apk',
+  );
+  expect(screen.getByRole('link', { name: '0.1.1 debug · 安装说明' })).toHaveAttribute(
+    'href',
+    'https://github.com/job-lens/job-lens/releases/tag/android-v0.1.1-test-e01de0b6',
+  );
+  expect(
+    screen.getAllByRole('link').every(link => !link.getAttribute('href')?.includes('/latest/')),
+  ).toBe(true);
   expect(requests).not.toHaveBeenCalled();
 });
 

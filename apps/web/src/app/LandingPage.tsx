@@ -340,8 +340,14 @@ export function LandingPage() {
           融职境
         </span>
         <nav aria-label="页脚导航">
-          <a href="/downloads/joblens-android-test.apk" download>
-            安卓下载（测试版）
+          <a href="https://huyan-android-downloads.pages.dev/downloads/joblens-0.1.1-test-e01de0b6.apk">
+            安卓测试版 · Cloudflare 主下载
+          </a>
+          <a href="https://github.com/job-lens/job-lens/releases/download/android-v0.1.1-test-e01de0b6/joblens-0.1.1-test-e01de0b6.apk">
+            GitHub 备用下载
+          </a>
+          <a href="https://github.com/job-lens/job-lens/releases/tag/android-v0.1.1-test-e01de0b6">
+            0.1.1 debug · 安装说明
           </a>
           <a href="#experience">产品体验</a>
           <Link to="/login">登录</Link>
