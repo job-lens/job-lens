@@ -173,11 +173,73 @@ def collect(expected, read=capture, marker=Path("/opt/job-lens/deployed-sha")):
     }
 
 
+PROBE = '"""Standalone stdin payload for one credential-free, fixed-endpoint comparison."""\n\nimport json\nfrom urllib.error import HTTPError, URLError\nfrom urllib.request import HTTPRedirectHandler, Request, build_opener\n\n\nclass NoRedirect(HTTPRedirectHandler):\n    def redirect_request(self, req, fp, code, msg, headers, newurl):\n        return None\n\n\nopener = build_opener(NoRedirect())\nresults = []\nfor profile, headers in (\n    ("urllib_default", {}),\n    ("resend_sdk_headers", {"Accept": "application/json", "User-Agent": "resend-python:2.39.0"}),\n):\n    # No Authorization, cookies, sender, recipient, account or message data.\n    request = Request("https://api.resend.com/domains", headers=headers, method="GET")\n    result = {"profile": profile, "authenticated": False, "request_count": 1}\n    try:\n        try:\n            response = opener.open(request, timeout=10)\n        except HTTPError as error:\n            response = error\n        with response:\n            result["status"] = response.code\n            content_type = response.headers.get("Content-Type", "").split(";", 1)[0].lower()\n            result["content_kind"] = {\n                "application/json": "json", "text/html": "html", "text/plain": "text",\n            }.get(content_type, "other")\n            body = response.read(8193)\n        if len(body) > 8192:\n            result["body_kind"] = "truncated"\n        else:\n            try:\n                data = json.loads(body)\n                result["body_kind"] = "json"\n                code = data.get("name") if isinstance(data, dict) else None\n                result["provider_code"] = code if code in (\n                    "missing_api_key", "restricted_api_key", "invalid_permission",\n                    "validation_error", "application_error", "rate_limit_exceeded",\n                ) else "unknown"\n            except (ValueError, TypeError, RecursionError):\n                result["body_kind"] = "non_json"\n                result["provider_code"] = "unknown"\n        result["result"] = "http_response"\n    except (URLError, OSError, TimeoutError):\n        result["result"] = "transport_error"\n    except Exception:  # Never surface raw transport/provider exceptions.\n        result["result"] = "probe_error"\n    results.append(result)\nprint(json.dumps({"probe": "unauthenticated_fixed_domains_get", "results": results}, sort_keys=True))\n'
+
+
+def probe_headers(expected):
+    ids = capture(
+        [
+            "docker",
+            "ps",
+            "--quiet",
+            "--no-trunc",
+            "--filter",
+            "label=com.docker.compose.project=joblens-release",
+            "--filter",
+            "label=com.docker.compose.service=api",
+        ]
+    ).splitlines()
+    if len(ids) != 1 or CONTAINER.fullmatch(ids[0]) is None:
+        raise DiagnosticError("expected_one_joblens_api")
+    identity = capture(
+        [
+            "docker",
+            "inspect",
+            "--format",
+            '{{index .Config.Labels "com.docker.compose.project"}} {{index .Config.Labels "com.docker.compose.service"}} {{index .Config.Labels "org.opencontainers.image.revision"}}',
+            ids[0],
+        ]
+    ).strip()
+    if identity != "joblens-release api " + expected:
+        raise DiagnosticError("api_identity_mismatch")
+    result = subprocess.run(
+        ["docker", "exec", "-i", "--env", "PYTHONDONTWRITEBYTECODE=1", ids[0], "python", "-"],
+        input=PROBE,
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    if result.returncode or len(result.stdout) > 4096:
+        raise DiagnosticError("probe_failed")
+    data = json.loads(result.stdout)
+    # The payload emits no raw data. Reconstruct once more at SSH boundary.
+    safe = []
+    for row in data.get("results", []):
+        if row.get("profile") not in ("urllib_default", "resend_sdk_headers"):
+            continue
+        item = {"profile": row["profile"], "authenticated": False}
+        status = row.get("status")
+        if type(status) is int and 100 <= status <= 599:
+            item["status"] = status
+        for key, allowed in {
+            "content_kind": ("json", "html", "text", "other"),
+            "body_kind": ("json", "non_json", "truncated"),
+            "result": ("http_response", "transport_error", "probe_error"),
+            "provider_code": CODES,
+        }.items():
+            if row.get(key) in allowed:
+                item[key] = row[key]
+        safe.append(item)
+    return {"probe": "unauthenticated_fixed_domains_get", "results": safe}
+
+
 def main():
     try:
         if len(sys.argv) != 2:
             raise DiagnosticError("expected_one_revision_argument")
         result = collect(sys.argv[1])
+        result["header_comparison"] = probe_headers(sys.argv[1])
     except DiagnosticError as error:
         print(json.dumps({"result": "diagnostic_failed", "reason": str(error)}))
         return 1

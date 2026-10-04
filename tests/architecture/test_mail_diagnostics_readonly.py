@@ -184,3 +184,50 @@ def test_workflow_uses_existing_input_and_keeps_deployment_main_only():
     assert "python3 - $EXPECTED_REVISION" in diagnostic_text
     for forbidden in ["scp", "docker exec", "docker run", "deploy_joblens.sh", "ssh-keyscan"]:
         assert forbidden not in diagnostic_text
+
+
+def test_probe_only_performs_two_credential_free_fixed_gets(monkeypatch, capsys):
+    from io import BytesIO
+    from urllib.error import HTTPError
+
+    import urllib.request
+
+    calls = []
+
+    class Opener:
+        def open(self, request, timeout):
+            calls.append(request)
+            assert request.full_url == "https://api.resend.com/domains"
+            assert request.method == "GET" and request.data is None and timeout == 10
+            assert not request.has_header("Authorization")
+            if len(calls) == 1:
+                raise HTTPError(
+                    request.full_url,
+                    403,
+                    "private-error",
+                    {"Content-Type": "text/plain"},
+                    BytesIO(b"private-response"),
+                )
+            raise HTTPError(
+                request.full_url,
+                401,
+                "private-error",
+                {"Content-Type": "application/json"},
+                BytesIO(b'{"name":"missing_api_key","message":"private-response"}'),
+            )
+
+    def build(handler):
+        assert handler.redirect_request(None, None, None, None, None, None) is None
+        return Opener()
+
+    monkeypatch.setattr(urllib.request, "build_opener", build)
+    exec(module.PROBE, {"__name__": "__main__"})
+    output = capsys.readouterr().out
+    assert "private" not in output
+    rows = json.loads(output)["results"]
+    assert len(calls) == 2 and [r["status"] for r in rows] == [403, 401]
+    assert calls[0].header_items() == []
+    assert calls[1].get_header("User-agent") == "resend-python:2.39.0"
+    assert calls[1].get_header("Accept") == "application/json"
+    assert rows[0]["body_kind"] == "non_json"
+    assert rows[1]["provider_code"] == "missing_api_key"
