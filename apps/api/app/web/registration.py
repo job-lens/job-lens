@@ -50,6 +50,7 @@ def send_request(
             purpose,
             request.client.host if request.client else "unknown",
             utcnow(),
+            request.state.trace_id,
         )
     except AppError as exc:
         return problem_response(request, exc.status, exc.code, exc.title)
