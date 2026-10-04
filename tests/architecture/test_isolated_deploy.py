@@ -65,6 +65,7 @@ class DeploymentIsolation(unittest.TestCase):
                         run_started_at="2026-01-01T00:00:00Z")
         cases = [
             (sha, [base_run], "0", True),
+            ("", [base_run], "0", True),
             ("main", [base_run], "0", False),
             (sha, [base_run], "1", False),
             (sha, [{**base_run, "head_branch": "feature"}], "0", False),
@@ -88,8 +89,8 @@ class DeploymentIsolation(unittest.TestCase):
                     output.unlink(missing_ok=True)
                     (path / "runs.json").write_text(json.dumps({"workflow_runs": runs}))
                     env = {**os.environ, "PATH": f"{tmp}:{os.environ['PATH']}",
-                           "DEPLOY_REVISION": revision, "EXPECTED_SHA": sha,
-                           "ANCESTOR_EXIT": ancestor_exit, "CHECKOUT_MARKER": str(marker),
+                           "DEPLOY_REVISION": revision, "CI_REVISION": sha, "EXPECTED_SHA": sha,
+                           "ANCESTOR_EXIT": ancestor_exit, "CHECKOUT_MARKER": str(marker), "BASH_ENV": "/dev/null",
                            "RUNS_JSON": str(path / "runs.json"), "GITHUB_OUTPUT": str(output),
                            "GITHUB_REPOSITORY": "job-lens/job-lens"}
                     result = subprocess.run(["bash", "-c", script], env=env,
