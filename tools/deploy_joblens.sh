@@ -73,6 +73,13 @@ PYCODE
 # Validate configuration without producing certificates or contacting mail.
 "${compose[@]}" run --rm --no-deps gateway caddy validate --config /etc/caddy/Caddyfile >/dev/null
 "${compose[@]}" up -d --no-build --pull never --wait --wait-timeout 180
+# Restore independently published native downloads after a gateway replacement.
+if [[ -d "$root/downloads" ]]; then
+  gateway=$("${compose[@]}" ps -q gateway)
+  [[ -n "$gateway" ]]
+  docker exec "$gateway" mkdir -p /srv/downloads
+  docker cp "$root/downloads/." "$gateway:/srv/downloads/"
+fi
 curl --fail --silent --show-error --max-time 10 http://127.0.0.1:8126/api/v1/health/ready >/dev/null
 curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/api/v1/health/ready >/dev/null
 version=$(curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/version.json)
@@ -86,3 +93,4 @@ printf '%s\n' "$sha" > "$root/deployed-sha.tmp"
 mv "$root/deployed-sha.tmp" "$root/deployed-sha"
 echo "JobLens HTTP deployment verified at $sha; mail/upload acceptance is separate"
 # Keep previous releases and all volumes; never run prune/down -v or Windup commands.
+
