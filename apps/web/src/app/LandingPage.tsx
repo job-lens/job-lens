@@ -340,6 +340,9 @@ export function LandingPage() {
           融职境
         </span>
         <nav aria-label="页脚导航">
+          <a href="/downloads/joblens-android-test.apk" download>
+            安卓下载（测试版）
+          </a>
           <a href="#experience">产品体验</a>
           <Link to="/login">登录</Link>
           <a href="https://github.com/job-lens/job-lens">项目源码</a>

@@ -30,4 +30,9 @@ curl --fail --silent --show-error --max-time 90 "https://j.qunxue.xyz/downloads/
 printf '%s  %s\n' "$sha" "$tmp" | sha256sum --check --status
 ln -sfn "$name" "$downloads/joblens-android-test.apk"
 docker exec "$gateway" ln -sfn "$name" /srv/downloads/joblens-android-test.apk
+printf '{"sha256":"%s","revision":"%s","channel":"test"}\n' "$sha" "$revision" > "$downloads/android.json.tmp"
+chmod 0644 "$downloads/android.json.tmp"
+mv "$downloads/android.json.tmp" "$downloads/android.json"
+docker cp "$downloads/android.json" "$gateway:/srv/downloads/android.json.tmp"
+docker exec "$gateway" mv /srv/downloads/android.json.tmp /srv/downloads/android.json
 printf 'Verified https://j.qunxue.xyz/downloads/%s\n' "$name"
