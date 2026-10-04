@@ -14,7 +14,7 @@ class IncrementalTests(unittest.TestCase):
         from release_scope import classify
         self.assertEqual(classify(['apps/web/src/main.tsx']), {'api': False, 'web': True, 'migrations': False})
         self.assertEqual(classify(['apps/api/app/main.py']), {'api': True, 'web': False, 'migrations': False})
-        self.assertEqual(classify(['README.md', '.github/workflows/deploy.yml', 'tools/deploy_joblens.sh']), {'api': False, 'web': False, 'migrations': False})
+        self.assertEqual(classify(['README.md', 'apps/web/src/shared/README.md', 'apps/api/app/AGENTS.md', '.github/workflows/deploy.yml', 'tools/deploy_joblens.sh']), {'api': False, 'web': False, 'migrations': False})
         self.assertTrue(classify(['apps/api/alembic/versions/new.py'])['migrations'])
         self.assertTrue(classify(['infra/Caddyfile.production'])['web'])
 
