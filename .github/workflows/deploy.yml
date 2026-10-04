@@ -1,5 +1,9 @@
 name: Deploy JobLens Release
 on:
+  workflow_run:
+    workflows: [Architecture CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       revision:
@@ -13,7 +17,10 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.repository == 'job-lens/job-lens' && github.ref == 'refs/heads/main'
+    if: >-
+      github.repository == 'job-lens/job-lens' && github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     environment:
@@ -29,11 +36,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DEPLOY_REVISION: ${{ inputs.revision }}
+          CI_REVISION: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          [[ "$DEPLOY_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          DEPLOY_REVISION=${DEPLOY_REVISION:-${CI_REVISION:-}}
+          [[ "$DEPLOY_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
           sha=$(git rev-parse --verify "$DEPLOY_REVISION^{commit}")
-          [[ "$sha" == "$DEPLOY_REVISION" ]]
+          [[ "$sha" == "$DEPLOY_REVISION" ]] || exit 1
           git merge-base --is-ancestor "$sha" origin/main
           gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$sha&per_page=100" |
             jq -e --arg sha "$sha" '[.workflow_runs[] | select(.name == "Architecture CI" and .head_sha == $sha and .head_branch == "main" and .event == "push")] | sort_by(.run_started_at) | last | .status == "completed" and .conclusion == "success"'
@@ -57,8 +66,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir bundle
-          docker build -t "joblens-api:$SHA" -f infra/api.Dockerfile .
-          docker build -t "joblens-web:$SHA" -f infra/web.Dockerfile .
+          printf '{"sha":"%s"}\n' "$SHA" > apps/web/public/version.json
+          docker build --platform linux/amd64 --label "org.opencontainers.image.revision=$SHA" -t "joblens-api:$SHA" -f infra/api.Dockerfile .
+          docker build --platform linux/amd64 --label "org.opencontainers.image.revision=$SHA" -t "joblens-web:$SHA" -f infra/web.Dockerfile .
           docker pull postgres:17-bookworm
           docker tag postgres:17-bookworm "joblens-postgres:$SHA"
           for image in api web postgres; do
@@ -67,8 +77,10 @@ jobs:
             printf '%s %s\n' "$name" "$(docker image inspect "$name" --format '{{.Id}}')" >> bundle/image-ids.txt
             docker save "$name" | gzip -1 > "bundle/$image.tar.gz"
           done
+          python tools/verify_image_identity.py record bundle/image-identities.json bundle "$SHA"
+          cp tools/verify_image_identity.py bundle/
           cp infra/compose.production.yaml infra/Caddyfile.production tools/deploy_joblens.sh bundle/
-          (cd bundle && sha256sum *.tar.gz image-ids.txt compose.production.yaml Caddyfile.production deploy_joblens.sh > SHA256SUMS)
+          (cd bundle && sha256sum *.tar.gz image-ids.txt image-identities.json verify_image_identity.py compose.production.yaml Caddyfile.production deploy_joblens.sh > SHA256SUMS)
       - uses: actions/upload-artifact@v4
         with:
           name: joblens-${{ steps.release.outputs.sha }}
@@ -92,9 +104,15 @@ jobs:
           sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- $bytes" < tools/preflight_joblens.sh
           # First install is separately provisioned; do not create identities or credentials here.
           sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "test -f /etc/job-lens/joblens.env && test -d /opt/job-lens && mkdir -p /opt/job-lens/releases/$SHA"
+            "test -f /etc/job-lens/joblens.env && test -f /opt/job-lens/runtime-override.yaml && test -d /opt/job-lens && mkdir -p /opt/job-lens/releases/$SHA"
           sshpass -e scp "${options[@]}" bundle/* "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/releases/$SHA/"
           sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
             "bash /opt/job-lens/releases/$SHA/deploy_joblens.sh $SHA"
-      - name: Verify public health
-        run: curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/api/v1/health/ready
+      - name: Verify public health and release version
+        env:
+          SHA: ${{ steps.release.outputs.sha }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/api/v1/health/ready | jq -e '.status == "ok"'
+          curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/version.json | jq -e --arg sha "$SHA" '.sha == $sha'
+          printf 'Verified HTTPS, readiness and public revision %s\n' "$SHA" >> "$GITHUB_STEP_SUMMARY"
