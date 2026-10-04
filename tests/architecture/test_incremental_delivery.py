@@ -36,9 +36,31 @@ class IncrementalTests(unittest.TestCase):
             assemble(recipe, root / 'blobs', target)
             with tarfile.open(target) as archive:
                 self.assertEqual(archive.extractfile('layers/base.tar').read(), b'shared-base')
+            streamed = io.BytesIO()
+            assemble(recipe, root / 'blobs', streamed)
+            streamed.seek(0)
+            with tarfile.open(fileobj=streamed, mode='r|') as archive:
+                self.assertEqual(next(iter(archive)).name, recipe[0]['name'])
             next(iter(first)).write_bytes(b'corrupt')
             with self.assertRaisesRegex(ValueError, 'digest'):
                 assemble(recipe, root / 'blobs', root / 'bad.tar')
+
+    def test_headroom_counts_missing_cache_and_streaming_import_peak(self):
+        import json
+
+        from release_headroom import required_bytes
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cache = root / 'blobs'
+            cache.mkdir()
+            key = 'a' * 64
+            (root / 'api.recipe.json').write_text(json.dumps([{'sha256': key, 'size': 100}]))
+            self.assertEqual(required_bytes(root, cache), 300 + 512 * 1024 * 1024)
+            (cache / key).write_bytes(b'x' * 100)
+            self.assertEqual(required_bytes(root, cache), 200 + 512 * 1024 * 1024)
+            (cache / key).write_bytes(b'corrupt')
+            with self.assertRaises(ValueError):
+                required_bytes(root, cache)
 
     def test_archive_traversal_is_rejected(self):
         from image_layers import export_archive

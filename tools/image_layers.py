@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import sys
 import tarfile
 import tempfile
 from pathlib import Path, PurePosixPath
@@ -49,22 +50,25 @@ def export_archive(source, blobs):
 
 def assemble(recipe, blobs, target):
     names = set()
-    with tarfile.open(target, 'w') as archive:
+    # Validate the entire cache before emitting anything to Docker.
+    for item in recipe:
+        safe_name(item['name'])
+        if item['name'] in names or not re.fullmatch('[0-9a-f]{64}', item['sha256']):
+            raise ValueError('Invalid image recipe')
+        names.add(item['name'])
+        path = blobs / item['sha256']
+        if path.is_symlink() or not path.is_file() or path.stat().st_size != item['size']:
+            raise ValueError('Image blob size/digest mismatch')
+        with path.open('rb') as stream:
+            if hashlib.file_digest(stream, 'sha256').hexdigest() != item['sha256']:
+                raise ValueError('Image blob digest mismatch')
+    options = {'fileobj': target, 'mode': 'w|'} if hasattr(target, 'write') else {'name': target, 'mode': 'w'}
+    with tarfile.open(**options) as archive:
         for item in recipe:
-            safe_name(item['name'])
-            if item['name'] in names or not re.fullmatch('[0-9a-f]{64}', item['sha256']):
-                raise ValueError('Invalid image recipe')
-            names.add(item['name'])
-            path = blobs / item['sha256']
-            if path.is_symlink() or not path.is_file() or path.stat().st_size != item['size']:
-                raise ValueError('Image blob size/digest mismatch')
-            with path.open('rb') as stream:
-                if hashlib.file_digest(stream, 'sha256').hexdigest() != item['sha256']:
-                    raise ValueError('Image blob digest mismatch')
-                stream.seek(0)
-                member = tarfile.TarInfo(item['name'])
-                member.size = item['size']
-                member.mode = 0o644
+            member = tarfile.TarInfo(item['name'])
+            member.size = item['size']
+            member.mode = 0o644
+            with (blobs / item['sha256']).open('rb') as stream:
                 archive.addfile(member, stream)
 
 
@@ -78,7 +82,7 @@ def main():
     if args.mode == 'export':
         args.recipe.write_text(json.dumps(export_archive(args.archive, args.blobs)) + '\n')
     else:
-        assemble(json.loads(args.recipe.read_text()), args.blobs, args.archive)
+        assemble(json.loads(args.recipe.read_text()), args.blobs, sys.stdout.buffer if str(args.archive) == '-' else args.archive)
 
 
 if __name__ == '__main__':

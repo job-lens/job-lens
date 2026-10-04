@@ -38,9 +38,7 @@ for kind in api web; do
   selected=$api; [[ "$kind" == api ]] || selected=$web
   [[ "$selected" == true ]] || continue
   # Reconstruct verified archive locally; unchanged blobs are reused, never retransmitted.
-  python3 image_layers.py assemble "$kind.tar" "$root/image-blobs" "$kind.recipe.json"
-  docker load < "$kind.tar" >/dev/null
-  rm "$kind.tar"
+  python3 image_layers.py assemble - "$root/image-blobs" "$kind.recipe.json" | docker load >/dev/null
   producer=$(python3 -c 'import json,sys; print(next(x["producer_id"] for x in json.load(open("image-identities.json")) if x["tag"]==sys.argv[1]))' "joblens-$kind:$sha")
   actual=$(python3 verify_image_identity.py verify image-identities.json "joblens-$kind:$sha" "$producer")
   if [[ "$kind" == api ]]; then export JOBLENS_API_IMAGE="$actual"; else export JOBLENS_WEB_IMAGE="$actual"; fi

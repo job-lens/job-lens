@@ -122,7 +122,7 @@ jobs:
           set -euo pipefail
           mkdir -p bundle blobs
           cp scope.json bundle/release.json
-          cp infra/compose.production.yaml infra/Caddyfile.production tools/deploy_joblens.sh tools/image_layers.py tools/verify_image_identity.py bundle/
+          cp infra/compose.production.yaml infra/Caddyfile.production tools/deploy_joblens.sh tools/image_layers.py tools/release_headroom.py tools/verify_image_identity.py bundle/
           python tools/package_incremental.py "$SHA"
           (cd bundle && sha256sum * > SHA256SUMS)
       - uses: actions/upload-artifact@v4
@@ -137,10 +137,11 @@ jobs:
         run: |
           set -euo pipefail
           source "$RUNNER_TEMP/joblens-ssh.sh"
-          bytes=$(du -sb blobs bundle | awk '{sum+=$1} END {print sum}')
-          remote "bash -s -- $bytes" < tools/preflight_joblens.sh
           remote "test -f /opt/job-lens/runtime-override.yaml && mkdir -p /opt/job-lens/releases/$SHA /opt/job-lens/image-blobs"
           sshpass -e scp "${options[@]}" bundle/* "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/releases/$SHA/"
+          bytes=$(remote "python3 /opt/job-lens/releases/$SHA/release_headroom.py /opt/job-lens/releases/$SHA /opt/job-lens/image-blobs")
+          remote "bash -s -- $bytes" < tools/preflight_joblens.sh
+          echo "Release metadata file bytes=$(find bundle -type f -printf '%s\n' | awk '{sum+=$1} END {print sum}')" | tee -a "$GITHUB_STEP_SUMMARY"
           # Content addressed names are immutable; rsync atomically installs each missing file.
           sshpass -e rsync -az --ignore-existing --stats -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/joblens-known-hosts -o PreferredAuthentications=password -o PubkeyAuthentication=no" blobs/ "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/image-blobs/" | tee transfer-stats.txt
           cat transfer-stats.txt >> "$GITHUB_STEP_SUMMARY"
