@@ -38,6 +38,13 @@ def test_health_checks(settings, available, error, status):
             assert result.json()["trace_id"] == result.headers["x-request-id"]
 
 
+def test_readiness_failure_logs_exception_type_without_connection_secrets(settings, caplog):
+    with TestClient(create_app(settings, DatabaseProbe(error=True))) as client:
+        assert client.get("/api/v1/health/ready").status_code == 503
+    assert "database_readiness_failed type=RuntimeError" in caplog.text
+    assert "postgres-secret-connection-string" not in caplog.text
+
+
 def test_business_routes_require_auth_and_errors_keep_http_status(settings):
     with TestClient(create_app(settings, DatabaseProbe())) as client:
         result = client.get("/api/v1/tasks")
