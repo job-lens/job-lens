@@ -41,6 +41,29 @@ jobs:
           [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
       - name: Install SSH client on ephemeral runner
         run: sudo apt-get update -qq && sudo apt-get install -y sshpass
+      - name: Check public proxy boundary without credentials
+        env:
+          DEPLOY_HOST: ${{ secrets.JOBLENS_DEPLOY_HOST }}
+        run: |
+          python3 - <<'PYCODE'
+          import json, os, socket
+          from urllib.request import urlopen
+          result = {}
+          try:
+              public = {row[4][0] for row in socket.getaddrinfo("j.qunxue.xyz", 443, type=socket.SOCK_STREAM)}
+              origin = {row[4][0] for row in socket.getaddrinfo(os.environ["DEPLOY_HOST"], 443, type=socket.SOCK_STREAM)}
+              result["public_dns_only_deploy_host"] = bool(public) and public <= origin
+          except Exception:
+              result["dns_check"] = "failed"
+          try:
+              with urlopen("https://j.qunxue.xyz/api/v1/health/ready", timeout=10) as response:
+                  result["cloudflare_ray_header_present"] = bool(response.headers.get("CF-Ray"))
+                  server = response.headers.get("Server", "").lower()
+                  result["server_kind"] = server if server in ("cloudflare", "caddy", "nginx") else "other"
+          except Exception:
+              result["https_header_check"] = "failed"
+          print(json.dumps(result, sort_keys=True))
+          PYCODE
       - name: Read existing privacy-safe mail diagnostics only
         env:
           DEPLOY_HOST: ${{ secrets.JOBLENS_DEPLOY_HOST }}

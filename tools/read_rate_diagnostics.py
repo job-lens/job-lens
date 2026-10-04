@@ -34,9 +34,7 @@ except Exception:
 
 
 def read(args):
-    result = subprocess.run(
-        args, capture_output=True, text=True, timeout=15, check=False
-    )
+    result = subprocess.run(args, capture_output=True, text=True, timeout=15, check=False)
     if result.returncode or len(result.stdout) > 16384:
         raise ValueError("read_failed")
     return result.stdout.strip()
@@ -55,19 +53,13 @@ def one(service):
             "label=com.docker.compose.service=" + service,
         ]
     ).splitlines()
-    if (
-        len(ids) != 1
-        or len(ids[0]) != 64
-        or any(c not in "0123456789abcdef" for c in ids[0])
-    ):
+    if len(ids) != 1 or len(ids[0]) != 64 or any(c not in "0123456789abcdef" for c in ids[0]):
         raise ValueError("expected_one_service")
     return ids[0]
 
 
 def inspect(container, field):
-    return json.loads(
-        read(["docker", "inspect", "--format", "{{json " + field + "}}", container])
-    )
+    return json.loads(read(["docker", "inspect", "--format", "{{json " + field + "}}", container]))
 
 
 def main():
@@ -109,11 +101,16 @@ def main():
         api_ports = inspect(api, ".NetworkSettings.Ports") or {}
         api_has_host_binding = any(api_ports.values())
         mode = inspect(api, ".HostConfig.NetworkMode")
+        gateway_ports = inspect(gateway, ".NetworkSettings.Ports") or {}
         boundary = {
             "api_has_host_port_binding": api_has_host_binding,
             "api_host_network": mode == "host",
             "single_joblens_project_network": True,
             "gateway_revision_matches": True,
+            "gateway_publishes_public_https": any(
+                p.get("HostPort") == "443" and p.get("HostIp") in ("0.0.0.0", "::")
+                for p in gateway_ports.get("443/tcp", []) or []
+            ),
         }
         if api_has_host_binding or mode == "host":
             raise ValueError("api_exposure_requires_review")
@@ -126,9 +123,7 @@ def main():
             ),
             (
                 "registration_gateway_client",
-                hashlib.sha256(
-                    ("registration:client:" + gateway_ip).encode()
-                ).hexdigest(),
+                hashlib.sha256(("registration:client:" + gateway_ip).encode()).hexdigest(),
                 20,
                 3600,
             ),
