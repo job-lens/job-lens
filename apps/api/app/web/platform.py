@@ -27,7 +27,7 @@ def health_ready(request: Request) -> Health:
         available = database.ready()
     except Exception as exc:
         # Database exception messages may include private connection details.
-        logger.warning("database_readiness_failed type=%s", type(exc).__name__)
+        logger.warning("database_readiness_failed type=%s", type(exc).__name__, extra={"dependency": "database"})
         available = False
     if not available:
         raise AppError(503, "NOT_READY", "服务尚未就绪")

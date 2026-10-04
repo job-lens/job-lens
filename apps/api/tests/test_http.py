@@ -42,6 +42,7 @@ def test_readiness_failure_logs_exception_type_without_connection_secrets(settin
     with TestClient(create_app(settings, DatabaseProbe(error=True))) as client:
         assert client.get("/api/v1/health/ready").status_code == 503
     assert "database_readiness_failed type=RuntimeError" in caplog.text
+    assert caplog.records[-1].dependency == "database"
     assert "postgres-secret-connection-string" not in caplog.text
 
 
