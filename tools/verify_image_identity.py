@@ -89,7 +89,7 @@ def main():
             tag = f"joblens-{kind}:{revision}"
             archive = Path(directory) / f"{kind}.tar.gz"
             canonical = archive_identity(archive, tag)
-            info = inspect(tag, platform=True)
+            info = inspect(tag)
             if info["RootFS"]["Layers"] != canonical["diff_ids"]:
                 raise ValueError("Producer rootfs does not match exported artifact")
             if kind != "postgres" and canonical["revision"] != revision:
