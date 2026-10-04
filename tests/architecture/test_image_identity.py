@@ -2,6 +2,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -15,7 +16,7 @@ m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
 
-def fixture(path, layer=b"approved-rootfs", actual_layer=None, extra=None):
+def fixture(path, layer=b"approved-rootfs", actual_layer=None, extra=None, tag=None):
     config = {
         "os": "linux",
         "architecture": "amd64",
@@ -26,7 +27,11 @@ def fixture(path, layer=b"approved-rootfs", actual_layer=None, extra=None):
         config["config"].update(extra)
     raw = json.dumps(config).encode()
     manifest = [
-        {"Config": "config.json", "RepoTags": ["joblens-web:" + "a" * 40], "Layers": ["layer.tar"]}
+        {
+            "Config": "config.json",
+            "RepoTags": [tag or "joblens-web:" + "a" * 40],
+            "Layers": ["layer.tar"],
+        }
     ]
     with tarfile.open(path, "w") as tar:
         for name, data in [
@@ -79,6 +84,31 @@ class IdentityTests(unittest.TestCase):
         fixture(self.path, actual_layer=b"tampered-rootfs")
         with self.assertRaisesRegex(ValueError, "Layer content"):
             m.archive_identity(self.path)
+
+    def test_record_on_docker_without_platform_inspect(self):
+        revision = "a" * 40
+        directory = Path(self.tmp.name)
+        for kind in ("api", "web", "postgres"):
+            fixture(directory / f"{kind}.tar.gz", tag=f"joblens-{kind}:{revision}")
+        metadata = directory / "identities.json"
+        info = {"Id": self.actual, "RootFS": {"Layers": self.canonical["diff_ids"]}}
+
+        def docker(command, **kwargs):
+            if "--platform" in command:
+                raise subprocess.CalledProcessError(125, command)
+            return subprocess.CompletedProcess(command, 0, json.dumps([info]).encode())
+
+        with (
+            patch.object(
+                m.sys, "argv", ["verify", "record", str(metadata), str(directory), revision]
+            ),
+            patch.object(m.subprocess, "run", side_effect=docker),
+        ):
+            m.main()
+        recorded = json.loads(metadata.read_text())
+        self.assertEqual(len(recorded), 3)
+        self.assertEqual(recorded[0]["producer_id"], self.actual)
+        self.assertEqual(recorded[0]["canonical"]["architecture"], "amd64")
 
     def test_unknown_tag_and_producer_are_rejected(self):
         with self.assertRaises(ValueError):
