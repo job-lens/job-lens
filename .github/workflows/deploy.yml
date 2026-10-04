@@ -35,7 +35,7 @@ jobs:
         with: {persist-credentials: false}
       - name: Validate expected deployed revision
         env:
-          EXPECTED_REVISION: ${{ inputs.revision || 'b4cd4c687dd06c81fe17df81cf63422787f1342e' }}
+          EXPECTED_REVISION: ${{ inputs.revision || 'a599a1b20fd867a0de88ea1c4912a559991e147f' }}
         run: |
           set -euo pipefail
           [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
@@ -47,7 +47,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.JOBLENS_DEPLOY_USER }}
           SSHPASS: ${{ secrets.JOBLENS_DEPLOY_PASSWORD }}
           KNOWN_HOSTS: ${{ secrets.JOBLENS_DEPLOY_KNOWN_HOSTS }}
-          EXPECTED_REVISION: ${{ inputs.revision || 'b4cd4c687dd06c81fe17df81cf63422787f1342e' }}
+          EXPECTED_REVISION: ${{ inputs.revision || 'a599a1b20fd867a0de88ea1c4912a559991e147f' }}
         run: |
           set -euo pipefail
           : "${DEPLOY_HOST:?Missing JOBLENS_DEPLOY_HOST}"
@@ -63,7 +63,7 @@ jobs:
           # Script enters via stdin; no server file, environment, image, service,
           # database, mail request, credential or other project is changed.
           if ! sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "python3 - $EXPECTED_REVISION" < tools/read_mail_diagnostics.py 2>/dev/null; then
+            "python3 - $EXPECTED_REVISION" < tools/read_rate_diagnostics.py 2>/dev/null; then
             printf 'Read-only mail diagnostics failed; no deployment was requested.\n' >&2
             exit 1
           fi
