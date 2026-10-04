@@ -1,6 +1,7 @@
 package xyz.qunxue.joblens
 
 import android.app.Application
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -299,33 +301,73 @@ class NativeUiTest {
 
     @Test
     fun companionMotionPausesAndPersists() {
-        mount(UiState(loading = false))
+        // InfiniteAnimationPolicy cancels infinite transitions while autoAdvance is true.
+        // This must precede setContent/mount, not merely the first pixel capture.
         compose.mainClock.autoAdvance = false
-        fun pixels(): Int {
-            val bmp =
-                compose.onNodeWithContentDescription("陪你做事的小伙伴").captureToImage().asAndroidBitmap()
-            val buffer = ByteBuffer.allocate(bmp.byteCount)
-            bmp.copyPixelsToBuffer(buffer)
-            return buffer.array().contentHashCode()
-        }
-        compose.mainClock.advanceTimeBy(32)
-        val movingA = pixels()
-        compose.mainClock.advanceTimeBy(1600)
-        val movingB = pixels()
-        assertTrue("Original Buddy layers should move", movingA != movingB)
-        compose.onNodeWithContentDescription("暂停伙伴动效").performClick()
-        compose.mainClock.advanceTimeBy(32)
-        val pausedA = pixels()
-        compose.mainClock.advanceTimeBy(1800)
-        assertEquals("Paused Buddy must remain still", pausedA, pixels())
-        compose.onNodeWithContentDescription("开启伙伴动效").assertExists()
-        assertTrue(
-            !compose.activity
-                .getSharedPreferences("companion-motion", 0)
-                .getBoolean("enabled", true)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val dir = File(context.getExternalFilesDir(null), "qa").apply { mkdirs() }
+        val diagnostics = File(dir, "motion-diagnostics.txt")
+        val animatorScale =
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f,
+            )
+        diagnostics.writeText(
+            "animator_duration_scale=$animatorScale\nautoAdvanceBeforeMount=${compose.mainClock.autoAdvance}\nlifecycleBeforeMount=${compose.activity.lifecycle.currentState}\n"
         )
-        compose.mainClock.autoAdvance = true
-        shot("11-companion-paused-synthetic")
+        try {
+            assertTrue(
+                "Motion fixture requires animator_duration_scale > 0; zero correctly disables product motion",
+                animatorScale > 0f,
+            )
+            compose.runOnUiThread {
+                assertTrue(
+                    "Activity must be resumed for companion motion",
+                    compose.activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED),
+                )
+            }
+            mount(UiState(loading = false))
+            fun pixels(frame: String): Int {
+                compose
+                    .waitForIdle() // Await Android drawing as well as the manually advanced Compose
+                                   // frame.
+                val bmp =
+                    compose
+                        .onNodeWithContentDescription("陪你做事的小伙伴")
+                        .captureToImage()
+                        .asAndroidBitmap()
+                val buffer = ByteBuffer.allocate(bmp.byteCount)
+                bmp.copyPixelsToBuffer(buffer)
+                val hash = buffer.array().contentHashCode()
+                diagnostics.appendText(
+                    "$frame clock=${compose.mainClock.currentTime} hash=$hash lifecycle=${compose.activity.lifecycle.currentState}\n"
+                )
+                shot(frame) // Preserve labeled, full-screen evidence before any assertion can fail.
+                return hash
+            }
+            compose.mainClock.advanceTimeBy(32)
+            compose.onNodeWithContentDescription("暂停伙伴动效").assertIsEnabled()
+            val movingA = pixels("motion-01-moving-a")
+            compose.mainClock.advanceTimeBy(1600)
+            val movingB = pixels("motion-02-moving-b")
+            assertTrue("Original Buddy layers should move", movingA != movingB)
+            compose.onNodeWithContentDescription("暂停伙伴动效").performClick()
+            compose.mainClock.advanceTimeBy(32)
+            val pausedA = pixels("motion-03-paused-a")
+            compose.mainClock.advanceTimeBy(1800)
+            val pausedB = pixels("motion-04-paused-b")
+            assertEquals("Paused Buddy must remain still", pausedA, pausedB)
+            compose.onNodeWithContentDescription("开启伙伴动效").assertExists()
+            assertTrue(
+                !compose.activity
+                    .getSharedPreferences("companion-motion", 0)
+                    .getBoolean("enabled", true)
+            )
+            shot("11-companion-paused-synthetic")
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
     }
 
     @Test
@@ -354,9 +396,24 @@ class NativeUiTest {
         compose.onNodeWithContentDescription("关闭菜单").performClick()
         compose.onNodeWithText("今天，从一步开始。").assertIsDisplayed()
         compose.onNodeWithContentDescription("打开菜单").assertIsDisplayed()
-        compose.onNodeWithContentDescription("打开菜单").performClick()
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+        // Hold the animation clock to deliver Back before the drawer can settle at Open.
+        compose.mainClock.autoAdvance = false
+        try {
+            compose.onNodeWithContentDescription("打开菜单").performClick()
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+            compose.mainClock.advanceTimeBy(800)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+        compose.runOnUiThread {
+            assertTrue(
+                "Immediate drawer Back must not finish the Activity",
+                !compose.activity.isFinishing && !compose.activity.isDestroyed,
+            )
+        }
         compose.onNodeWithText("今天，从一步开始。").assertIsDisplayed()
+        compose.onNodeWithContentDescription("打开菜单").assertIsDisplayed()
+        shot("12b-drawer-back-retains-workspace-synthetic")
     }
 
     @Test

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.*
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.*
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
@@ -70,10 +72,12 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
     val authenticated = s.user != null
     val authPage = s.route.page in setOf(Page.LOGIN, Page.REGISTER, Page.FORGOT)
     val scrollState = remember(s.sessionScope, s.route) { ScrollState(0) }
-    BackHandler(enabled = s.route.page !in setOf(Page.LOGIN, Page.HOME)) {
+    BackHandler(enabled = authPage && s.route.page != Page.LOGIN) {
         if (!s.busy) model.back()
     }
     val drawer = rememberDrawerState(DrawerValue.Closed)
+    // Set synchronously before starting the slide animation. Back can arrive in this same frame.
+    var drawerRequestedOpen by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val menuFocus = remember { FocusRequester() }
     val context = LocalContext.current
@@ -95,12 +99,25 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
             Page.NOTIFICATIONS -> "通知中心"
             else -> "设置"
         }
-    LaunchedEffect(s.route, s.sessionScope) { drawer.close() }
-    BackHandler(drawer.isOpen) {
+    val workspaceVisible by rememberUpdatedState(authenticated && !authPage)
+    val dismissDrawer: () -> Unit = {
         scope.launch {
             drawer.close()
-            menuFocus.requestFocus()
+            drawerRequestedOpen = false
+            if (workspaceVisible) menuFocus.requestFocus()
         }
+    }
+    LaunchedEffect(s.route, s.sessionScope) {
+        drawer.close()
+        drawerRequestedOpen = false
+    }
+    LaunchedEffect(drawer.currentValue, drawer.targetValue, drawer.isAnimationRunning) {
+        if (
+            drawer.currentValue == DrawerValue.Closed &&
+                drawer.targetValue == DrawerValue.Closed &&
+                !drawer.isAnimationRunning
+        )
+            drawerRequestedOpen = false
     }
     ModalNavigationDrawer(
         drawerState = drawer,
@@ -122,14 +139,7 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                             Text("融职境", style = MaterialTheme.typography.titleMedium)
                             Meta("Job Lens")
                         }
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    drawer.close()
-                                    menuFocus.requestFocus()
-                                }
-                            }
-                        ) {
+                        IconButton(onClick = dismissDrawer) {
                             Text(
                                 "×",
                                 fontSize = 26.sp,
@@ -180,7 +190,7 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                                     if (!s.busy) {
                                         if (s.role != role) model.role(role)
                                         if (page != Page.HOME || s.role == role) model.root(page)
-                                        scope.launch { drawer.close() }
+                                        dismissDrawer()
                                     }
                                 },
                             )
@@ -200,7 +210,7 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                         onClick = {
                             if (!s.busy) {
                                 model.root(Page.ACCOUNT)
-                                scope.launch { drawer.close() }
+                                dismissDrawer()
                             }
                         },
                         modifier = Modifier.padding(12.dp),
@@ -209,7 +219,7 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                         onClick = {
                             if (!s.busy) {
                                 model.navigate(Route(Page.PROFILE))
-                                scope.launch { drawer.close() }
+                                dismissDrawer()
                             }
                         },
                         modifier = Modifier.padding(horizontal = 16.dp),
@@ -239,7 +249,10 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                     navigationIcon = {
                         if (authenticated && !authPage)
                             IconButton(
-                                onClick = { scope.launch { drawer.open() } },
+                                onClick = {
+                                    drawerRequestedOpen = true
+                                    scope.launch { drawer.open() }
+                                },
                                 enabled = !s.busy,
                                 modifier = Modifier.focusRequester(menuFocus),
                             ) {
@@ -350,6 +363,51 @@ fun JobLensContent(s: UiState, model: JobLensModel) {
                 }
             }
         }
+    }
+    WorkspaceBackHandler(enabled = authenticated && !authPage) { passThrough ->
+        when {
+            drawerRequestedOpen ||
+                drawer.isOpen ||
+                drawer.targetValue == DrawerValue.Open ||
+                drawer.isAnimationRunning -> dismissDrawer()
+            s.busy -> Unit
+            s.route.page != Page.HOME -> model.back()
+            else -> passThrough()
+        }
+    }
+}
+
+/**
+ * Keep a registered native callback while the workspace is visible. A boolean BackHandler enabled
+ * only after recomposition can miss a Back arriving between tap and the first frame.
+ */
+@Composable
+private fun WorkspaceBackHandler(enabled: Boolean, onBack: (() -> Unit) -> Unit) {
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher ?: return
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val currentHandler by rememberUpdatedState(onBack)
+    val currentEnabled by rememberUpdatedState(enabled)
+    val callback =
+        remember(dispatcher) {
+            object : OnBackPressedCallback(enabled) {
+                override fun handleOnBackPressed() {
+                    currentHandler {
+                        // Preserve the normal Activity/root Back behavior when no app UI consumes
+                        // it.
+                        isEnabled = false
+                        try {
+                            dispatcher.onBackPressed()
+                        } finally {
+                            isEnabled = currentEnabled
+                        }
+                    }
+                }
+            }
+        }
+    SideEffect { callback.isEnabled = enabled }
+    DisposableEffect(lifecycleOwner, dispatcher, callback) {
+        dispatcher.addCallback(lifecycleOwner, callback)
+        onDispose { callback.remove() }
     }
 }
 
