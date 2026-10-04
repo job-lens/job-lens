@@ -1,5 +1,7 @@
 name: Deploy JobLens Release
 on:
+  push:
+    branches: [diagnose/email-logs-readonly-42]
   workflow_run:
     workflows: [Architecture CI]
     types: [completed]
@@ -16,6 +18,55 @@ concurrency:
   group: joblens-production
   cancel-in-progress: false
 jobs:
+  mail-diagnostics:
+    # Branch-only diagnostic candidate. Do not merge just to run this job.
+    # Uses the already registered workflow and its existing revision input.
+    if: >-
+      github.repository == 'job-lens/job-lens' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == 'refs/heads/diagnose/email-logs-readonly-42'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: Production
+      url: https://j.qunxue.xyz
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Validate expected deployed revision
+        env:
+          EXPECTED_REVISION: ${{ inputs.revision || 'b4cd4c687dd06c81fe17df81cf63422787f1342e' }}
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
+      - name: Install SSH client on ephemeral runner
+        run: sudo apt-get update -qq && sudo apt-get install -y sshpass
+      - name: Read existing privacy-safe mail diagnostics only
+        env:
+          DEPLOY_HOST: ${{ secrets.JOBLENS_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.JOBLENS_DEPLOY_USER }}
+          SSHPASS: ${{ secrets.JOBLENS_DEPLOY_PASSWORD }}
+          KNOWN_HOSTS: ${{ secrets.JOBLENS_DEPLOY_KNOWN_HOSTS }}
+          EXPECTED_REVISION: ${{ inputs.revision || 'b4cd4c687dd06c81fe17df81cf63422787f1342e' }}
+        run: |
+          set -euo pipefail
+          : "${DEPLOY_HOST:?Missing JOBLENS_DEPLOY_HOST}"
+          : "${DEPLOY_USER:?Missing JOBLENS_DEPLOY_USER}"
+          : "${SSHPASS:?Missing JOBLENS_DEPLOY_PASSWORD}"
+          : "${KNOWN_HOSTS:?Missing JOBLENS_DEPLOY_KNOWN_HOSTS}"
+          [[ "$EXPECTED_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          umask 077
+          known_hosts="$RUNNER_TEMP/joblens-diagnostics-known-hosts"
+          trap 'rm -f "$known_hosts"' EXIT
+          printf '%s\n' "$KNOWN_HOSTS" > "$known_hosts"
+          options=(-o StrictHostKeyChecking=yes -o UserKnownHostsFile="$known_hosts" -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=2 -o LogLevel=ERROR)
+          # Script enters via stdin; no server file, environment, image, service,
+          # database, mail request, credential or other project is changed.
+          if ! sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
+            "python3 - $EXPECTED_REVISION" < tools/read_mail_diagnostics.py 2>/dev/null; then
+            printf 'Read-only mail diagnostics failed; no deployment was requested.\n' >&2
+            exit 1
+          fi
   deploy:
     if: >-
       github.repository == 'job-lens/job-lens' && github.ref == 'refs/heads/main' &&
