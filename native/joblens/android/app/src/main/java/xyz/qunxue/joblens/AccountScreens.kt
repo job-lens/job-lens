@@ -41,7 +41,7 @@ fun AccountScreen(s: UiState, m: JobLensModel) {
         confirm = false
         m.logout()
     }
-    Meta("融职境 Android · 0.1.0\n原生 Kotlin / Compose · ${PRODUCTION_ORIGIN.removePrefix("https://")}")
+    Meta("融职境 Android · 0.1.1\n原生 Kotlin / Compose · ${PRODUCTION_ORIGIN.removePrefix("https://")}")
 }
 
 @Composable

@@ -4,8 +4,11 @@ import android.app.Application
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
@@ -13,7 +16,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import java.io.File
+import java.nio.ByteBuffer
 import kotlinx.serialization.json.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,6 +85,11 @@ class NativeUiTest {
         state: UiState,
         transport: Transport = Transport { error("Unexpected network in static UI test") },
     ): JobLensModel {
+        compose.activity
+            .getSharedPreferences("companion-motion", 0)
+            .edit()
+            .putBoolean("enabled", true)
+            .commit()
         val model =
             JobLensModel(compose.activity.application as Application, JobLensApi(transport), false)
         compose.setContent {
@@ -107,17 +118,18 @@ class NativeUiTest {
     @Test
     fun loginAndRegisterScreens() {
         mount(UiState(loading = false))
-        compose.onNodeWithText("今天，从一步开始。").assertIsDisplayed()
-        compose
-            .onNode(hasText("账号") and hasSetTextAction())
-            .performTextInput("contract@example.invalid")
-        compose
-            .onNode(hasText("密码") and hasSetTextAction())
-            .performTextInput("temporary-test-password")
-        compose
-            .onNode(hasText("账号") and hasSetTextAction())
-            .assertTextContains("contract@example.invalid")
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertIsDisplayed()
         shot("01-login-synthetic")
+        compose.onNode(hasText("登录") and hasClickAction()).performClick()
+        compose.onNodeWithText("请填写账号。").assertExists()
+        compose.onNodeWithContentDescription("账号").performTextInput("contract@example.invalid")
+        compose.onNodeWithContentDescription("密码").performTextInput("temporary-test-password")
+        compose.onNodeWithContentDescription("账号").assertTextContains("contract@example.invalid")
+        compose
+            .onNodeWithContentDescription("陪你做事的小伙伴")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "小融闭眼"))
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+        shot("07-password-private-eyes-synthetic")
     }
 
     @Test
@@ -142,7 +154,7 @@ class NativeUiTest {
             )
         )
         compose.onNodeWithText("文件整理练习").assertExists()
-        compose.onNodeWithText("已完成 0 / 1 步").assertExists()
+        compose.onNodeWithText("0 / 1 步").assertExists()
         shot("02-learner-home-synthetic")
     }
 
@@ -156,9 +168,10 @@ class NativeUiTest {
                 data = mapOf("task" to task, "submissions" to page()),
             )
         )
-        compose.onNodeWithText("当前 · 第 1 步").assertExists()
-        compose.onNodeWithText("完成这一步").performScrollTo().assertIsEnabled()
+        compose.onNodeWithText("第 1 步").assertExists()
+        compose.onNodeWithContentDescription("文件与清单的操作示意").assertExists()
         shot("03-training-synthetic")
+        compose.onNodeWithText("完成这一步").performScrollTo().assertIsEnabled()
         compose.onNodeWithText("提交训练结果").assertDoesNotExist()
     }
 
@@ -191,9 +204,12 @@ class NativeUiTest {
                     ),
             )
         )
-        compose.onNodeWithText("我的个案").assertExists()
-        compose.onNodeWithText("查看个案").assertExists()
+        compose.onNodeWithText("继续跟进").assertExists()
+        compose.onNodeWithText("查看").assertExists()
+        compose.onNodeWithText("待审核提交").assertExists()
         shot("04-counselor-home-synthetic")
+        compose.onNodeWithText("支持流程").performScrollTo().assertIsDisplayed()
+        shot("04b-counselor-workflow-synthetic")
     }
 
     @Test
@@ -219,9 +235,163 @@ class NativeUiTest {
     @Test
     fun registrationErrorNeverSaysSent() {
         mount(UiState(route = Route(Page.REGISTER), loading = false, error = "邮件服务暂不可用"))
-        compose.onNodeWithText("邮件服务暂不可用").assertIsDisplayed()
+        compose.onNodeWithText("邮件服务暂不可用").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("验证码已发送，请查看邮箱。").assertDoesNotExist()
         shot("05-registration-error-synthetic")
+    }
+
+    @Test
+    fun emptyLearnerHomeContainsOriginalBuddy() {
+        mount(
+            UiState(
+                user = user,
+                route = Route(Page.HOME),
+                loading = false,
+                data =
+                    mapOf(
+                        "dashboard" to
+                            json(
+                                "pending_tasks" to 0,
+                                "pending_feedback" to 0,
+                                "pending_assistance" to 0,
+                            ),
+                        "list" to page(),
+                        "cases" to page(),
+                    ),
+            )
+        )
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertExists()
+        compose.onNodeWithText("暂时没有待完成的任务").assertExists()
+        shot("08-empty-learner-buddy-synthetic")
+    }
+
+    @Test
+    fun waitingTrainingContainsCompanionAndRealStartControl() {
+        val waiting = JsonObject(task + ("status" to JsonPrimitive("not_started")))
+        mount(
+            UiState(
+                user = user,
+                route = Route(Page.TASK, taskId),
+                loading = false,
+                data = mapOf("task" to waiting, "submissions" to page()),
+            )
+        )
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertExists()
+        compose.onNodeWithText("开始训练").assertIsEnabled()
+        shot("09-training-ready-synthetic")
+    }
+
+    @Test
+    fun pausedTrainingContainsCompanionAndResumeControl() {
+        val paused = JsonObject(task + ("status" to JsonPrimitive("paused")))
+        mount(
+            UiState(
+                user = user,
+                route = Route(Page.TASK, taskId),
+                loading = false,
+                data = mapOf("task" to paused, "submissions" to page()),
+            )
+        )
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertExists()
+        compose.onNodeWithText("继续训练").assertIsEnabled()
+        shot("10-training-paused-synthetic")
+    }
+
+    @Test
+    fun companionMotionPausesAndPersists() {
+        mount(UiState(loading = false))
+        compose.mainClock.autoAdvance = false
+        fun pixels(): Int {
+            val bmp =
+                compose.onNodeWithContentDescription("陪你做事的小伙伴").captureToImage().asAndroidBitmap()
+            val buffer = ByteBuffer.allocate(bmp.byteCount)
+            bmp.copyPixelsToBuffer(buffer)
+            return buffer.array().contentHashCode()
+        }
+        compose.mainClock.advanceTimeBy(32)
+        val movingA = pixels()
+        compose.mainClock.advanceTimeBy(1600)
+        val movingB = pixels()
+        assertTrue("Original Buddy layers should move", movingA != movingB)
+        compose.onNodeWithContentDescription("暂停伙伴动效").performClick()
+        compose.mainClock.advanceTimeBy(32)
+        val pausedA = pixels()
+        compose.mainClock.advanceTimeBy(1800)
+        assertEquals("Paused Buddy must remain still", pausedA, pixels())
+        compose.onNodeWithContentDescription("开启伙伴动效").assertExists()
+        assertTrue(
+            !compose.activity
+                .getSharedPreferences("companion-motion", 0)
+                .getBoolean("enabled", true)
+        )
+        compose.mainClock.autoAdvance = true
+        shot("11-companion-paused-synthetic")
+    }
+
+    @Test
+    fun drawerClosesWithoutChangingPageOrLeavingOverlay() {
+        mount(
+            UiState(
+                user = user,
+                route = Route(Page.HOME),
+                loading = false,
+                data =
+                    mapOf(
+                        "dashboard" to
+                            json(
+                                "pending_tasks" to 0,
+                                "pending_feedback" to 0,
+                                "pending_assistance" to 0,
+                            ),
+                        "list" to page(),
+                        "cases" to page(),
+                    ),
+            )
+        )
+        compose.onNodeWithContentDescription("打开菜单").performClick()
+        compose.onNodeWithContentDescription("关闭菜单").assertIsDisplayed()
+        shot("12-native-drawer-synthetic")
+        compose.onNodeWithContentDescription("关闭菜单").performClick()
+        compose.onNodeWithText("今天，从一步开始。").assertIsDisplayed()
+        compose.onNodeWithContentDescription("打开菜单").assertIsDisplayed()
+        compose.onNodeWithContentDescription("打开菜单").performClick()
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+        compose.onNodeWithText("今天，从一步开始。").assertIsDisplayed()
+    }
+
+    @Test
+    fun completedTrainingKeepsOriginalCompanion() {
+        val completed = JsonObject(task + ("status" to JsonPrimitive("completed")))
+        mount(
+            UiState(
+                user = user,
+                route = Route(Page.TASK, taskId),
+                loading = false,
+                data = mapOf("task" to completed, "submissions" to page()),
+            )
+        )
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertExists()
+        compose.onNodeWithText("这次训练完成了。").assertExists()
+        compose.onNodeWithText("开始训练").assertDoesNotExist()
+        shot("13-training-completed-synthetic")
+    }
+
+    @Test
+    fun systemReducedMotionDisablesCompanionControl() {
+        compose.setContent {
+            JobLensTheme {
+                CompositionLocalProvider(
+                    LocalCompanionMotion provides CompanionMotion(true).apply { reduced = true }
+                ) {
+                    Column {
+                        Text("界面测试 · 合成数据 · 非生产账号")
+                        Companion()
+                    }
+                }
+            }
+        }
+        compose.onNodeWithContentDescription("已按系统设置关闭动效").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("陪你做事的小伙伴").assertExists()
     }
 
     @Test

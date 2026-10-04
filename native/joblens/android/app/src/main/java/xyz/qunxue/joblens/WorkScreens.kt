@@ -1,91 +1,254 @@
 package xyz.qunxue.joblens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.*
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.serialization.json.*
 import xyz.qunxue.joblens.core.*
 
 @Composable
 fun HomeScreen(s: UiState, m: JobLensModel) {
     val counselor = s.role == "counselor"
-    Heading(
-        if (counselor) "把支持，放在每一步。" else "今天，从一步开始。",
-        if (counselor) "查看当前个案，回应学员需要。" else "按自己的节奏完成。有需要时，随时停一停。",
-    )
+    if (counselor) {
+        Meta(
+            java.time.LocalDate.now()
+                .format(
+                    java.time.format.DateTimeFormatter.ofPattern(
+                        "M月d日 EEEE",
+                        java.util.Locale.CHINA,
+                    )
+                )
+        )
+        Heading("工作台", "把注意力留给需要支持的人。")
+        Action("刷新工作台", !s.loading && !s.busy, secondary = true, click = m::load)
+    } else {
+        Heading("今天，从一步开始。", "按自己的节奏完成。有需要时，随时停一停。")
+        Action("训练记录", secondary = true) { m.root(Page.RECORDS) }
+    }
     s.data["dashboard"]?.let { d ->
-        QCard {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        if (counselor) {
+            listOf(
+                    Triple("pending_tasks", "待完成训练", R.drawable.ic_tasks),
+                    Triple("pending_feedback", "待审核提交", R.drawable.ic_records),
+                    Triple("pending_assistance", "待处理求助", R.drawable.ic_chat),
+                )
+                .forEach { (key, title, icon) ->
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Row(
+                            Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(
+                                Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    QIcon(icon)
+                                    Meta(title)
+                                }
+                                if (key == "pending_tasks") Meta("项待完成")
+                                else
+                                    TextButton(
+                                        onClick = {
+                                            m.root(
+                                                if (key == "pending_feedback") Page.CASES
+                                                else Page.SUPPORT
+                                            )
+                                        }
+                                    ) {
+                                        Text(if (key == "pending_feedback") "查看待审核 →" else "打开辅导 →")
+                                    }
+                            }
+                            Text(
+                                d.number(key).toString(),
+                                fontSize = 36.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                }
+        } else
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(
                         "pending_tasks" to "待完成",
                         "pending_feedback" to "等待反馈",
                         "pending_assistance" to "正在求助",
                     )
                     .forEach { (key, title) ->
-                        Column {
-                            Text(
-                                d.number(key).toString(),
-                                style = MaterialTheme.typography.headlineMedium,
-                            )
-                            Meta(title)
+                        Surface(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        ) {
+                            Column(
+                                Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Text(d.number(key).toString(), fontSize = 26.sp)
+                                Meta(title)
+                            }
                         }
                     }
             }
-            if(d.text("as_of").isNotEmpty())Meta("更新于 ${dateLabel(d.text("as_of"))}")
-        }
     }
-    Text(if (counselor) "我的个案" else "我的任务", style = MaterialTheme.typography.titleLarge)
     s.data["list"]?.let { page ->
         val rows =
-            page.rows().let {
-                if (counselor) it.filter { k -> k.text("counselor_id") == s.user?.text("id") }
+            page.rows().filter {
+                if (counselor) it.text("counselor_id") == s.user?.text("id")
                 else
-                    it.filter { t ->
-                        t.text("learner_id") == s.user?.text("id") &&
-                            t.text("status") !in setOf("completed", "cancelled")
-                    }
+                    it.text("learner_id") == s.user?.text("id") &&
+                        it.text("status") !in setOf("completed", "cancelled")
             }
-        if (rows.isEmpty())
-            Empty(
-                if (counselor) "暂时没有已分配个案" else "暂时没有待完成的任务",
-                if (counselor) "管理员分配个案后，会显示在这里。" else "辅导员准备好下一次训练后，它会出现在这里。也可以先完善个人资料。",
-            )
-        rows.forEach { if (counselor) CaseCard(it, m) else TaskCard(it, m) }
-        More(page, s) { m.more("list", if (counselor) "/cases?limit=20" else "/tasks?limit=20") }
-    }
-    if (!counselor) {
-        Action("完善个人资料", secondary = true) { m.navigate(Route(Page.PROFILE)) }
-        s.data["cases"]
-            ?.rows()
-            ?.filter { it.text("learner_id") == s.user?.text("id") }
-            ?.forEach { k ->
-                Action("联系辅导员", secondary = true) {
-                    m.navigate(Route(Page.NEW_SUPPORT, k.text("id")))
+        if (counselor) {
+            QCard {
+                Heading("继续跟进", "从已授权的个案继续工作")
+                Action("全部个案", secondary = true) { m.root(Page.CASES) }
+                if (rows.isEmpty()) {
+                    QIcon(R.drawable.ic_users)
+                    Text("还没有分配的个案")
+                    Meta("分配完成后，学员资料与训练进度会出现在这里。")
+                    Action("完善个人资料", secondary = true) { m.navigate(Route(Page.PROFILE)) }
+                }
+                rows.take(5).forEach { k ->
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        QIcon(R.drawable.ic_user)
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                "个案 #${k.text("id").take(8)}",
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                            Meta(label(k.text("display_status")))
+                        }
+                        Action("查看", secondary = true) {
+                            m.navigate(Route(Page.CASE, k.text("id")))
+                        }
+                    }
                 }
             }
+            QCard {
+                Text("支持流程", style = MaterialTheme.typography.titleLarge)
+                Meta("保留清晰、可回看的每一步。")
+                listOf(
+                        "了解与匹配" to "阅读资料，确认支持方向。",
+                        "安排训练" to "把岗位任务拆成具体步骤。",
+                        "反馈与跟进" to "查看提交，给出明确的下一步。",
+                    )
+                    .forEachIndexed { i, (title, body) ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Pill((i + 1).toString())
+                            Column {
+                                Text(title, style = MaterialTheme.typography.titleMedium)
+                                Meta(body)
+                            }
+                        }
+                    }
+                Action("进入个案管理", modifier = Modifier.fillMaxWidth()) { m.root(Page.CASES) }
+            }
+            s.data["dashboard"]
+                ?.text("as_of")
+                ?.takeIf { it.isNotEmpty() }
+                ?.let { Meta("数据更新于 ${dateLabel(it)}。只展示你有权访问的个案与训练。") }
+        } else {
+            if (rows.isEmpty())
+                LearnerEmpty(
+                    "暂时没有待完成的任务",
+                    if (s.data["cases"]?.rows()?.isNotEmpty() == true)
+                        "辅导员准备好下一次训练后，它会出现在这里。你也可以回看已完成的训练。"
+                    else "先填写个人资料，让接下来的支持更适合你。个案分配完成后，你会在这里看到任务。",
+                ) {
+                    Action("完善个人资料", secondary = true) { m.navigate(Route(Page.PROFILE)) }
+                }
+            rows.forEach { TaskCard(it, m) }
+            More(page, s) { m.more("list", "/tasks?limit=20") }
+            Action("调整阅读与提醒", secondary = true) { m.navigate(Route(Page.PREFERENCES)) }
+            s.data["cases"]
+                ?.rows()
+                ?.filter { it.text("learner_id") == s.user?.text("id") }
+                ?.forEach { k ->
+                    Action("联系辅导员", secondary = true) {
+                        m.navigate(Route(Page.NEW_SUPPORT, k.text("id")))
+                    }
+                }
+        }
+    }
+}
+
+@Composable
+fun LearnerEmpty(title: String, body: String, content: @Composable ColumnScope.() -> Unit = {}) {
+    QCard {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Companion(framed = false, size = 80)
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (title.isNotEmpty()) Text(title, style = MaterialTheme.typography.titleLarge)
+                Meta(body)
+                content()
+            }
+        }
+        val motion = LocalCompanionMotion.current
+        TextButton(onClick = { motion.enabled = !motion.enabled }, enabled = !motion.reduced) {
+            Text(if (motion.reduced) "已按系统设置关闭动效" else if (motion.enabled) "暂停伙伴动效" else "开启伙伴动效")
+        }
     }
 }
 
 @Composable
 private fun TaskCard(task: JsonObject, m: JobLensModel) {
     QCard {
-        Pill(label(task.text("status")))
-        Text(task.text("title"), style = MaterialTheme.typography.titleLarge)
-        Text(task.obj("revision").text("goal"))
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                task.text("title"),
+                Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Pill(label(task.text("status")))
+        }
+        Meta(task.obj("revision").text("goal"))
         val total = task.obj("revision").rows("steps").size
         val done = task.rows("progress").count { it.text("status") == "completed" }
         LinearProgressIndicator(
             progress = { if (total > 0) done.toFloat() / total else 0f },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(6.dp),
         )
         Meta(
-            "已完成 $done / $total 步" +
+            "$done / $total 步" +
                 (task.text("due_on").takeIf(String::isNotEmpty)?.let { " · $it 前完成" } ?: "")
         )
-        Action(if (task.text("status") == "not_started") "查看任务" else "继续查看") {
+        Action(
+            when (task.text("status")) {
+                "submitted" -> "查看提交"
+                "changes_requested" -> "查看反馈"
+                "not_started" -> "查看任务"
+                else -> "继续任务"
+            },
+            modifier = Modifier.align(Alignment.End),
+        ) {
             m.navigate(Route(Page.TASK, task.text("id")))
         }
     }
@@ -118,7 +281,7 @@ fun CasesScreen(s: UiState, m: JobLensModel) {
 fun RecordsScreen(s: UiState, m: JobLensModel) {
     Heading("训练记录", "记录完成的过程，方便回看和沟通。")
     s.data["cases"]?.let { cases ->
-        if (cases.rows().isEmpty()) Empty("还没有训练记录", "开始第一次训练后，记录会出现在这里。")
+        if (cases.rows().isEmpty()) LearnerEmpty("", "开始第一次训练后，你的记录会出现在这里。")
         cases
             .rows()
             .filter { it.text("learner_id") == s.user?.text("id") }
@@ -195,21 +358,22 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
     val counselor = s.role == "counselor" && task.text("learner_id") != s.user?.text("id")
     val learner = s.role == "learner" && task.text("learner_id") == s.user?.text("id")
     val current = steps.firstOrNull { it.text("id") == task.text("current_step_id") }
-    Heading(task.text("title"), revision.text("goal"))
+    Text(task.text("title"), style = MaterialTheme.typography.titleMedium)
     Pill(label(status))
     if (task.text("due_on").isNotEmpty()) Meta("截止日期 · ${task.text("due_on")}")
     val done = progress.count { it.text("status") == "completed" }
     Meta("已完成 $done / ${steps.size} 步")
-    LinearProgressIndicator(
-        progress = { if (steps.isEmpty()) 0f else done.toFloat() / steps.size },
-        modifier = Modifier.fillMaxWidth(),
-    )
     if (learner) {
         when (status) {
             "not_started" ->
-                QCard {
-                    Brand(size = 52)
-                    Text("按自己的节奏，一次完成一步。")
+                TrainingFocus {
+                    Companion()
+                    Text(
+                        revision.text("goal"),
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                    Text("按自己的节奏，一次完成一步。", textAlign = TextAlign.Center)
                     Action("开始训练", !s.busy) {
                         m.write("POST", "/tasks/$tid/actions", json("action" to "start"), version) {
                             m.replaceData("task", it)
@@ -217,7 +381,8 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
                     }
                 }
             "paused" ->
-                QCard {
+                TrainingFocus {
+                    Companion()
                     Text("休息一下，也没关系。", style = MaterialTheme.typography.titleLarge)
                     Text("进度已保存，准备好后继续。")
                     Action("继续训练", !s.busy) {
@@ -232,7 +397,8 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
                     }
                 }
             "changes_requested" ->
-                QCard {
+                TrainingFocus {
+                    Companion()
                     Text("一起调整这几步。", style = MaterialTheme.typography.titleLarge)
                     Text(
                         s.data["submissions"]
@@ -252,17 +418,41 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
                         }
                     }
                 }
-            "submitted" -> Notice("结果已提交。辅导员审核后，反馈会出现在这里。")
-            "completed" -> Notice("这次训练完成了。你可以在记录中回顾这次练习。")
+            "submitted" ->
+                TrainingFocus {
+                    WorkIllustration(2)
+                    Text("结果已提交。", style = MaterialTheme.typography.headlineMedium)
+                    Text("辅导员审核后，反馈会出现在这里。", textAlign = TextAlign.Center)
+                    Action("查看最新反馈", secondary = true, click = m::load)
+                }
+            "completed" ->
+                TrainingFocus {
+                    Companion()
+                    Text("这次训练完成了。", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        s.data["submissions"]
+                            ?.rows()
+                            ?.firstOrNull()
+                            ?.obj("feedback")
+                            ?.text("message")
+                            ?.takeIf { it.isNotEmpty() } ?: "你可以在记录中回顾这次练习。",
+                        textAlign = TextAlign.Center,
+                    )
+                    Action("查看训练记录") { m.root(Page.RECORDS) }
+                }
             "cancelled" -> Notice("这项训练已结束。如有疑问，可以联系辅导员。")
             "in_progress" -> {
                 if (current != null)
                     key(current.text("id")) {
-                        QCard {
-                            Meta("当前 · 第 ${current.number("position")} 步")
+                        TrainingFocus {
+                            WorkIllustration(
+                                (current.number("position").toInt() - 1).coerceIn(0, 2)
+                            )
+                            Meta("第 ${current.number("position")} 步")
                             Text(
                                 current.text("instruction"),
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.headlineMedium,
+                                textAlign = TextAlign.Center,
                             )
                             var showHint by
                                 rememberSaveable(current.text("id")) { mutableStateOf(false) }
@@ -346,28 +536,32 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
             )
         }
     }
-    Text("所有步骤", style = MaterialTheme.typography.titleLarge)
-    steps.forEach { step ->
-        QCard {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Pill(
-                    if (
-                        progress.any {
-                            it.text("step_id") == step.text("id") &&
-                                it.text("status") == "completed"
-                        }
-                    )
-                        "✓"
-                    else step.number("position").toString()
-                )
-                Text(step.text("instruction"), Modifier.weight(1f))
-            }
-            if (step.flag("evidence_required")) Meta("需要附件")
-        }
+    var revealSteps by rememberSaveable(tid) { mutableStateOf(false) }
+    TextButton(onClick = { revealSteps = !revealSteps }) {
+        Text(if (revealSteps) "收起所有步骤" else "查看所有步骤")
     }
+    if (revealSteps)
+        steps.forEach { step ->
+            QCard {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Pill(
+                        if (
+                            progress.any {
+                                it.text("step_id") == step.text("id") &&
+                                    it.text("status") == "completed"
+                            }
+                        )
+                            "✓"
+                        else step.number("position").toString()
+                    )
+                    Text(step.text("instruction"), Modifier.weight(1f))
+                }
+                if (step.flag("evidence_required")) Meta("需要附件")
+            }
+        }
     Text("提交与反馈", style = MaterialTheme.typography.titleLarge)
     s.data["submissions"]?.let { page ->
         if (page.rows().isEmpty()) Meta("还没有提交记录。")
@@ -390,6 +584,23 @@ fun TaskScreen(s: UiState, m: JobLensModel) {
         More(page, s) { m.more("submissions", "/tasks/$tid/submissions?limit=20") }
     }
     s.sections["submissions"]?.let { Notice(it, true) }
+}
+
+@Composable
+private fun TrainingFocus(content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Column(
+            Modifier.heightIn(min = 400.dp).padding(horizontal = 16.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+            content = content,
+        )
+    }
 }
 
 @Composable

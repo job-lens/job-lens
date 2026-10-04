@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
@@ -80,24 +81,24 @@ fun JobLensTheme(content: @Composable () -> Unit) {
             Typography(
                 headlineLarge =
                     TextStyle(
-                        fontFamily = FontFamily.Serif,
+                        fontFamily = FontFamily(Font(R.font.joblens_auth_serif)),
                         fontWeight = FontWeight.Medium,
                         fontSize = 32.sp,
                         lineHeight = 46.sp,
                     ),
                 headlineMedium =
                     TextStyle(
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 28.sp,
-                        lineHeight = 40.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 26.sp,
+                        lineHeight = 39.sp,
                     ),
                 titleLarge =
                     TextStyle(
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 21.sp,
-                        lineHeight = 31.sp,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 19.sp,
+                        lineHeight = 28.sp,
                     ),
                 titleMedium =
                     TextStyle(
@@ -119,7 +120,7 @@ fun JobLensTheme(content: @Composable () -> Unit) {
                 large = RoundedCornerShape(28.dp),
                 extraLarge = RoundedCornerShape(32.dp),
             ),
-        content = content,
+        content = { CompanionMotionProvider(content) },
     )
 }
 

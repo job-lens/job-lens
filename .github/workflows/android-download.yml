@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with: {persist-credentials: false}
@@ -22,12 +22,32 @@ jobs:
         working-directory: native/joblens/android
         run: |
           set -euo pipefail
-          bash gradlew --no-daemon :core:test :app:assembleDebug :app:lintDebug
+          bash gradlew --no-daemon :core:test :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
           mkdir -p "$GITHUB_WORKSPACE/android-download"
           cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/android-download/joblens-android-test.apk"
           cd "$GITHUB_WORKSPACE/android-download"
           sha256sum joblens-android-test.apk > SHA256SUMS
+      - name: Enable ephemeral runner emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify the exact APK on Android
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: bash native/joblens/android/verification/run_ci_device.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-device-evidence
+          path: native/joblens/android/verification/ci-results/
+          retention-days: 14
       - uses: actions/upload-artifact@v4
         with: {name: android-download, path: android-download/, retention-days: 14}
   publish:

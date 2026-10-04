@@ -1,4 +1,4 @@
-# 融职境 · JobLens Android 0.1.0
+# 融职境 · JobLens Android 0.1.1
 
 真正的原生 Android 客户端，Kotlin + Jetpack Compose，无 WebView。连接固定 HTTPS 服务 `https://j.qunxue.xyz/api/v1`，不包含生产账号、演示账号或假业务数据。
 
@@ -62,3 +62,9 @@ cd android
 - 最终执行结果见交付包 `VERIFICATION.md`；不要把已编译的测试当成已在设备执行。
 
 Apache-2.0。保留上游 LICENSE。
+
+## 0.1.1 视觉核对
+
+按 Web e6a9c9f 对照认证、工作区、学员空态、所有训练状态和辅导员工作台。原版小融已用 Compose Canvas 重现，保留耳机、短发、蓝衣、分层张望、呼吸、眨眼、点击笑眼和密码聚焦闭眼。伙伴动效可持续暂停，并遵循系统减少动态设置。手机导航改为与 Web 一致的原生抽屉。完整核对见 `design/WEB-PARITY.md`。
+
+0.1.0 是已撤回视觉验收的测试候选，不应作为最终版发布。0.1.1 的新验收结果和真实截图以最终交付验证记录为准。
