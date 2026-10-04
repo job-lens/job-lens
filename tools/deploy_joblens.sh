@@ -105,13 +105,20 @@ if [[ "$web" == true ]]; then
   version=$(curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/version.json)
   python3 -c 'import json,sys; assert json.loads(sys.argv[1])["sha"] == sys.argv[2]' "$version" "$sha"
 fi
-for service in api worker; do
-  id=$("${compose[@]}" ps -q "$service")
-  [[ -n "$id" && $(docker inspect "$id" --format '{{.Image}}') == "$JOBLENS_API_IMAGE" ]]
-done
-[[ $("${compose[@]}" ps -q db) == "$previous_db" ]]
-[[ "$api" == true ]] || { [[ $("${compose[@]}" ps -q api) == "$previous_api" && $("${compose[@]}" ps -q worker) == "$previous_worker" ]]; }
-[[ "$web" == true ]] || [[ $("${compose[@]}" ps -q gateway) == "$previous_web" ]]
+current_id() {
+  docker ps -q --filter label=com.docker.compose.project=joblens-release --filter "label=com.docker.compose.service=$1"
+}
+if [[ "$api" == true ]]; then
+  for service in api worker; do
+    id=$(current_id "$service")
+    actual=$(docker inspect "$id" --format '{{.Image}}')
+    [[ -n "$id" && "$actual" == "$JOBLENS_API_IMAGE" ]] || { echo "Image identity failed for $service: actual=$actual expected=$JOBLENS_API_IMAGE" >&2; exit 1; }
+  done
+else
+  [[ $(current_id api) == "$previous_api" && $(current_id worker) == "$previous_worker" ]] || { echo 'An unaffected application container changed' >&2; exit 1; }
+fi
+[[ $(current_id db) == "$previous_db" ]] || { echo 'Database container changed unexpectedly' >&2; exit 1; }
+[[ "$web" == true ]] || [[ $(current_id gateway) == "$previous_web" ]] || { echo 'Unaffected gateway changed unexpectedly' >&2; exit 1; }
 printf '%s\n' "$sha" > "$root/deployed-sha.tmp"
 mv "$root/deployed-sha.tmp" "$root/deployed-sha"
 changed=false
