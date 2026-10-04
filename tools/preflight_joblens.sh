@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Read-only host gate before transferring/loading images. No Windup commands.
 set -euo pipefail
-bytes=${1:?Pass total compressed bundle bytes}
+bytes=${1:?Pass peak additional disk requirement bytes}
 [[ "$bytes" =~ ^[0-9]+$ ]] || exit 2
 [[ -d /opt/job-lens && -f /etc/job-lens/joblens.env ]] || {
   echo 'Missing separately provisioned JobLens directory/configuration' >&2; exit 1;
 }
 [[ $(stat -c %a /etc/job-lens/joblens.env) == 600 ]] || exit 1
-# Conservative transfer + image-layer + runtime/backup allowance. Do not prune.
+# Caller counts only missing blobs, streaming import peak, and runtime allowance.
 free_bytes=$(df --output=avail -B1 /opt/job-lens | tail -1 | tr -d ' ')
-(( free_bytes > bytes * 4 + 2147483648 )) || {
+printf "Disk free bytes=%s; incremental peak requirement bytes=%s\n" "$free_bytes" "$bytes"
+(( free_bytes > bytes )) || {
   echo 'Insufficient disk headroom; do not clean or resize Windup automatically' >&2; exit 1;
 }
 # This is a floor, not proof of peak shared-host safety. Existing services retain their caps.
