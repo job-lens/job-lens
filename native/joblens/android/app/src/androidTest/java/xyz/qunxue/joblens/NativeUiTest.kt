@@ -1,6 +1,7 @@
 package xyz.qunxue.joblens
 
 import android.app.Application
+import android.os.SystemClock
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
@@ -329,9 +330,8 @@ class NativeUiTest {
             }
             mount(UiState(loading = false))
             fun pixels(frame: String): Int {
-                compose
-                    .waitForIdle() // Await Android drawing as well as the manually advanced Compose
-                                   // frame.
+                // Await Android drawing as well as the manually advanced Compose frame.
+                compose.waitForIdle()
                 val bmp =
                     compose
                         .onNodeWithContentDescription("陪你做事的小伙伴")
@@ -341,7 +341,7 @@ class NativeUiTest {
                 bmp.copyPixelsToBuffer(buffer)
                 val hash = buffer.array().contentHashCode()
                 diagnostics.appendText(
-                    "$frame clock=${compose.mainClock.currentTime} hash=$hash lifecycle=${compose.activity.lifecycle.currentState}\n"
+                    "$frame clock=${compose.mainClock.currentTime} uptime=${SystemClock.uptimeMillis()} hash=$hash lifecycle=${compose.activity.lifecycle.currentState}\n"
                 )
                 shot(frame) // Preserve labeled, full-screen evidence before any assertion can fail.
                 return hash
@@ -354,6 +354,19 @@ class NativeUiTest {
             assertTrue("Original Buddy layers should move", movingA != movingB)
             compose.onNodeWithContentDescription("暂停伙伴动效").performClick()
             compose.mainClock.advanceTimeBy(32)
+            compose.onNodeWithContentDescription("开启伙伴动效").assertExists()
+            pixels("motion-03-pause-click")
+            // captureToImage includes the IconButton drawn over the Canvas. Its native
+            // RippleDrawable runs on Android's clock, independently of mainClock. Preserve
+            // the immediate click frame, then settle that finite indication on both clocks
+            // before comparing the complete, unmasked Canvas pixels. Keep autoAdvance false
+            // so a mistakenly running Buddy cannot be cancelled by InfiniteAnimationPolicy.
+            val rippleSettleMillis = (1000 * animatorScale).toLong().coerceAtLeast(1000)
+            val rippleDeadline = SystemClock.uptimeMillis() + rippleSettleMillis
+            compose.mainClock.advanceTimeBy(rippleSettleMillis)
+            compose.waitUntil(timeoutMillis = rippleSettleMillis + 2000) {
+                SystemClock.uptimeMillis() >= rippleDeadline
+            }
             val pausedA = pixels("motion-03-paused-a")
             compose.mainClock.advanceTimeBy(1800)
             val pausedB = pixels("motion-04-paused-b")
