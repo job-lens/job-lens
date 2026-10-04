@@ -2,14 +2,13 @@
 
 import re
 from contextlib import contextmanager
-from io import BytesIO
 from unittest.mock import MagicMock
-from urllib.error import HTTPError
 
 import pytest
 from app.core.config import Settings
 from app.main import create_app
 from fastapi.testclient import TestClient
+from resend.exceptions import ResendError
 
 
 class DatabaseStub:
@@ -40,15 +39,15 @@ def test_delivery_warning_matches_public_response_trace(
 
     def transport(*args, **kwargs):
         calls.append(1)
-        raise HTTPError(
-            "https://api.resend.com/emails",
-            403,
-            "private-provider-message",
-            {},
-            BytesIO(b'{"name":"validation_error","message":"private-provider-message"}'),
+        raise ResendError(
+            code=403,
+            error_type="validation_error",
+            message="private-provider-message",
+            suggested_action="private-provider-action",
+            headers={"private-header": "private-value"},
         )
 
-    monkeypatch.setattr("app.infrastructure.email.urlopen", transport)
+    monkeypatch.setattr("app.infrastructure.email.resend.Emails.send", transport)
     with TestClient(create_app(settings, DatabaseStub())) as client:
         result = client.post(
             f"/api/v1/auth/{path}",
