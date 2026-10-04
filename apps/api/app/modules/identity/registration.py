@@ -35,9 +35,15 @@ def email_budget(s: Session, email: str, purpose: str, client: str, now: datetim
 
 
 def request_email(
-    s: Session, config: Settings, email: str, purpose: str, client: str, now: datetime
+    s: Session,
+    config: Settings,
+    email: str,
+    purpose: str,
+    client: str,
+    now: datetime,
+    trace_id: str = "unknown",
 ) -> None:
-    require_delivery(config)
+    require_delivery(config, trace_id)
     email_budget(s, email, purpose, client, now)
     with s.begin_nested():
         record = s.scalar(
@@ -72,7 +78,7 @@ def request_email(
             subject = "融职境 · 设置新密码"
         s.add(record)
         s.flush()
-        send_email(config, email, subject, text)
+        send_email(config, email, subject, text, trace_id)
 
 
 def register(
