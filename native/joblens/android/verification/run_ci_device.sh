@@ -75,9 +75,15 @@ def login_visible(xml):
     nodes = list(ET.fromstring(xml).iter("node"))
     nodes = [n for n in nodes if n.get("package") == "xyz.qunxue.joblens"
              and n.get("bounds") not in (None, "[0,0][0,0]")]
-    return (any(n.get("content-desc") == "账号" for n in nodes)
-            and any(n.get("content-desc") == "密码" for n in nodes)
-            and any(n.get("text") == "登录" and n.get("clickable") == "true" for n in nodes))
+    fields = [n for n in nodes if n.get("class") == "android.widget.EditText"
+              and n.get("enabled") == "true"]
+    def labelled(node, label):
+        return any(child.get("content-desc") == label for child in node.iter("node"))
+    return (any(labelled(n, "账号") and n.get("password") == "false" for n in fields)
+            and any(labelled(n, "密码") and n.get("password") == "true" for n in fields)
+            and any(n.get("clickable") == "true" and n.get("enabled") == "true"
+                    and any(child.get("text") == "登录" for child in n.iter("node"))
+                    for n in nodes))
 
 def main():
     deadline = time.monotonic() + 60
