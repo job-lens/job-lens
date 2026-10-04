@@ -21,7 +21,7 @@ def inbox(monkeypatch):
     sent = []
     monkeypatch.setattr(
         "app.modules.identity.registration.send_email",
-        lambda config, email, subject, text: sent.append((email, subject, text)),
+        lambda config, email, subject, text, trace_id: sent.append((email, subject, text)),
     )
     return sent
 
