@@ -60,36 +60,11 @@ jobs:
           : "${DEPLOY_USER:?Missing JOBLENS_DEPLOY_USER}"
           : "${SSHPASS:?Missing JOBLENS_DEPLOY_PASSWORD}"
           : "${KNOWN_HOSTS:?Missing JOBLENS_DEPLOY_KNOWN_HOSTS}"
-      - name: Build on runner and package exact images
-        env:
-          SHA: ${{ steps.release.outputs.sha }}
-        run: |
-          set -euo pipefail
-          mkdir bundle
-          printf '{"sha":"%s"}\n' "$SHA" > apps/web/public/version.json
-          docker build --platform linux/amd64 --label "org.opencontainers.image.revision=$SHA" -t "joblens-api:$SHA" -f infra/api.Dockerfile .
-          docker build --platform linux/amd64 --label "org.opencontainers.image.revision=$SHA" -t "joblens-web:$SHA" -f infra/web.Dockerfile .
-          docker pull postgres:17-bookworm
-          docker tag postgres:17-bookworm "joblens-postgres:$SHA"
-          for image in api web postgres; do
-            name="joblens-$image:$SHA"
-            docker image inspect "$name" --format '{{.RepoTags}} {{.Id}}' >/dev/null
-            printf '%s %s\n' "$name" "$(docker image inspect "$name" --format '{{.Id}}')" >> bundle/image-ids.txt
-            docker save "$name" | gzip -1 > "bundle/$image.tar.gz"
-          done
-          python tools/verify_image_identity.py record bundle/image-identities.json bundle "$SHA"
-          cp tools/verify_image_identity.py bundle/
-          cp infra/compose.production.yaml infra/Caddyfile.production tools/deploy_joblens.sh bundle/
-          (cd bundle && sha256sum *.tar.gz image-ids.txt image-identities.json verify_image_identity.py compose.production.yaml Caddyfile.production deploy_joblens.sh > SHA256SUMS)
-      - uses: actions/upload-artifact@v4
-        with:
-          name: joblens-${{ steps.release.outputs.sha }}
-          path: bundle/
-          retention-days: 7
-      - name: Install SSH client
-        run: sudo apt-get update -qq && sudo apt-get install -y sshpass
-      - name: Transfer and deploy only the JobLens project
-        env:
+      - name: Install transfer client
+        run: sudo apt-get update -qq && sudo apt-get install -y sshpass rsync
+      - name: Read actual production baseline and select services
+        id: scope
+        env: &ssh-env
           DEPLOY_HOST: ${{ secrets.JOBLENS_DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.JOBLENS_DEPLOY_USER }}
           SSHPASS: ${{ secrets.JOBLENS_DEPLOY_PASSWORD }}
@@ -99,20 +74,91 @@ jobs:
           set -euo pipefail
           umask 077
           printf '%s\n' "$KNOWN_HOSTS" > "$RUNNER_TEMP/joblens-known-hosts"
-          options=(-o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/joblens-known-hosts" -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=15)
-          bytes=$(du -sb bundle | cut -f1)
-          sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "bash -s -- $bytes" < tools/preflight_joblens.sh
-          # First install is separately provisioned; do not create identities or credentials here.
-          sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "test -f /etc/job-lens/joblens.env && test -f /opt/job-lens/runtime-override.yaml && test -d /opt/job-lens && mkdir -p /opt/job-lens/releases/$SHA"
-          sshpass -e scp "${options[@]}" bundle/* "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/releases/$SHA/"
-          sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" \
-            "bash /opt/job-lens/releases/$SHA/deploy_joblens.sh $SHA"
-      - name: Verify public health and release version
+          cat > "$RUNNER_TEMP/joblens-ssh.sh" <<'SH'
+          options=(-o StrictHostKeyChecking=yes -o UserKnownHostsFile="$RUNNER_TEMP/joblens-known-hosts" -o PreferredAuthentications=password -o PubkeyAuthentication=no -o ConnectTimeout=15 -o ServerAliveInterval=15)
+          remote() { sshpass -e ssh "${options[@]}" "$DEPLOY_USER@$DEPLOY_HOST" "$@"; }
+          SH
+          source "$RUNNER_TEMP/joblens-ssh.sh"
+          base=$(remote 'cat /opt/job-lens/deployed-sha')
+          python tools/release_scope.py "$base" "$SHA" > scope.json
+          for key in api web migrations; do echo "$key=$(jq -r .$key scope.json)" >> "$GITHUB_OUTPUT"; done
+          cat scope.json >> "$GITHUB_STEP_SUMMARY"
+      - uses: docker/setup-buildx-action@v3
+        if: steps.scope.outputs.api == 'true' || steps.scope.outputs.web == 'true'
+      - name: Build affected API with persistent cache
+        if: steps.scope.outputs.api == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/api.Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: joblens-api:${{ steps.release.outputs.sha }}
+          labels: org.opencontainers.image.revision=${{ steps.release.outputs.sha }}
+          cache-from: type=gha,scope=joblens-api
+          cache-to: type=gha,mode=max,scope=joblens-api
+      - name: Stamp affected frontend
+        if: steps.scope.outputs.web == 'true'
+        env:
+          SHA: ${{ steps.release.outputs.sha }}
+        run: printf '{"sha":"%s"}\n' "$SHA" > apps/web/public/version.json
+      - name: Build affected web with persistent cache
+        if: steps.scope.outputs.web == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/web.Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: joblens-web:${{ steps.release.outputs.sha }}
+          labels: org.opencontainers.image.revision=${{ steps.release.outputs.sha }}
+          cache-from: type=gha,scope=joblens-web
+          cache-to: type=gha,mode=max,scope=joblens-web
+      - name: Record exact identities and layer recipes
+        if: steps.scope.outputs.api == 'true' || steps.scope.outputs.web == 'true'
         env:
           SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
+          mkdir -p bundle blobs
+          cp scope.json bundle/release.json
+          cp infra/compose.production.yaml infra/Caddyfile.production tools/deploy_joblens.sh tools/image_layers.py tools/verify_image_identity.py bundle/
+          python tools/package_incremental.py "$SHA"
+          (cd bundle && sha256sum * > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        if: steps.scope.outputs.api == 'true' || steps.scope.outputs.web == 'true'
+        with:
+          name: joblens-${{ steps.release.outputs.sha }}
+          path: bundle/
+          retention-days: 7
+      - name: Transfer missing content and update affected services
+        if: steps.scope.outputs.api == 'true' || steps.scope.outputs.web == 'true'
+        env: *ssh-env
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/joblens-ssh.sh"
+          bytes=$(du -sb blobs bundle | awk '{sum+=$1} END {print sum}')
+          remote "bash -s -- $bytes" < tools/preflight_joblens.sh
+          remote "test -f /opt/job-lens/runtime-override.yaml && mkdir -p /opt/job-lens/releases/$SHA /opt/job-lens/image-blobs"
+          sshpass -e scp "${options[@]}" bundle/* "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/releases/$SHA/"
+          # Content addressed names are immutable; rsync atomically installs each missing file.
+          sshpass -e rsync -az --ignore-existing --stats -e "ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/joblens-known-hosts -o PreferredAuthentications=password -o PubkeyAuthentication=no" blobs/ "$DEPLOY_USER@$DEPLOY_HOST:/opt/job-lens/image-blobs/" | tee transfer-stats.txt
+          cat transfer-stats.txt >> "$GITHUB_STEP_SUMMARY"
+          remote "bash /opt/job-lens/releases/$SHA/deploy_joblens.sh $SHA" | tee deployment-receipt.txt
+          cat deployment-receipt.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Advance evaluated revision without rebuilding or restarting
+        if: steps.scope.outputs.api != 'true' && steps.scope.outputs.web != 'true'
+        env: *ssh-env
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/joblens-ssh.sh"
+          remote "flock -n /opt/job-lens/deploy.lock bash -c 'printf %s $SHA > /opt/job-lens/deployed-sha.tmp; mv /opt/job-lens/deployed-sha.tmp /opt/job-lens/deployed-sha'"
+          echo 'Business build=0; artifact upload bytes=0; restarted services=[]' >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify public health and service release versions
+        env: *ssh-env
+        run: |
+          set -euo pipefail
           curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/api/v1/health/ready | jq -e '.status == "ok"'
-          curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/version.json | jq -e --arg sha "$SHA" '.sha == $sha'
-          printf 'Verified HTTPS, readiness and public revision %s\n' "$SHA" >> "$GITHUB_STEP_SUMMARY"
+          if [[ '${{ steps.scope.outputs.web }}' == true ]]; then
+            curl --fail --silent --show-error --max-time 15 https://j.qunxue.xyz/version.json | jq -e --arg sha "$SHA" '.sha == $sha'
+          fi

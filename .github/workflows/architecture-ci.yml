@@ -9,6 +9,39 @@ concurrency:
   group: architecture-ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      api: ${{ steps.scope.outputs.api }}
+      web: ${{ steps.scope.outputs.web }}
+      delivery: ${{ steps.scope.outputs.delivery }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false, fetch-depth: 0}
+      - id: scope
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          python tools/release_scope.py "$BASE" "$(git rev-parse HEAD)" > changes.json
+          for key in api web; do echo "$key=$(jq -r .$key changes.json)" >> "$GITHUB_OUTPUT"; done
+          if git diff --name-only "$BASE" HEAD | grep -Eq '^(tools/|tests/architecture/test_(incremental_delivery|image_identity|lightweight_deploy|isolated_deploy)|.github/workflows/)'; then
+            echo 'delivery=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'delivery=false' >> "$GITHUB_OUTPUT"
+          fi
+  delivery:
+    needs: changes
+    if: needs.changes.outputs.delivery == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: astral-sh/setup-uv@v6
+        with: {version: '0.8.15', python-version: '3.13'}
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run pytest tests/architecture/test_incremental_delivery.py tests/architecture/test_image_identity.py tests/architecture/test_lightweight_deploy.py tests/architecture/test_isolated_deploy.py
   source:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
@@ -19,6 +52,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: {name: foundation-source, path: foundation-source.tar, retention-days: 3}
   backend:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
@@ -50,6 +85,8 @@ jobs:
         if: always()
         with: {name: python-results, path: test-results, retention-days: 7}
   frontend:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -66,6 +103,8 @@ jobs:
       - run: pnpm generate:api
       - run: git diff --exit-code -- apps/web/src/shared/api/schema.d.ts
   containers:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
